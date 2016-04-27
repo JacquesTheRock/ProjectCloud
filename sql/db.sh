@@ -4,6 +4,7 @@ DBCOMMAND="psql -U ${USER} -f"
 DELDIR=delete
 TABLEDIR=tables
 POPDIR=info
+files='god.sql ring.sql player.sql'
 
 
 usage() {
@@ -15,16 +16,23 @@ usage() {
 	echo -e "\ttable) \n\t\tCreates tables with no data"
 	echo -e "\tinfo) \n\t\tPopulates tables with default data"
 }
+runscripts() {
+	local scriptDir=$1
+	for file in $files; do
+		${DBCOMMAND} ${scriptDir}/$file ${DBNAME} ;
+	done
+}
+
 info() {
-	find ${POPDIR} -type f -name "*.sql" -exec ${DBCOMMAND} {} ${DBNAME} \;
+	runscripts "${POPDIR}"
 }
 
 table() {
-	find ${TABLEDIR} -type f -name "*.sql" -exec ${DBCOMMAND} {} ${DBNAME} \;
+	runscripts "${TABLEDIR}"
 }
 
 delete() {
-	find ${DELDIR} -type f -name "*.sql" -exec ${DBCOMMAND} {} ${DBNAME} \;
+	runscripts "${DELDIR}"
 }
 
 init() {

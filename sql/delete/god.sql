@@ -1,2 +1,2 @@
-DROP TABLE godaffinity;
-DROP TABLE god;
+DROP TABLE godaffinity CASCADE;
+DROP TABLE god CASCADE;
