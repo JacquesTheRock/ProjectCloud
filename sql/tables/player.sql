@@ -3,6 +3,12 @@ CREATE TABLE IF NOT EXISTS player (
 	name VARCHAR(30),
 	god_id INTEGER,
 	element_id INTEGER,
+	intelligence INTEGER,
+	strength INTEGER,
+	wisdom INTEGER,
+	agility INTEGER,
+	life INTEGER,
+	vitality INTEGER,
 	PRIMARY KEY (id),
 	FOREIGN KEY (god_id) REFERENCES god(id) ON DELETE CASCADE,
 	FOREIGN KEY (element_id) REFERENCES god(id) ON DELETE CASCADE
