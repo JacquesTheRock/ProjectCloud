@@ -118,8 +118,8 @@ func apiPlayerSearch(w http.ResponseWriter, r *http.Request) {
 func apiGemSearch(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	id,err := strconv.ParseInt(r.FormValue("id"),10,64)
-	name := r.FormValue("name")
-	description := r.FormValue("description")
+	name := "%" + r.FormValue("name") + "%"
+	description := "%" + r.FormValue("description") + "%"
 	tier, err := strconv.ParseInt(r.FormValue("tier"),10,8)
 	results, err := searchGem(Gem{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
@@ -171,41 +171,43 @@ func searchGem(g Gem) ([]Gem, error) {
 	var output []Gem
 	const qBase string = "SELECT id, name, description, tier FROM gem"
 	var query string = qBase
-	a := []interface{}{} //empty arg array
+	a := make([]interface{}, 0) //empty arg array
 	if g.ID != 0 || g.Name != "" || g.Tier != 0 || g.Description != "" {
 		query = query + " WHERE "
-		var count int = 0
+		var count int64 = 0
 		if g.ID != 0 {
-			count ++;
 			a = append(a, g.ID)
-			query = query + "id = ?"
+			count++
+			query = query + "id = $" + strconv.FormatInt(count,10)
 		}
 		if g.Name != "" {
 			if count > 0 {
 				query = query + " AND "
 			}
 			a = append(a, g.Name)
-			count++;
-			query = query + "name LIKE %?%"
+			count++
+			query = query + "name LIKE $" +
+				strconv.FormatInt(count,10)
 		}
 		if g.Tier != 0 {
 			if count > 0 {
 				query = query + " AND "
 			}
-			count++;
 			a = append(a, g.Tier)
-			query = query + "tier = ?"
+			count++
+			query = query + "tier = $" + strconv.FormatInt(count,10)
 		}
 		if g.Description != "" {
 			if count > 0 {
 				query = query + " AND "
 			}
 			a = append(a,g.Description)
-			count++;
-			query = query + "Description LIKE %?%"
+			count++
+			query = query + "Description LIKE $" +
+				strconv.FormatInt(count,10)
 		}
 	}
-	rows, err := database.Query(query,a)
+	rows, err := database.Query(query,a...)
 	if err != nil {
 		fmt.Printf("Error in Execution: %s\n", err)
 		fmt.Printf("Query Failed: %s with values: %s \n",query, a)
@@ -230,7 +232,7 @@ func init() {
 		panic(fmt.Sprintf("Cannot read database info located at: %s", dbFile))
 	}
 	if databaseConnection.URL == "" {
-		databaseConnection.URL = fmt.Sprintf("postgres://%s:%s@%s/%s", databaseConnection.Username, databaseConnection.Password, databaseConnection.Host, databaseConnection.Dbname)
+		databaseConnection.URL = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", databaseConnection.Username, databaseConnection.Password, databaseConnection.Host, databaseConnection.Dbname)
 		fmt.Printf("No URL Supplied, Deriving URL from parameters. %s\n", databaseConnection)
 	} else {
 		fmt.Printf("Database Using URL value, ignoring others\n")
