@@ -24,10 +24,27 @@ type DatabaseConnection struct {
 	URL string
 }
 
+type Gem struct {
+	ID int64
+	Name string
+	Description string
+	Tier int8
+}
+
+
+type Band struct {
+	ID int64
+	Name string
+	Description string
+	Tier int8
+}
+
+
 type Ring struct {
-	Gem string
-	Band string
-	Effect string
+	Gem Gem
+	Band Band
+	EquipEffect string
+	SkillEffect string
 }
 
 type Equipment struct {
@@ -44,6 +61,7 @@ type Equipment struct {
 }
 
 type Player struct {
+	ID int64
 	Name string
 	God string
 	Affinity string
@@ -87,6 +105,63 @@ func apiEnemySearch(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "A string")
 }
 
+func apiPlayerSearch(w http.ResponseWriter, r *http.Request) {
+	results,err := searchPlayer(Player{ID: 1})
+	if err != nil {
+		fmt.Printf("Player Search Failure: %s", err)
+		return
+	}
+	encoder := json.NewEncoder(w)
+	for i := 0; i < len(results); i++ {
+		encoder.Encode(results)
+	}
+}
+
+func apiGemSearch(w http.ResponseWriter, r *http.Request) {
+	encoder := json.NewEncoder(w)
+	encoder.Encode(Gem{})
+}
+
+func apiBandSearch(w http.ResponseWriter, r *http.Request) {
+	encoder := json.NewEncoder(w)
+	encoder.Encode(Band{})
+}
+
+func apiRingSearch(w http.ResponseWriter, r *http.Request) {
+	encoder := json.NewEncoder(w)
+	encoder.Encode(Ring{})
+}
+
+
+func searchPlayer(p Player) ([]Player,error) {
+	var output []Player
+	rows, err := database.Query("SELECT id, name, intelligence, strength, wisdom," +
+		"agility, life FROM player WHERE id = $1", p.ID)
+	if err != nil {
+		fmt.Println(err)
+		return output, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var player Player
+		err := rows.Scan(&player.ID, &player.Name, &player.Intelligence,
+			&player.Strength, &player.Wisdom, &player.Agility, &player.Life)
+		if err != nil{
+			fmt.Println(err)
+		} else {
+			if cap(output) != len(output) {
+				last := len(output)
+				output = output[0:last + 1]
+				output[last] =  player
+			} else {
+				break
+			}
+		}
+	}
+	return output, err
+}
+
+
 func init() {
 	databaseConnection, err := getDatabaseConnectionInfo(dbFile)
 	if err != nil {
@@ -107,5 +182,10 @@ func init() {
 func main() {
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/api",apiReference)
+	http.HandleFunc("/api/entity/enemy/", apiEnemySearch)
+	http.HandleFunc("/api/entity/player/", apiPlayerSearch)
+	http.HandleFunc("/api/item/gem/", apiGemSearch)
+	http.HandleFunc("/api/item/band/", apiBandSearch)
+	http.HandleFunc("/api/item/ring/", apiRingSearch)
 	http.ListenAndServe(":8080", nil)
 }
