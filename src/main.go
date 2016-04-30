@@ -131,13 +131,33 @@ func apiGemSearch(w http.ResponseWriter, r *http.Request) {
 
 func apiBandSearch(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
-	encoder.Encode(Band{})
+	id,err := strconv.ParseInt(r.FormValue("id"),10,64)
+	name := "%" + r.FormValue("name") + "%"
+	description := "%" + r.FormValue("description") + "%"
+	tier, err := strconv.ParseInt(r.FormValue("tier"),10,8)
+	results, err := searchBand(Band{ID: id, Name: name, Tier: int8(tier), Description: description})
+	if err != nil {
+		fmt.Println("Band Search Failure")
+		return
+	}
+	encoder.Encode(results)
 }
 
 func apiRingSearch(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
-	encoder.Encode(Ring{})
+	results, err := searchRing(Ring{})
+	if err != nil {
+		fmt.Println("Ring Search failures")
+		return
+	}
+	encoder.Encode(results)
 }
+
+func searchRing(r Ring) ([]Ring,error) {
+	var output []Ring
+	return output, nil
+}
+
 
 func searchPlayer(p Player) ([]Player, error) {
 	var output []Player
@@ -221,6 +241,65 @@ func searchGem(g Gem) ([]Gem, error) {
 			fmt.Println(output)
 		} else {
 			output = append(output, gem)
+		}
+	}
+	return output, nil
+}
+
+func searchBand(b Band) ([]Band, error) {
+	var output []Band
+	const qBase string = "SELECT id, name, description, tier FROM band"
+	var query string = qBase
+	a := make([]interface{}, 0) //empty arg array
+	if b.ID != 0 || b.Name != "" || b.Tier != 0 || b.Description != "" {
+		query = query + " WHERE "
+		var count int64 = 0
+		if b.ID != 0 {
+			a = append(a, b.ID)
+			count++
+			query = query + "id = $" + strconv.FormatInt(count,10)
+		}
+		if b.Name != "" {
+			if count > 0 {
+				query = query + " AND "
+			}
+			a = append(a, b.Name)
+			count++
+			query = query + "name LIKE $" +
+				strconv.FormatInt(count,10)
+		}
+		if b.Tier != 0 {
+			if count > 0 {
+				query = query + " AND "
+			}
+			a = append(a, b.Tier)
+			count++
+			query = query + "tier = $" + strconv.FormatInt(count,10)
+		}
+		if b.Description != "" {
+			if count > 0 {
+				query = query + " AND "
+			}
+			a = append(a,b.Description)
+			count++
+			query = query + "Description LIKE $" +
+				strconv.FormatInt(count,10)
+		}
+	}
+	rows, err := database.Query(query,a...)
+	if err != nil {
+		fmt.Printf("Error in Execution: %s\n", err)
+		fmt.Printf("Query Failed: %s with values: %s \n",query, a)
+		return output, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var band Band
+		err = rows.Scan(&band.ID, &band.Name, &band.Description, &band.Tier)
+		if err != nil {
+			fmt.Println(output)
+		} else {
+			output = append(output, band)
 		}
 	}
 	return output, nil
