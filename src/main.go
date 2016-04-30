@@ -40,6 +40,8 @@ type Band struct {
 }
 
 type Ring struct {
+	ID          int64
+	Name        string
 	Gem         Gem
 	Band        Band
 	EquipEffect string
@@ -118,8 +120,8 @@ func apiPlayerSearch(w http.ResponseWriter, r *http.Request) {
 func apiGemSearch(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	id,err := strconv.ParseInt(r.FormValue("id"),10,64)
-	name := "%" + r.FormValue("name") + "%"
-	description := "%" + r.FormValue("description") + "%"
+	name := r.FormValue("name")
+	description := r.FormValue("description")
 	tier, err := strconv.ParseInt(r.FormValue("tier"),10,8)
 	results, err := searchGem(Gem{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
@@ -131,10 +133,10 @@ func apiGemSearch(w http.ResponseWriter, r *http.Request) {
 
 func apiBandSearch(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
-	id,err := strconv.ParseInt(r.FormValue("id"),10,64)
-	name := "%" + r.FormValue("name") + "%"
-	description := "%" + r.FormValue("description") + "%"
-	tier, err := strconv.ParseInt(r.FormValue("tier"),10,8)
+	id,_ := strconv.ParseInt(r.FormValue("id"),10,64)
+	name := r.FormValue("name")
+	description := r.FormValue("description")
+	tier,_ := strconv.ParseInt(r.FormValue("tier"),10,8)
 	results, err := searchBand(Band{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
 		fmt.Println("Band Search Failure")
@@ -145,7 +147,15 @@ func apiBandSearch(w http.ResponseWriter, r *http.Request) {
 
 func apiRingSearch(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
-	results, err := searchRing(Ring{})
+	id,_ := strconv.ParseInt(r.FormValue("id"),10,64)
+	name := r.FormValue("name")
+	gemid,_ := strconv.ParseInt(r.FormValue("gemid"),10,64)
+	bandid,_ := strconv.ParseInt(r.FormValue("bandid"),10,64)
+	search := Ring{ID: id,
+		Name: name,
+		Gem: Gem{ID: gemid},
+		Band: Band{ID: bandid}}
+	results, err := searchRing(search)
 	if err != nil {
 		fmt.Println("Ring Search failures")
 		return
@@ -155,6 +165,66 @@ func apiRingSearch(w http.ResponseWriter, r *http.Request) {
 
 func searchRing(r Ring) ([]Ring,error) {
 	var output []Ring
+	a := make([]interface{},0)
+	query :=  "SELECT id,name,gem_id,band_id FROM ring"
+	where := ""
+	var count int64 = 0
+	if r.Name != "" {
+		if count > 0 {
+			where = where + " AND "
+		}
+		count++
+		a = append(a, r.Name)
+		where = where + "name LIKE $" + strconv.FormatInt(count,10)
+	}
+	if r.ID != 0 {
+		if count > 0 {
+			where = where + " AND "
+		}
+		count++
+		a = append(a, r.ID)
+		where = "id = $" + strconv.FormatInt(count,10)
+	}
+	if r.Gem.ID != 0 {
+		if count > 0 {
+			where = where + " AND "
+		}
+		count++
+		a = append(a, r.Gem.ID)
+		where = "gem_id = $" + strconv.FormatInt(count,10)
+	}
+	if r.Band.ID != 0 {
+		if count > 0 {
+			where = where + " AND "
+		}
+		count++
+		a = append(a, r.Band.ID)
+		where = "band_id = $" + strconv.FormatInt(count,10)
+	}
+	if count > 0 {
+		query = query + " WHERE " + where
+	}
+	fmt.Printf("Search: %s\n\t%s\n",query,a)
+	rows, err := database.Query(query,a...)
+	if err != nil {
+		fmt.Println(err);
+		return output, err
+	}
+	for rows.Next() {
+		var gemid int64
+		var bandid int64
+		var id int64
+		var name string
+		err := rows.Scan(&id, &name, &gemid, &bandid)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		g,_ := searchGem(Gem{ID: gemid})
+		b,_ := searchBand(Band{ID: bandid})
+		newRing := Ring{ ID: id, Name: name, Gem: g[0], Band: b[0]}
+		output = append(output, newRing)
+	}
 	return output, nil
 }
 
