@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS ring (
 	id serial,
 	gem_id INTEGER NOT NULL,
 	band_id INTEGER NOT NULL,
+	name VARCHAR(255),
 	equip_effect VARCHAR(255),
 	skill_effect VARCHAR(255),
 	PRIMARY KEY(id),

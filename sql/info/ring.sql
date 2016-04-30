@@ -70,7 +70,8 @@ INSERT INTO band(id,name,description,tier) VALUES
 ;
 
 
-/*
-INSERT INTO ring(gem_id,band_id,equip_effect,skill_effect) VALUES
+
+INSERT INTO ring(gem_id,band_id,name,equip_effect,skill_effect) VALUES
+	(2,1,'','',''),
+	(3,1,'','','')
 ;
-*/
