@@ -204,7 +204,6 @@ func searchRing(r Ring) ([]Ring,error) {
 	if count > 0 {
 		query = query + " WHERE " + where
 	}
-	fmt.Printf("Search: %s\n\t%s\n",query,a)
 	rows, err := database.Query(query,a...)
 	if err != nil {
 		fmt.Println(err);
