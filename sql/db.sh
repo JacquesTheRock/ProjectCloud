@@ -1,10 +1,12 @@
-DBNAME=projectCloud
-USER=jacques
-DBCOMMAND="psql -U ${USER} -f"
+DBNAME=projectcloud
+DBADMIN=projcloudadmin
+DBCLIENT=projcloudclient
+DBCOMMAND="psql -U ${DBADMIN} -f"
 DELDIR=delete
 TABLEDIR=tables
 POPDIR=info
-files='god.sql ring.sql player.sql'
+PERMDIR=perm
+files='god.sql ring.sql player.sql enemy.sql'
 
 
 usage() {
@@ -23,6 +25,14 @@ runscripts() {
 	done
 }
 
+genscripts() {
+	local scriptDir=$1
+	for file in $files; do
+		file="${PERMDIR}/${file}"
+		sed "s/||clientuser||/${DBCLIENT}/g" ${file%%.sql}.p > ${file}
+	done
+}
+
 info() {
 	runscripts "${POPDIR}"
 }
@@ -35,9 +45,16 @@ delete() {
 	runscripts "${DELDIR}"
 }
 
+permissions() {
+	genscripts "${PERMDIR}"
+	runscripts "${PERMDIR}"
+}
+
+
 init() {
 	table
 	info
+	permissions
 }
 
 
