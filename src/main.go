@@ -75,6 +75,19 @@ type Player struct {
 	Vitality     int32
 }
 
+type Enemy struct {
+	ID           int64
+	Name         string
+	God          string
+	Affinity     string
+	Intelligence int32
+	Strength     int32
+	Wisdom       int32
+	Agility      int32
+	Life         int32
+	Vitality     int32
+}
+
 func getDatabaseConnectionInfo(filename string) (DatabaseConnection, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -102,7 +115,17 @@ func apiReference(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiEnemySearch(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "A string")
+	var e Enemy
+	var err error
+	e.ID, err = strconv.ParseInt(r.FormValue("id"), 10, 64)
+	e.Name = r.FormValue("name")
+	results, err := searchEnemy(e)
+	if err != nil {
+		fmt.Printf("Player Search Failure: %s", err)
+		return
+	}
+	encoder := json.NewEncoder(w)
+	encoder.Encode(results)
 }
 
 func apiPlayerSearch(w http.ResponseWriter, r *http.Request) {
@@ -112,17 +135,15 @@ func apiPlayerSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	encoder := json.NewEncoder(w)
-	for i := 0; i < len(results); i++ {
-		encoder.Encode(results[i])
-	}
+	encoder.Encode(results)
 }
 
 func apiGemSearch(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
-	id,err := strconv.ParseInt(r.FormValue("id"),10,64)
+	id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
 	name := r.FormValue("name")
 	description := r.FormValue("description")
-	tier, err := strconv.ParseInt(r.FormValue("tier"),10,8)
+	tier, err := strconv.ParseInt(r.FormValue("tier"), 10, 8)
 	results, err := searchGem(Gem{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
 		fmt.Println("Gem Search Failure")
@@ -133,10 +154,10 @@ func apiGemSearch(w http.ResponseWriter, r *http.Request) {
 
 func apiBandSearch(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
-	id,_ := strconv.ParseInt(r.FormValue("id"),10,64)
+	id, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
 	name := r.FormValue("name")
 	description := r.FormValue("description")
-	tier,_ := strconv.ParseInt(r.FormValue("tier"),10,8)
+	tier, _ := strconv.ParseInt(r.FormValue("tier"), 10, 8)
 	results, err := searchBand(Band{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
 		fmt.Println("Band Search Failure")
@@ -147,13 +168,13 @@ func apiBandSearch(w http.ResponseWriter, r *http.Request) {
 
 func apiRingSearch(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
-	id,_ := strconv.ParseInt(r.FormValue("id"),10,64)
+	id, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
 	name := r.FormValue("name")
-	gemid,_ := strconv.ParseInt(r.FormValue("gemid"),10,64)
-	bandid,_ := strconv.ParseInt(r.FormValue("bandid"),10,64)
+	gemid, _ := strconv.ParseInt(r.FormValue("gemid"), 10, 64)
+	bandid, _ := strconv.ParseInt(r.FormValue("bandid"), 10, 64)
 	search := Ring{ID: id,
 		Name: name,
-		Gem: Gem{ID: gemid},
+		Gem:  Gem{ID: gemid},
 		Band: Band{ID: bandid}}
 	results, err := searchRing(search)
 	if err != nil {
@@ -163,10 +184,10 @@ func apiRingSearch(w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(results)
 }
 
-func searchRing(r Ring) ([]Ring,error) {
+func searchRing(r Ring) ([]Ring, error) {
 	var output []Ring
-	a := make([]interface{},0)
-	query :=  "SELECT id,name,gem_id,band_id FROM ring"
+	a := make([]interface{}, 0)
+	query := "SELECT id,name,gem_id,band_id FROM ring"
 	where := ""
 	var count int64 = 0
 	if r.Name != "" {
@@ -175,7 +196,7 @@ func searchRing(r Ring) ([]Ring,error) {
 		}
 		count++
 		a = append(a, r.Name)
-		where = where + "name LIKE $" + strconv.FormatInt(count,10)
+		where = where + "name LIKE $" + strconv.FormatInt(count, 10)
 	}
 	if r.ID != 0 {
 		if count > 0 {
@@ -183,7 +204,7 @@ func searchRing(r Ring) ([]Ring,error) {
 		}
 		count++
 		a = append(a, r.ID)
-		where = "id = $" + strconv.FormatInt(count,10)
+		where = "id = $" + strconv.FormatInt(count, 10)
 	}
 	if r.Gem.ID != 0 {
 		if count > 0 {
@@ -191,7 +212,7 @@ func searchRing(r Ring) ([]Ring,error) {
 		}
 		count++
 		a = append(a, r.Gem.ID)
-		where = "gem_id = $" + strconv.FormatInt(count,10)
+		where = "gem_id = $" + strconv.FormatInt(count, 10)
 	}
 	if r.Band.ID != 0 {
 		if count > 0 {
@@ -199,14 +220,14 @@ func searchRing(r Ring) ([]Ring,error) {
 		}
 		count++
 		a = append(a, r.Band.ID)
-		where = "band_id = $" + strconv.FormatInt(count,10)
+		where = "band_id = $" + strconv.FormatInt(count, 10)
 	}
 	if count > 0 {
 		query = query + " WHERE " + where
 	}
-	rows, err := database.Query(query,a...)
+	rows, err := database.Query(query, a...)
 	if err != nil {
-		fmt.Println(err);
+		fmt.Println(err)
 		return output, err
 	}
 	for rows.Next() {
@@ -219,13 +240,57 @@ func searchRing(r Ring) ([]Ring,error) {
 			fmt.Println(err)
 			continue
 		}
-		g,_ := searchGem(Gem{ID: gemid})
-		b,_ := searchBand(Band{ID: bandid})
-		newRing := Ring{ ID: id, Name: name, Gem: g[0], Band: b[0]}
+		g, _ := searchGem(Gem{ID: gemid})
+		b, _ := searchBand(Band{ID: bandid})
+		newRing := Ring{ID: id, Name: name, Gem: g[0], Band: b[0]}
 		output = append(output, newRing)
 	}
 	return output, nil
 }
+
+func searchEnemy(e Enemy) ([]Enemy, error) {
+	var output []Enemy
+	a := make([]interface{}, 0)
+	query := "SELECT e.id, e.name " +
+		",strength,agility,vitality " +
+		",intelligence,wisdom,life " +
+		"FROM enemy e,god g,god a WHERE " +
+		"g.id = e.god_id AND " +
+		"a.id = e.element_id "
+	where := ""
+	var count int64 = 0
+	if e.Name != "" {
+		count++
+		a = append(a, e.Name)
+		where = where + " AND e.name LIKE $" + strconv.FormatInt(count,10)
+	}
+	if e.ID != 0 {
+		count++
+		a = append(a, e.ID)
+		where = "AND e.id = $" + strconv.FormatInt(count, 10)
+	}
+	query = query + where
+	fmt.Println(query)
+	rows, err := database.Query(query, a...)
+	if err != nil {
+		fmt.Println(err)
+		return output, err
+	}
+	for rows.Next() {
+		var enemy Enemy
+		err := rows.Scan(&enemy.ID, &enemy.Name,
+			&enemy.Strength,&enemy.Agility,
+			&enemy.Vitality,&enemy.Intelligence,
+			&enemy.Wisdom,&enemy.Life)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		output = append(output, enemy)
+	}
+	return output, nil
+}
+
 
 
 func searchPlayer(p Player) ([]Player, error) {
@@ -267,7 +332,7 @@ func searchGem(g Gem) ([]Gem, error) {
 		if g.ID != 0 {
 			a = append(a, g.ID)
 			count++
-			query = query + "id = $" + strconv.FormatInt(count,10)
+			query = query + "id = $" + strconv.FormatInt(count, 10)
 		}
 		if g.Name != "" {
 			if count > 0 {
@@ -276,7 +341,7 @@ func searchGem(g Gem) ([]Gem, error) {
 			a = append(a, g.Name)
 			count++
 			query = query + "name LIKE $" +
-				strconv.FormatInt(count,10)
+				strconv.FormatInt(count, 10)
 		}
 		if g.Tier != 0 {
 			if count > 0 {
@@ -284,22 +349,22 @@ func searchGem(g Gem) ([]Gem, error) {
 			}
 			a = append(a, g.Tier)
 			count++
-			query = query + "tier = $" + strconv.FormatInt(count,10)
+			query = query + "tier = $" + strconv.FormatInt(count, 10)
 		}
 		if g.Description != "" {
 			if count > 0 {
 				query = query + " AND "
 			}
-			a = append(a,g.Description)
+			a = append(a, g.Description)
 			count++
 			query = query + "Description LIKE $" +
-				strconv.FormatInt(count,10)
+				strconv.FormatInt(count, 10)
 		}
 	}
-	rows, err := database.Query(query,a...)
+	rows, err := database.Query(query, a...)
 	if err != nil {
 		fmt.Printf("Error in Execution: %s\n", err)
-		fmt.Printf("Query Failed: %s with values: %s \n",query, a)
+		fmt.Printf("Query Failed: %s with values: %s \n", query, a)
 		return output, err
 	}
 	defer rows.Close()
@@ -326,7 +391,7 @@ func searchBand(b Band) ([]Band, error) {
 		if b.ID != 0 {
 			a = append(a, b.ID)
 			count++
-			query = query + "id = $" + strconv.FormatInt(count,10)
+			query = query + "id = $" + strconv.FormatInt(count, 10)
 		}
 		if b.Name != "" {
 			if count > 0 {
@@ -335,7 +400,7 @@ func searchBand(b Band) ([]Band, error) {
 			a = append(a, b.Name)
 			count++
 			query = query + "name LIKE $" +
-				strconv.FormatInt(count,10)
+				strconv.FormatInt(count, 10)
 		}
 		if b.Tier != 0 {
 			if count > 0 {
@@ -343,22 +408,22 @@ func searchBand(b Band) ([]Band, error) {
 			}
 			a = append(a, b.Tier)
 			count++
-			query = query + "tier = $" + strconv.FormatInt(count,10)
+			query = query + "tier = $" + strconv.FormatInt(count, 10)
 		}
 		if b.Description != "" {
 			if count > 0 {
 				query = query + " AND "
 			}
-			a = append(a,b.Description)
+			a = append(a, b.Description)
 			count++
 			query = query + "Description LIKE $" +
-				strconv.FormatInt(count,10)
+				strconv.FormatInt(count, 10)
 		}
 	}
-	rows, err := database.Query(query,a...)
+	rows, err := database.Query(query, a...)
 	if err != nil {
 		fmt.Printf("Error in Execution: %s\n", err)
-		fmt.Printf("Query Failed: %s with values: %s \n",query, a)
+		fmt.Printf("Query Failed: %s with values: %s \n", query, a)
 		return output, err
 	}
 	defer rows.Close()
