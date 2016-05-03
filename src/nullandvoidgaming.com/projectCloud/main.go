@@ -93,6 +93,8 @@ func readConfigurationInfo(filenames []string) (Configuration, error) {
 			out = prechange
 		}
 	}
+	out.ErrorFmt = strings.Replace(out.ErrorFmt, "%", "%%",-1)
+	out.TimeFmt = strings.Replace(out.TimeFmt, "%", "%%",-1)
 	return out,nil
 }
 
@@ -200,7 +202,7 @@ func apiGemSearch(w http.ResponseWriter, r *http.Request) {
 	tier, err := strconv.ParseInt(r.FormValue("tier"), 10, 8)
 	results, err := searchGem(item.Gem{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
-		fmt.Println("Gem Search Failure")
+		printError("Gem Search Failure")
 		return
 	}
 	encoder.Encode(results)
