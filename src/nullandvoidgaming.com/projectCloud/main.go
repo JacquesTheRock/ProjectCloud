@@ -15,8 +15,7 @@ import (
 
 )
 
-var dbFile = "datasource.json"
-var databaseConnection DatabaseConnection
+var config Configuration
 var database *sql.DB
 
 type DatabaseConnection struct {
@@ -26,6 +25,18 @@ type DatabaseConnection struct {
 	Password string
 	Dbname   string
 	URL      string
+}
+
+type Configuration struct {
+	HTMLRoot string
+	IP   string
+	Port int64
+	DatasourceFile string
+	DatabaseConnection DatabaseConnection
+}
+
+func (c *Configuration)GetURL() (string) {
+	return c.IP + ":" + strconv.FormatInt(c.Port,10)
 }
 
 type PageMeta struct {
@@ -48,6 +59,27 @@ func getDatabaseConnectionInfo(filename string) (DatabaseConnection, error) {
 		return DatabaseConnection{}, err
 	}
 	return dbConfig, nil
+}
+
+func readConfigurationInfo(filenames []string) (Configuration, error) {
+	outdefault := Configuration{ HTMLRoot: "html", Port: 8080, IP: "", DatasourceFile: "datasource.json" }
+	out := outdefault
+
+	for i := 0; i < len(filenames); i++ {
+		prechange := out
+		file, err := os.Open(filenames[i])
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+		decoder := json.NewDecoder(file)
+		err = decoder.Decode(&out)
+		if err != nil {
+			fmt.Println(err.Error())
+			out = prechange
+		}
+	}
+	return out,nil
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -445,17 +477,23 @@ func searchBand(b *item.Band) ([]item.Band, error) {
 }
 
 func init() {
-	databaseConnection, err := getDatabaseConnectionInfo(dbFile)
-	if err != nil {
-		panic(fmt.Sprintf("Cannot read database info located at: %s", dbFile))
+	configFiles := make([]string,0)
+	configFiles = append(configFiles,"config.json")
+	config,_  = readConfigurationInfo(configFiles)
+	var err error
+	if config.DatasourceFile != "" {
+		config.DatabaseConnection, err = getDatabaseConnectionInfo(config.DatasourceFile)
 	}
-	if databaseConnection.URL == "" {
-		databaseConnection.URL = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", databaseConnection.Username, databaseConnection.Password, databaseConnection.Host, databaseConnection.Dbname)
-		fmt.Printf("No URL Supplied, Deriving URL from parameters. %s\n", databaseConnection)
+	if err != nil {
+		panic(fmt.Sprintf("Cannot read database info located at: %s", config.DatasourceFile))
+	}
+	if config.DatabaseConnection.URL == "" {
+		config.DatabaseConnection.URL = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", config.DatabaseConnection.Username, config.DatabaseConnection.Password, config.DatabaseConnection.Host, config.DatabaseConnection.Dbname)
+		fmt.Printf("No URL Supplied, Deriving URL from parameters. %s\n", config.DatabaseConnection)
 	} else {
 		fmt.Printf("Database Using URL value, ignoring others\n")
 	}
-	database, err = sql.Open("postgres", databaseConnection.URL)
+	database, err = sql.Open("postgres", config.DatabaseConnection.URL)
 	if err != nil {
 		panic(err)
 	}
@@ -472,5 +510,5 @@ func main() {
 	http.HandleFunc("/api/item/gem/", apiGemSearch)
 	http.HandleFunc("/api/item/band/", apiBandSearch)
 	http.HandleFunc("/api/item/ring/", apiRingSearch)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(config.GetURL(), nil)
 }
