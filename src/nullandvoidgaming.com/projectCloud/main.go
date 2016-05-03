@@ -30,6 +30,7 @@ type DatabaseConnection struct {
 
 type Configuration struct {
 	HTMLRoot string
+	TemplateRoot string
 	IP   string
 	Port int64
 	TimeFmt string
@@ -40,6 +41,17 @@ type Configuration struct {
 
 func (c *Configuration)GetURL() (string) {
 	return c.IP + ":" + strconv.FormatInt(c.Port,10)
+}
+
+func (c Configuration)Pretty() (string) {
+	return "Config:" +
+		"\n\tHTMLRoot = " + c.HTMLRoot +
+		"\n\tTemplateRoot = " + c.TemplateRoot +
+		"\n\tIP = " + c.IP +
+		"\n\tPort = " + strconv.FormatInt(c.Port,10) +
+		"\n\tTimeFmt = " + c.TimeFmt +
+		"\n\tErrorFmt = " + c.ErrorFmt +
+		"\n\tDatasourceFile = " + c.DatasourceFile;
 }
 
 type PageMeta struct {
@@ -72,6 +84,7 @@ func getDatabaseConnectionInfo(filename string) (DatabaseConnection, error) {
 
 func readConfigurationInfo(filenames []string) (Configuration, error) {
 	config = Configuration{ HTMLRoot: "html",
+		TemplateRoot: "templates",
 		Port: 8080,
 		IP: "",
 		TimeFmt: "2006 Jan 2 15:04:05",
@@ -166,7 +179,7 @@ func enemyHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiReference(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("html/api.html")
+	t, _ := template.ParseFiles(config.HTMLRoot + "/api.html")
 	t.Execute(w, nil)
 }
 
@@ -516,11 +529,12 @@ func init() {
 }
 
 func main() {
+	fmt.Println(config.Pretty())
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/gem/", gemHandler)
 	http.HandleFunc("/band/", bandHandler)
 	http.HandleFunc("/enemy/", enemyHandler)
-	http.HandleFunc("/api", apiReference)
+	http.HandleFunc("/api/", apiReference)
 	http.HandleFunc("/api/entity/enemy/", apiEnemySearch)
 	http.HandleFunc("/api/entity/player/", apiPlayerSearch)
 	http.HandleFunc("/api/item/gem/", apiGemSearch)
