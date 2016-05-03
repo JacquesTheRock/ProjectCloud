@@ -25,6 +25,11 @@ type DatabaseConnection struct {
 	URL      string
 }
 
+type PageMeta struct {
+	Title  string
+	Author string
+}
+
 type Gem struct {
 	ID          int64
 	Name        string
@@ -109,6 +114,51 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "A string")
 }
 
+func gemHandler(w http.ResponseWriter, r *http.Request) {
+	head, _ := template.ParseFiles("templates/generic/header.templ")
+	foot, _ := template.ParseFiles("templates/generic/footer.templ")
+	t, _ := template.ParseFiles("templates/item/gem.templ")
+	id, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	name := r.FormValue("name")
+	description := r.FormValue("description")
+	tier, _ := strconv.ParseInt(r.FormValue("tier"), 10, 8)
+	results, err := searchGem(Gem{ID: id, Name: name, Tier: int8(tier), Description: description})
+	if err != nil {
+		fmt.Println(err)
+	}
+	meta := PageMeta{Title: "Look up Gems!"}
+	head.Execute(w, meta)
+	t.Execute(w, results)
+	foot.Execute(w, meta)
+}
+func bandHandler(w http.ResponseWriter, r *http.Request) {
+	head, _ := template.ParseFiles("templates/generic/header.templ")
+	foot, _ := template.ParseFiles("templates/generic/footer.templ")
+	t, _ := template.ParseFiles("templates/item/band.templ")
+	id, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	name := r.FormValue("name")
+	description := r.FormValue("description")
+	tier, _ := strconv.ParseInt(r.FormValue("tier"), 10, 8)
+	results, err := searchBand(&Band{ID: id, Name: name, Tier: int8(tier), Description: description})
+	if err != nil {
+		fmt.Println(err)
+	}
+	meta := PageMeta{Title: "Look up Bands!"}
+	var search string
+	if id != 0 {
+		search= search + " id = " + r.FormValue("id")
+	}
+	if name != "" {
+		search= search + " name = " + r.FormValue("name")
+	}
+	if tier != 0 {
+		search= search + " tier = " + r.FormValue("tier")
+	}
+	head.Execute(w, meta)
+	t.Execute(w, struct { Bands []Band; Search string }{ Bands: results, Search: search})
+	foot.Execute(w, meta)
+}
+
 func apiReference(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("html/api.html")
 	t.Execute(w, nil)
@@ -158,7 +208,7 @@ func apiBandSearch(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	description := r.FormValue("description")
 	tier, _ := strconv.ParseInt(r.FormValue("tier"), 10, 8)
-	results, err := searchBand(Band{ID: id, Name: name, Tier: int8(tier), Description: description})
+	results, err := searchBand(&Band{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
 		fmt.Println("Band Search Failure")
 		return
@@ -241,7 +291,7 @@ func searchRing(r Ring) ([]Ring, error) {
 			continue
 		}
 		g, _ := searchGem(Gem{ID: gemid})
-		b, _ := searchBand(Band{ID: bandid})
+		b, _ := searchBand(&Band{ID: bandid})
 		newRing := Ring{ID: id, Name: name, Gem: g[0], Band: b[0]}
 		output = append(output, newRing)
 	}
@@ -262,7 +312,7 @@ func searchEnemy(e Enemy) ([]Enemy, error) {
 	if e.Name != "" {
 		count++
 		a = append(a, e.Name)
-		where = where + " AND e.name LIKE $" + strconv.FormatInt(count,10)
+		where = where + " AND e.name LIKE $" + strconv.FormatInt(count, 10)
 	}
 	if e.ID != 0 {
 		count++
@@ -270,7 +320,6 @@ func searchEnemy(e Enemy) ([]Enemy, error) {
 		where = "AND e.id = $" + strconv.FormatInt(count, 10)
 	}
 	query = query + where
-	fmt.Println(query)
 	rows, err := database.Query(query, a...)
 	if err != nil {
 		fmt.Println(err)
@@ -279,9 +328,9 @@ func searchEnemy(e Enemy) ([]Enemy, error) {
 	for rows.Next() {
 		var enemy Enemy
 		err := rows.Scan(&enemy.ID, &enemy.Name,
-			&enemy.Strength,&enemy.Agility,
-			&enemy.Vitality,&enemy.Intelligence,
-			&enemy.Wisdom,&enemy.Life)
+			&enemy.Strength, &enemy.Agility,
+			&enemy.Vitality, &enemy.Intelligence,
+			&enemy.Wisdom, &enemy.Life)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -290,8 +339,6 @@ func searchEnemy(e Enemy) ([]Enemy, error) {
 	}
 	return output, nil
 }
-
-
 
 func searchPlayer(p Player) ([]Player, error) {
 	var output []Player
@@ -380,12 +427,12 @@ func searchGem(g Gem) ([]Gem, error) {
 	return output, nil
 }
 
-func searchBand(b Band) ([]Band, error) {
+func searchBand(b *Band) ([]Band, error) {
 	var output []Band
 	const qBase string = "SELECT id, name, description, tier FROM band"
 	var query string = qBase
 	a := make([]interface{}, 0) //empty arg array
-	if b.ID != 0 || b.Name != "" || b.Tier != 0 || b.Description != "" {
+	if b != nil && b.ID != 0 || b.Name != "" || b.Tier != 0 || b.Description != "" {
 		query = query + " WHERE "
 		var count int64 = 0
 		if b.ID != 0 {
@@ -458,6 +505,8 @@ func init() {
 
 func main() {
 	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/gem/", gemHandler)
+	http.HandleFunc("/band/", bandHandler)
 	http.HandleFunc("/api", apiReference)
 	http.HandleFunc("/api/entity/enemy/", apiEnemySearch)
 	http.HandleFunc("/api/entity/player/", apiPlayerSearch)
