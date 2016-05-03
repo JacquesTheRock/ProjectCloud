@@ -1,4 +1,9 @@
 {
+	"HTMLRoot" : "html",
+	"TemplateRoot" : "templates",
 	"IP" : "",
-	"port" : 8080
+	"Port" : 8080,
+	"TimeFmt" : "2006 Jan 2 15:04:05",
+	"ErrorFmt": "${time}:\t${error}",
+	"DatasourceFile" : "datasource.json"
 }
