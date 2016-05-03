@@ -8,7 +8,8 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-
+	"strings"
+	"time"
 	_ "github.com/lib/pq" //Required for Postgres
 	"nullandvoidgaming.com/projectCloud/item"
 	"nullandvoidgaming.com/projectCloud/entity"
@@ -31,6 +32,8 @@ type Configuration struct {
 	HTMLRoot string
 	IP   string
 	Port int64
+	TimeFmt string
+	ErrorFmt string
 	DatasourceFile string
 	DatabaseConnection DatabaseConnection
 }
@@ -44,10 +47,16 @@ type PageMeta struct {
 	Author string
 }
 
+func printError(a... interface{}) {
+	fmtString := strings.Replace(config.ErrorFmt, "${time}", (time.Now()).Format(config.TimeFmt),1)
+	fmtString = strings.Replace(fmtString, "${error}", "%s",1)
+	fmt.Fprintf(os.Stderr, fmtString, a...)
+}
+
 func getDatabaseConnectionInfo(filename string) (DatabaseConnection, error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Println(err.Error())
+		printError(err.Error())
 		return DatabaseConnection{}, err
 	}
 
@@ -55,27 +64,32 @@ func getDatabaseConnectionInfo(filename string) (DatabaseConnection, error) {
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&dbConfig)
 	if err != nil {
-		fmt.Println(err.Error())
+		printError(err.Error())
 		return DatabaseConnection{}, err
 	}
 	return dbConfig, nil
 }
 
 func readConfigurationInfo(filenames []string) (Configuration, error) {
-	outdefault := Configuration{ HTMLRoot: "html", Port: 8080, IP: "", DatasourceFile: "datasource.json" }
-	out := outdefault
+	config = Configuration{ HTMLRoot: "html",
+		Port: 8080,
+		IP: "",
+		TimeFmt: "2006 Jan 2 15:04:05",
+		ErrorFmt: "${time}:\t${error}\n",
+		DatasourceFile: "datasource.json" }
+	out := config
 
 	for i := 0; i < len(filenames); i++ {
 		prechange := out
 		file, err := os.Open(filenames[i])
 		if err != nil {
-			fmt.Println(err.Error())
+			printError(err.Error())
 			continue
 		}
 		decoder := json.NewDecoder(file)
 		err = decoder.Decode(&out)
 		if err != nil {
-			fmt.Println(err.Error())
+			printError(err.Error())
 			out = prechange
 		}
 	}
@@ -96,7 +110,7 @@ func gemHandler(w http.ResponseWriter, r *http.Request) {
 	tier, _ := strconv.ParseInt(r.FormValue("tier"), 10, 8)
 	results, err := searchGem(item.Gem{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
-		fmt.Println(err)
+		printError(err.Error())
 	}
 	meta := PageMeta{Title: "Look up Gems!"}
 	head.Execute(w, meta)
@@ -113,7 +127,7 @@ func bandHandler(w http.ResponseWriter, r *http.Request) {
 	tier, _ := strconv.ParseInt(r.FormValue("tier"), 10, 8)
 	results, err := searchBand(&item.Band{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
-		fmt.Println(err)
+		printError(err.Error())
 	}
 	meta := PageMeta{Title: "Look up Bands!"}
 	var search string
@@ -267,7 +281,7 @@ func searchRing(r item.Ring) ([]item.Ring, error) {
 	}
 	rows, err := database.Query(query, a...)
 	if err != nil {
-		fmt.Println(err)
+		printError(err.Error())
 		return output, err
 	}
 	for rows.Next() {
@@ -277,7 +291,7 @@ func searchRing(r item.Ring) ([]item.Ring, error) {
 		var name string
 		err := rows.Scan(&id, &name, &gemid, &bandid)
 		if err != nil {
-			fmt.Println(err)
+			printError(err.Error())
 			continue
 		}
 		g, _ := searchGem(item.Gem{ID: gemid})
@@ -312,7 +326,7 @@ func searchEnemy(e entity.Enemy) ([]entity.Enemy, error) {
 	query = query + where
 	rows, err := database.Query(query, a...)
 	if err != nil {
-		fmt.Println(err)
+		printError(err.Error())
 		return output, err
 	}
 	for rows.Next() {
@@ -322,7 +336,7 @@ func searchEnemy(e entity.Enemy) ([]entity.Enemy, error) {
 			&enemy.Vitality, &enemy.Intelligence,
 			&enemy.Wisdom, &enemy.Life)
 		if err != nil {
-			fmt.Println(err)
+			printError(err.Error())
 			continue
 		}
 		output = append(output, enemy)
@@ -335,7 +349,7 @@ func searchPlayer(p entity.Player) ([]entity.Player, error) {
 	rows, err := database.Query("SELECT id, name, intelligence, strength, wisdom,"+
 		"agility, life FROM player WHERE id LIKE $1", p.ID)
 	if err != nil {
-		fmt.Println(err)
+		printError(err.Error())
 		return output, err
 	}
 	defer rows.Close()
@@ -478,7 +492,7 @@ func searchBand(b *item.Band) ([]item.Band, error) {
 
 func init() {
 	configFiles := make([]string,0)
-	configFiles = append(configFiles,"config.json")
+	configFiles = append(configFiles,"./config.json")
 	config,_  = readConfigurationInfo(configFiles)
 	var err error
 	if config.DatasourceFile != "" {
