@@ -84,7 +84,7 @@ func getDatabaseConnectionInfo(filename string) (DatabaseConnection, error) {
 
 func readConfigurationInfo(filenames []string) (Configuration, error) {
 	config = Configuration{ HTMLRoot: "html",
-		TemplateRoot: "templates",
+		TemplateRoot: config.TemplateRoot + "",
 		Port: 8080,
 		IP: "",
 		TimeFmt: "2006 Jan 2 15:04:05",
@@ -116,9 +116,12 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func gemHandler(w http.ResponseWriter, r *http.Request) {
-	head, _ := template.ParseFiles("templates/generic/header.templ")
-	foot, _ := template.ParseFiles("templates/generic/footer.templ")
-	t, _ := template.ParseFiles("templates/item/gem.templ")
+	head, _ := template.ParseFiles(config.TemplateRoot +
+		"/generic/header.templ")
+	foot, _ := template.ParseFiles(config.TemplateRoot +
+		"/generic/footer.templ")
+	t, _ := template.ParseFiles(config.TemplateRoot +
+		"/item/gem.templ")
 	id, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
 	name := r.FormValue("name")
 	description := r.FormValue("description")
@@ -147,9 +150,9 @@ func gemHandler(w http.ResponseWriter, r *http.Request) {
 	foot.Execute(w, meta)
 }
 func bandHandler(w http.ResponseWriter, r *http.Request) {
-	head, _ := template.ParseFiles("templates/generic/header.templ")
-	foot, _ := template.ParseFiles("templates/generic/footer.templ")
-	t, _ := template.ParseFiles("templates/item/band.templ")
+	head, _ := template.ParseFiles(config.TemplateRoot + "/generic/header.templ")
+	foot, _ := template.ParseFiles(config.TemplateRoot + "/generic/footer.templ")
+	t, _ := template.ParseFiles(config.TemplateRoot + "/item/band.templ")
 	id, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
 	name := r.FormValue("name")
 	description := r.FormValue("description")
@@ -175,9 +178,12 @@ func bandHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func enemyHandler(w http.ResponseWriter, r *http.Request) {
-	head, _ := template.ParseFiles("templates/generic/header.templ")
-	foot, _ := template.ParseFiles("templates/generic/footer.templ")
-	t, _ := template.ParseFiles("templates/entity/enemy.templ")
+	head, _ := template.ParseFiles(config.TemplateRoot +
+		"/generic/header.templ")
+	foot, _ := template.ParseFiles(config.TemplateRoot +
+		"/generic/footer.templ")
+	t, _ := template.ParseFiles(config.TemplateRoot +
+		"/entity/enemy.templ")
 	var e entity.Enemy
 	e.ID, _ = strconv.ParseInt(r.FormValue("id"), 10, 64)
 	e.Name = r.FormValue("name")
