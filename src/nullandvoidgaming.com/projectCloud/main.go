@@ -10,6 +10,9 @@ import (
 	"strconv"
 
 	_ "github.com/lib/pq" //Required for Postgres
+	"nullandvoidgaming.com/projectCloud/item"
+	"nullandvoidgaming.com/projectCloud/entity"
+
 )
 
 var dbFile = "datasource.json"
@@ -28,69 +31,6 @@ type DatabaseConnection struct {
 type PageMeta struct {
 	Title  string
 	Author string
-}
-
-type Gem struct {
-	ID          int64
-	Name        string
-	Description string
-	Tier        int8
-}
-
-type Band struct {
-	ID          int64
-	Name        string
-	Description string
-	Tier        int8
-}
-
-type Ring struct {
-	ID          int64
-	Name        string
-	Gem         Gem
-	Band        Band
-	EquipEffect string
-	SkillEffect string
-}
-
-type Equipment struct {
-	LeftThumb   Ring
-	LeftIndex   Ring
-	LeftMiddle  Ring
-	LeftRing    Ring
-	LeftPinky   Ring
-	RightThumb  Ring
-	RightIndex  Ring
-	RightMiddle Ring
-	RightRing   Ring
-	RightPinky  Ring
-}
-
-type Player struct {
-	ID           int64
-	Name         string
-	God          string
-	Affinity     string
-	Equipment    Equipment
-	Intelligence int32
-	Strength     int32
-	Wisdom       int32
-	Agility      int32
-	Life         int32
-	Vitality     int32
-}
-
-type Enemy struct {
-	ID           int64
-	Name         string
-	God          string
-	Affinity     string
-	Intelligence int32
-	Strength     int32
-	Wisdom       int32
-	Agility      int32
-	Life         int32
-	Vitality     int32
 }
 
 func getDatabaseConnectionInfo(filename string) (DatabaseConnection, error) {
@@ -122,7 +62,7 @@ func gemHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	description := r.FormValue("description")
 	tier, _ := strconv.ParseInt(r.FormValue("tier"), 10, 8)
-	results, err := searchGem(Gem{ID: id, Name: name, Tier: int8(tier), Description: description})
+	results, err := searchGem(item.Gem{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -139,7 +79,7 @@ func bandHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	description := r.FormValue("description")
 	tier, _ := strconv.ParseInt(r.FormValue("tier"), 10, 8)
-	results, err := searchBand(&Band{ID: id, Name: name, Tier: int8(tier), Description: description})
+	results, err := searchBand(&item.Band{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -155,7 +95,7 @@ func bandHandler(w http.ResponseWriter, r *http.Request) {
 		search= search + " tier = " + r.FormValue("tier")
 	}
 	head.Execute(w, meta)
-	t.Execute(w, struct { Bands []Band; Search string }{ Bands: results, Search: search})
+	t.Execute(w, struct { Bands []item.Band; Search string }{ Bands: results, Search: search})
 	foot.Execute(w, meta)
 }
 
@@ -163,7 +103,7 @@ func enemyHandler(w http.ResponseWriter, r *http.Request) {
 	head, _ := template.ParseFiles("templates/generic/header.templ")
 	foot, _ := template.ParseFiles("templates/generic/footer.templ")
 	t, _ := template.ParseFiles("templates/entity/enemy.templ")
-	var e Enemy
+	var e entity.Enemy
 	e.ID, _ = strconv.ParseInt(r.FormValue("id"), 10, 64)
 	e.Name = r.FormValue("name")
 	results, err := searchEnemy(e)
@@ -173,7 +113,7 @@ func enemyHandler(w http.ResponseWriter, r *http.Request) {
 	meta := PageMeta{Title: "Look up Enemies!"}
 
 	head.Execute(w,meta)
-	t.Execute(w, struct {Enemies []Enemy; Search string}{Enemies: results})
+	t.Execute(w, struct {Enemies []entity.Enemy; Search string}{Enemies: results})
 	foot.Execute(w,meta)
 }
 
@@ -183,7 +123,7 @@ func apiReference(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiEnemySearch(w http.ResponseWriter, r *http.Request) {
-	var e Enemy
+	var e entity.Enemy
 	var err error
 	e.ID, err = strconv.ParseInt(r.FormValue("id"), 10, 64)
 	e.Name = r.FormValue("name")
@@ -197,7 +137,7 @@ func apiEnemySearch(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiPlayerSearch(w http.ResponseWriter, r *http.Request) {
-	results, err := searchPlayer(Player{ID: 1})
+	results, err := searchPlayer(entity.Player{ID: 1})
 	if err != nil {
 		fmt.Printf("Player Search Failure: %s", err)
 		return
@@ -212,7 +152,7 @@ func apiGemSearch(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	description := r.FormValue("description")
 	tier, err := strconv.ParseInt(r.FormValue("tier"), 10, 8)
-	results, err := searchGem(Gem{ID: id, Name: name, Tier: int8(tier), Description: description})
+	results, err := searchGem(item.Gem{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
 		fmt.Println("Gem Search Failure")
 		return
@@ -226,7 +166,7 @@ func apiBandSearch(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	description := r.FormValue("description")
 	tier, _ := strconv.ParseInt(r.FormValue("tier"), 10, 8)
-	results, err := searchBand(&Band{ID: id, Name: name, Tier: int8(tier), Description: description})
+	results, err := searchBand(&item.Band{ID: id, Name: name, Tier: int8(tier), Description: description})
 	if err != nil {
 		fmt.Println("Band Search Failure")
 		return
@@ -240,10 +180,10 @@ func apiRingSearch(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	gemid, _ := strconv.ParseInt(r.FormValue("gemid"), 10, 64)
 	bandid, _ := strconv.ParseInt(r.FormValue("bandid"), 10, 64)
-	search := Ring{ID: id,
+	search := item.Ring{ID: id,
 		Name: name,
-		Gem:  Gem{ID: gemid},
-		Band: Band{ID: bandid}}
+		Gem:  item.Gem{ID: gemid},
+		Band: item.Band{ID: bandid}}
 	results, err := searchRing(search)
 	if err != nil {
 		fmt.Println("Ring Search failures")
@@ -252,8 +192,8 @@ func apiRingSearch(w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(results)
 }
 
-func searchRing(r Ring) ([]Ring, error) {
-	var output []Ring
+func searchRing(r item.Ring) ([]item.Ring, error) {
+	var output []item.Ring
 	a := make([]interface{}, 0)
 	query := "SELECT id,name,gem_id,band_id FROM ring"
 	where := ""
@@ -308,16 +248,16 @@ func searchRing(r Ring) ([]Ring, error) {
 			fmt.Println(err)
 			continue
 		}
-		g, _ := searchGem(Gem{ID: gemid})
-		b, _ := searchBand(&Band{ID: bandid})
-		newRing := Ring{ID: id, Name: name, Gem: g[0], Band: b[0]}
+		g, _ := searchGem(item.Gem{ID: gemid})
+		b, _ := searchBand(&item.Band{ID: bandid})
+		newRing := item.Ring{ID: id, Name: name, Gem: g[0], Band: b[0]}
 		output = append(output, newRing)
 	}
 	return output, nil
 }
 
-func searchEnemy(e Enemy) ([]Enemy, error) {
-	var output []Enemy
+func searchEnemy(e entity.Enemy) ([]entity.Enemy, error) {
+	var output []entity.Enemy
 	a := make([]interface{}, 0)
 	query := "SELECT e.id, e.name " +
 		",strength,agility,vitality " +
@@ -344,7 +284,7 @@ func searchEnemy(e Enemy) ([]Enemy, error) {
 		return output, err
 	}
 	for rows.Next() {
-		var enemy Enemy
+		var enemy entity.Enemy
 		err := rows.Scan(&enemy.ID, &enemy.Name,
 			&enemy.Strength, &enemy.Agility,
 			&enemy.Vitality, &enemy.Intelligence,
@@ -358,8 +298,8 @@ func searchEnemy(e Enemy) ([]Enemy, error) {
 	return output, nil
 }
 
-func searchPlayer(p Player) ([]Player, error) {
-	var output []Player
+func searchPlayer(p entity.Player) ([]entity.Player, error) {
+	var output []entity.Player
 	rows, err := database.Query("SELECT id, name, intelligence, strength, wisdom,"+
 		"agility, life FROM player WHERE id LIKE $1", p.ID)
 	if err != nil {
@@ -368,7 +308,7 @@ func searchPlayer(p Player) ([]Player, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var player Player
+		var player entity.Player
 		err := rows.Scan(&player.ID, &player.Name, &player.Intelligence,
 			&player.Strength, &player.Wisdom, &player.Agility, &player.Life)
 		if err != nil {
@@ -386,8 +326,8 @@ func searchPlayer(p Player) ([]Player, error) {
 	return output, nil
 }
 
-func searchGem(g Gem) ([]Gem, error) {
-	var output []Gem
+func searchGem(g item.Gem) ([]item.Gem, error) {
+	var output []item.Gem
 	const qBase string = "SELECT id, name, description, tier FROM gem"
 	var query string = qBase
 	a := make([]interface{}, 0) //empty arg array
@@ -434,7 +374,7 @@ func searchGem(g Gem) ([]Gem, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var gem Gem
+		var gem item.Gem
 		err = rows.Scan(&gem.ID, &gem.Name, &gem.Description, &gem.Tier)
 		if err != nil {
 			fmt.Println(output)
@@ -445,8 +385,8 @@ func searchGem(g Gem) ([]Gem, error) {
 	return output, nil
 }
 
-func searchBand(b *Band) ([]Band, error) {
-	var output []Band
+func searchBand(b *item.Band) ([]item.Band, error) {
+	var output []item.Band
 	const qBase string = "SELECT id, name, description, tier FROM band"
 	var query string = qBase
 	a := make([]interface{}, 0) //empty arg array
@@ -493,7 +433,7 @@ func searchBand(b *Band) ([]Band, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var band Band
+		var band item.Band
 		err = rows.Scan(&band.ID, &band.Name, &band.Description, &band.Tier)
 		if err != nil {
 			fmt.Println(output)
