@@ -127,9 +127,23 @@ func gemHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		printError(err.Error())
 	}
+	var search string = ""
+	if id !=  0 {
+		search = search + "id = " + r.FormValue("id") + " "
+	}
+	if name != "" {
+		search = search + "name = " + r.FormValue("name") + " "
+	}
+	if description != "" {
+		search = search + "description = " +
+			r.FormValue("description") + " "
+	}
+	if tier != 0 {
+		search = search + "tier = " + r.FormValue("tier") + " "
+	}
 	meta := PageMeta{Title: "Look up Gems!"}
 	head.Execute(w, meta)
-	t.Execute(w, results)
+	t.Execute(w,struct{Gems []item.Gem; Search string}{Gems: results,Search: search})
 	foot.Execute(w, meta)
 }
 func bandHandler(w http.ResponseWriter, r *http.Request) {
