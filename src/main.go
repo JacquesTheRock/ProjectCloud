@@ -159,6 +159,24 @@ func bandHandler(w http.ResponseWriter, r *http.Request) {
 	foot.Execute(w, meta)
 }
 
+func enemyHandler(w http.ResponseWriter, r *http.Request) {
+	head, _ := template.ParseFiles("templates/generic/header.templ")
+	foot, _ := template.ParseFiles("templates/generic/footer.templ")
+	t, _ := template.ParseFiles("templates/entity/enemy.templ")
+	var e Enemy
+	e.ID, _ = strconv.ParseInt(r.FormValue("id"), 10, 64)
+	e.Name = r.FormValue("name")
+	results, err := searchEnemy(e)
+	if err != nil {
+		fmt.Printf("Player Search Failure: %s", err)
+	}
+	meta := PageMeta{Title: "Look up Enemies!"}
+
+	head.Execute(w,meta)
+	t.Execute(w, struct {Enemies []Enemy; Search string}{Enemies: results})
+	foot.Execute(w,meta)
+}
+
 func apiReference(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("html/api.html")
 	t.Execute(w, nil)
@@ -507,6 +525,7 @@ func main() {
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/gem/", gemHandler)
 	http.HandleFunc("/band/", bandHandler)
+	http.HandleFunc("/enemy/", enemyHandler)
 	http.HandleFunc("/api", apiReference)
 	http.HandleFunc("/api/entity/enemy/", apiEnemySearch)
 	http.HandleFunc("/api/entity/player/", apiPlayerSearch)

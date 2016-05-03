@@ -1,0 +1,46 @@
+<h1>Enemy Lookup</h1>
+<div>
+<form method="post">
+ID: <input type="text" name="id" pattern="[0-9]+"><br>
+Name: <input type="text" name="name"><br>
+God: <input type="text" name="god" pattern="[0-9]+"><br>
+Affinity: <input type="text" name="affinity" pattern="[0-9]+"><br>
+INT: <input type="text" name="int" pattern="[0-9]+"><br>
+STR: <input type="text" name="str" pattern="[0-9]+"><br>
+WIS: <input type="text" name="wis" pattern="[0-9]+"><br>
+AGI: <input type="text" name="agi" pattern="[0-9]+"><br>
+VIT: <input type="text" name="vit" pattern="[0-9]+"><br>
+HP: <input type="text" name="life" pattern="[0-9]+"><br>
+<input type="submit">
+</form>
+</div>
+{{ if .Search }}
+Search Results For: {{.Search}}
+{{ end }}
+<table border="1">
+<tr>
+	<th>Name</th>
+	<th>Patron</th>
+	<th>Affinity</th>
+	<th>INT</th>
+	<th>STR</th>
+	<th>WIS</th>
+	<th>AGI</th>
+	<th>VIT</th>
+	<th>HP</th>
+</tr>
+{{ range .Enemies }}
+	<tr>
+	<td>{{ .Name }}</td>
+	<td>{{ .God }}</td>
+	<td>{{ .Affinity }}</td>
+	<td>{{ .Intelligence }}</td>
+	<td>{{ .Strength }}</td>
+	<td>{{ .Wisdom }}</td>
+	<td>{{ .Agility }}</td>
+	<td>{{ .Vitality}}</td>
+	<td>{{ .Life }}</td>
+	</tr>
+{{ end }}
+</table>
+
