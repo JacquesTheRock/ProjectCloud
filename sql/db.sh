@@ -28,20 +28,23 @@ runscripts() {
 genscripts() {
 	local scriptDir=$1
 	for file in $files; do
-		file="${PERMDIR}/${file}"
+		file="${scriptDir}/${file}"
 		sed "s/||clientuser||/${DBCLIENT}/g" ${file%%.sql}.p > ${file}
 	done
 }
 
 info() {
+	genscripts "${POPDIR}"
 	runscripts "${POPDIR}"
 }
 
 table() {
+	genscripts "${TABLEDIR}"
 	runscripts "${TABLEDIR}"
 }
 
 delete() {
+	genscripts "${DELDIR}"
 	runscripts "${DELDIR}"
 }
 
