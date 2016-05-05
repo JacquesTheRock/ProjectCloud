@@ -4,6 +4,6 @@
 	"IP" : "",
 	"Port" : 8080,
 	"TimeFmt" : "2006 Jan 2 15:04:05",
-	"ErrorFmt": "${time}:\t${error}",
+	"ErrorFmt": "${level} ${time}:\t${msg}",
 	"DatasourceFile" : "datasource.json"
 }
