@@ -11,6 +11,8 @@ import (
 	"nullandvoidgaming.com/projectCloud/item"
 	"nullandvoidgaming.com/projectCloud/util"
 	"strconv"
+	"strings"
+	"io/ioutil"
 )
 
 var config *util.Configuration
@@ -22,7 +24,29 @@ type PageMeta struct {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "A string")
+	path := strings.Split(r.URL.Path, "/")
+	file := config.HTMLRoot
+	for index,part := range path {
+		if(part != "") {
+			file += "/" + part
+		}
+		if index == len(path) - 1 {
+			if strings.HasSuffix(part,".html") ||
+				strings.HasSuffix(part,".css") ||
+				strings.HasSuffix(part,".js") ||
+				strings.HasSuffix(part,".png") {
+				continue
+			}
+			file += "/" + config.DefaultPage
+		}
+	}
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		util.PrintError(err.Error())
+		fmt.Fprintf(w,"<html>%s</html>","404 Page not found")
+		return;
+	}
+	fmt.Fprintf(w,"%s",data)
 }
 
 func gemHandler(w http.ResponseWriter, r *http.Request) {

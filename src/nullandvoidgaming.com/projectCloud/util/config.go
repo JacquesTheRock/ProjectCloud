@@ -12,6 +12,7 @@ var Config Configuration
 type Configuration struct {
 	HTMLRoot string
 	TemplateRoot string
+	DefaultPage string
 	IP   string
 	Port int64
 	TimeFmt string
@@ -28,6 +29,7 @@ func (c Configuration)Pretty() (string) {
 	return "Config:" +
 		"\n\tHTMLRoot = " + c.HTMLRoot +
 		"\n\tTemplateRoot = " + c.TemplateRoot +
+		"\n\tDefaultPage = " + c.DefaultPage +
 		"\n\tIP = " + c.IP +
 		"\n\tPort = " + strconv.FormatInt(c.Port,10) +
 		"\n\tTimeFmt = " + c.TimeFmt +
@@ -88,6 +90,7 @@ func initConfig() {
 	Config = Configuration{ HTMLRoot: "html",
 		TemplateRoot: "templates",
 		Port: 8080,
+		DefaultPage: "index.html",
 		IP: "",
 		TimeFmt: "2006 Jan 2 15:04:05",
 		ErrorFmt: "${level} ${time}:\t${msg}\n",
