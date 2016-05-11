@@ -1,0 +1,22 @@
+<h1>Gem Lookup</h1>
+<div>
+<form method="post">
+ID: <input type="text" name="id" pattern="[0-9]+"><br>
+Name: <input type="text" name="name"><br>
+Tier: <input type="text" name="tier" pattern="[0-9]{0,2}"><br>
+<input type="submit">
+</form>
+</div>
+{{ if .Search }}
+Search Results For: {{.Search}}
+{{ end }}
+<table border="1">
+<tr><th>Name</th><th>Description</th><th>Tier</th><tr>
+{{ range .Gems }}
+	<tr>
+	<td>{{ .Name }}</td>
+	<td>{{ .Description }}</td>
+	<td>{{ .Tier }}</td>
+	</tr>
+{{ end }}
+</table>
