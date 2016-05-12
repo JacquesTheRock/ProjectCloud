@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS enemy (
 	id serial,
-	name VARCHAR(30),
+	name VARCHAR,
 	god_id INTEGER,
 	element_id INTEGER,
 	intelligence INTEGER,

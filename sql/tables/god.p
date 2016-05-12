@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS god (
 	id INTEGER,
-	name VARCHAR(30),
-	element VARCHAR(30),
+	name VARCHAR,
+	element VARCHAR,
 	PRIMARY KEY (id)
 );
 
