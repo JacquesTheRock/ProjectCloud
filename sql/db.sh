@@ -15,6 +15,7 @@ usage() {
 	echo -e "\tinit) \n\t\tCreate Database and populate with data"
 	echo -e "\treinit) \n\t\tDelete then call init"
 	echo -e "\tdelete) \n\t\tDeletes the tables"
+	echo -e "\tclean) \n\t\tDeletes generated sql files"
 	echo -e "\ttable) \n\t\tCreates tables with no data"
 	echo -e "\tinfo) \n\t\tPopulates tables with default data"
 }
@@ -30,6 +31,12 @@ genscripts() {
 	for file in $files; do
 		file="${scriptDir}/${file}"
 		sed "s/||clientuser||/${DBCLIENT}/g" ${file%%.sql}.p > ${file}
+	done
+}
+
+clean() {
+	for file in $files; do
+		rm -v {"${POPDIR}","${TABLEDIR}","${DELDIR}","${PERMDIR}"}/$file
 	done
 }
 
@@ -79,6 +86,9 @@ while [ $# -gt 0 ]; do
 		delete)
 			action=delete
 		;;
+		clean)
+			action=clean
+		;;
 		-h|--help)
 			usage
 			exit 0
@@ -102,6 +112,7 @@ case $action in
 		init
 	;;
 	reinit)
+		clean
 		delete
 		init
 	;;
@@ -113,6 +124,9 @@ case $action in
 	;;
 	delete)
 		delete
+	;;
+	clean)
+		clean
 	;;
 	*)
 		echo "Code Error? Invalid action"
