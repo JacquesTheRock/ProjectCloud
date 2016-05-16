@@ -154,8 +154,8 @@ function NewCamera(context, x, y) {
 					data.frame.Y(),
 					data.frame.width,
 					data.frame.height,
-					data.pos.x - this.Position.x,
-					data.pos.y - this.Position.y,
+					Math.round(data.pos.x - this.Position.x),
+					Math.round(data.pos.y - this.Position.y),
 					data.pos.width,
 					data.pos.height
 
@@ -264,7 +264,7 @@ var entBuilder = {
 }
 function newPlayer() {
 	out = new entBuilder.newEntity;
-	out.speed = 3.5;
+	out.speed = 3;
 	imge = Images["player"]; //document.getElementById("player");
 	out.position.width = 48;
 	out.position.height = 48;
