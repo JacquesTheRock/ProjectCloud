@@ -26,6 +26,7 @@ type PageMeta struct {
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path, "/")
 	file := config.HTMLRoot
+	relocate :=  false
 	for index,part := range path {
 		if(part != "") {
 			file += "/" + part
@@ -38,7 +39,12 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			file += "/" + config.DefaultPage
+			relocate = true;
 		}
+	}
+	if relocate {
+		w.Header().Set("Location", r.Host + "/" + file)
+		return
 	}
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
