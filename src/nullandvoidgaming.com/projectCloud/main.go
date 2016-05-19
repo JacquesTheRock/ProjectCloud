@@ -48,7 +48,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	safe := strings.HasPrefix(file,config.HTMLRoot)
 	if safe {
 		if relocate {
-			w.Header().Set("Location", "/" + parsedPath)
+			w.Header().Set("Location", "/" + strings.Replace(parsedPath,"\\","/",-1))
 			w.WriteHeader(http.StatusTemporaryRedirect)
 			return
 		}
