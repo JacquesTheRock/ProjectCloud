@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq" //Required for Postgres
 	"html/template"
 	"net/http"
+	"path/filepath"
 	"nullandvoidgaming.com/projectCloud/entity"
 	"nullandvoidgaming.com/projectCloud/item"
 	"nullandvoidgaming.com/projectCloud/util"
@@ -24,35 +25,43 @@ type PageMeta struct {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	path := strings.Split(r.URL.Path, "/")
-	file := config.HTMLRoot
+	reqPath := strings.Split(r.URL.Path, "/")
+	parsedPath := ""
 	relocate :=  false
-	for index,part := range path {
+	for index,part := range reqPath {
 		if(part != "") {
-			file += "/" + part
+			parsedPath = filepath.Join(parsedPath,part)
 		}
-		if index == len(path) - 1 {
+		if index == len(reqPath) - 1 {
 			if strings.HasSuffix(part,".html") ||
 				strings.HasSuffix(part,".css") ||
 				strings.HasSuffix(part,".js") ||
 				strings.HasSuffix(part,".png") {
 				continue
 			}
-			file += "/" + config.DefaultPage
+			parsedPath =  filepath.Join(parsedPath,config.DefaultPage)
 			relocate = true;
 		}
 	}
-	if relocate {
-		w.Header().Set("Location", r.Host + "/" + file)
+	parsedPath = filepath.Clean(parsedPath)
+	file := filepath.Clean(config.HTMLRoot + "/" + parsedPath)
+	safe := strings.HasPrefix(file,config.HTMLRoot)
+	if safe {
+		if relocate {
+			w.Header().Set("Location", "/" + parsedPath)
+			w.WriteHeader(http.StatusTemporaryRedirect)
+			return
+		}
+		data, err := ioutil.ReadFile(file)
+		if err != nil {
+			util.PrintError(err.Error())
+			fmt.Fprintf(w,"<html>%s</html>\n","404 Page not found")
+			return
+		}
+		fmt.Fprintf(w,"%s",data)
 		return
 	}
-	data, err := ioutil.ReadFile(file)
-	if err != nil {
-		util.PrintError(err.Error())
-		fmt.Fprintf(w,"<html>%s</html>","404 Page not found")
-		return;
-	}
-	fmt.Fprintf(w,"%s",data)
+	fmt.Fprintf(w,"<html>%s</html>\n","404 Page not found: Invalid Path")
 }
 
 func gemHandler(w http.ResponseWriter, r *http.Request) {
