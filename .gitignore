@@ -1,3 +1,8 @@
+# Custom Files #
+################
+config.json
+datasource.json
+
 # Compiled source #
 ###################
 *.com
