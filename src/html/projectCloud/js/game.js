@@ -659,9 +659,23 @@ var entBuilder = {
 						collidewith: other.owner,
 						me: this.owner,
 						xVel : 0,
-						yVel : 0
+						yVel : 0,
+						xCol : 0,
+						yCol : 0
 					}
 				if(this.intersects(other)) {
+					var delL = other.Right - this.Left;
+					var delR = this.Right - other.Left;
+					if(delL < delR)
+						collision.xCol = delL;
+					else if(delR < delL)
+						collision.xCol = delR;
+					var delT = other.Bottom - this.Top;
+					var delB = this.Bottom - other.Top;
+					if(delT < delB)
+						collision.yCol = delT;
+					else if (delB < delT)
+						collision.yCol = delB;
 					collision.xVel = this.deltaX;
 					collision.yVel = this.deltaY;
 					return collision;
@@ -683,8 +697,9 @@ var entBuilder = {
 		this.collider = null;
 		this.layer = 0.5; //used for draw depth
 		this.update = function(dt) { }//default update is a noop
-		this.draw = function(dt,c) { 
-				var depth = this.layer + (this.position.y - map.height / map.height) * 0.2;
+		this.draw = function(dt,c) {
+				var y = this.position.center().y
+				var depth = this.layer + (y / map.height) * 0.2;
 				c.draw( {
 					frame: this.frame,
 					pos: this.position,
@@ -693,8 +708,16 @@ var entBuilder = {
 			}//default draws frame based on position
 		this.collision = function(c) {
 				if(!c.trigger) {
-					this.position.x -= c.xVel;
-					this.position.y -= c.yVel;
+					var hori = c.xCol - Math.abs(c.xVel) <= 0;
+					var vert = c.yCol - Math.abs(c.yVel) <= 0;
+					if(hori && c.xVel < 0)
+						this.position.x += c.xCol;
+					if(hori && c.xVel > 0)
+						this.position.x -= c.xCol;
+					if(vert && c.yVel < 0)
+						this.position.y += c.yCol;
+					if(vert && c.yVel > 0)
+						this.position.y -= c.yCol;
 					this.collider.fix();
 				}
 			}//default collision detection
