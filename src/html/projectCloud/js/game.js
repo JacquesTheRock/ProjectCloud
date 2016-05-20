@@ -1,3 +1,12 @@
+var flags = {
+	draw : {
+		hitbox : true,
+		coords : false
+	},
+	debug: false
+
+}
+
 var keycodeMap = [
 "", // [0]
 "", // [1]
@@ -293,10 +302,24 @@ var map = {
 			this.initbuckets();
 			for (e of this.entities) {
 				e.update(gT);
+				if(e.collider) {
+					e.collider.fix();
+					bucket = this.colbuckets[0];
+					bucket[bucket.length] = e;
+				}
 			}
 			for (bucket of this.colbuckets) {
-				for(e of bucket) {
-					e.update();
+				for(x = 0; x < bucket.length; x++) {
+					for(y = x + 1; y < bucket.length; y++) {
+						if(x != y) {
+							var collision1 = bucket[x].collider.collides(bucket[y].collider);
+							if(collision1) {
+							var collision2 = bucket[y].collider.collides(bucket[x].collider);
+								bucket[x].collision(collision1);
+								bucket[y].collision(collision2);
+							}
+						}
+					}
 				}
 			}
 		},
@@ -307,6 +330,14 @@ var map = {
 			for (i = 0; i < this.tiles.length; i++) {
 				this.tiles[i].draw(gT,camera);
 			}
+		},
+	debugDraw: function(camera) {
+			if(flags.debug)
+				for(e of this.entities) {
+					if(flags.draw.hitbox && e.collider) {
+						e.collider.debugDraw(0,camera);
+					}
+				}
 		}
 }
 var time = new Date()
@@ -379,6 +410,7 @@ var gameArea = {
 			this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
 		},
 	loseFocus : function() {
+			controller.clear();
 		}
 
 }
@@ -439,6 +471,18 @@ function NewCamera(context, x, y) {
 			this.spriteData[this.spriteData.length] = SpriteDatum;
 		}
 	}
+	this.drawRect = function(x,y,w,h,color) {
+		if (!color)
+			this.ctx.fillStyle = "#000000";
+		else
+			this.ctx.fillStyle = color;
+		this.ctx.fillRect(
+			Math.round(x - this.Position.x),
+			Math.round(y - this.Position.y),
+			w,
+			h
+			);
+	}
 	this.show = function() {
 		if(this.spriteData.length < 100) return;
 		debug = document.getElementById("debug");
@@ -481,6 +525,19 @@ function loadGame() {
 	Images["player"] = document.getElementById("player");
 	Images["outside"] = document.getElementById("TS_outside");
 	map.entities[map.entities.length] =  newPlayer();
+	var ent = new entBuilder.newEntity();
+	ent.frame = new entBuilder.newFrame(Images["player"],54,54,60)
+	ent.position.width = 48; ent.position.height = 48;
+	ent.position.x = 100; ent.position.y = 100;
+	ent.frame.xBuffer = 10;
+	ent.frame.xBuffer = 10;
+	ent.collider = new entBuilder.newCollider(ent,24,24,8,24)
+	map.entities[map.entities.length] = ent;
+/*API: entBuilder
+newPos(x,y)
+newFrame(img,width,height,f)
+newEntity()
+*/
 	for (var x = 0; x < 20; x++) {
 		for (var y = 0; y < 20; y++) {
 			var pos = new Position.NewPosition(x*64, y*64)
@@ -521,6 +578,11 @@ function startGame() {
 	loadGame();
 }
 
+/*API: entBuilder
+newPos(x,y)
+newFrame(img,width,height,f)
+newEntity()
+*/
 var entBuilder = {
 	newPos : function(x,y) {
 		this.x = x;
@@ -556,26 +618,95 @@ var entBuilder = {
 		this.X = function() { return this.horizontal * (this.width + this.xBuffer) + this.xBuffer; }
 		this.Y = function() { return this.vertical * (this.height +this.yBuffer) + this.yBuffer; }
 	},
+	newCollider : function(entity, width,height, xoffset,yoffset) {
+		this.owner = entity;
+		this.width = width;
+		this.height = height;
+		this.xoffset = xoffset;
+		this.yoffset = yoffset;
+		this.Left = 0;
+		this.Top = 0;
+		this.Right = 0;
+		this.Bottom = 0;
+		this.deltaX = 0;
+		this.deltaY = 0;
+		this.trigger = false;
+		this.fix = function() {
+				var nextX = this.owner.position.x + xoffset;
+				var nextY = this.owner.position.y + yoffset;
+				this.deltaX = nextX - this.Left;
+				this.deltaY = nextY - this.Top;
+				this.Left = nextX;
+				this.Right = this.Left + this.width;
+				this.Top = nextY;
+				this.Bottom = this.Top + height;
+			}
+		this.intersects = function(other) { 
+				return (this.Left <= other.Right && 
+						this.Right >= other.Left &&
+						this.Top <= other.Bottom &&
+						this.Bottom >= other.Top);
+			}
+		this.contains = function(other) {
+				return this.Left <= other.Left &&
+					this.Right >= other.Right &&
+					this.Top <= other.Top &&
+					this.Bottom >= other.Bottom;
+			}
+		this.collides = function(other) {
+				var collision = { 
+						trigger: other.trigger,
+						collidewith: other.owner,
+						me: this.owner,
+						xVel : 0,
+						yVel : 0
+					}
+				if(this.intersects(other)) {
+					collision.xVel = this.deltaX;
+					collision.yVel = this.deltaY;
+					return collision;
+				} else {
+					return null;
+				}
+			}
+		this.debugDraw = function(dt,c) {
+				c.drawRect(this.Left, 
+					this.Top,
+					this.width, 
+					this.height,
+					'rgba(255,0,0,0.5)');
+			}
+	},
 	newEntity : function() {
 		this.position = new entBuilder.newPos(0,0);
 		this.frame = null;
+		this.collider = null;
+		this.layer = 0.5; //used for draw depth
 		this.update = function(dt) { }//default update is a noop
 		this.draw = function(dt,c) { 
-			var d =  Math.random();
-			c.draw( {
-				frame: this.frame,
-				pos: this.position,
-				depth: d
-			});
-		}//default draws frame based on position
+				var depth = this.layer + (this.position.y - map.height / map.height) * 0.2;
+				c.draw( {
+					frame: this.frame,
+					pos: this.position,
+					depth: depth
+				});
+			}//default draws frame based on position
+		this.collision = function(c) {
+				if(!c.trigger) {
+					this.position.x -= c.xVel;
+					this.position.y -= c.yVel;
+					this.collider.fix();
+				}
+			}//default collision detection
 	}
 }
 function newPlayer() {
-	out = new entBuilder.newEntity;
+	out = new entBuilder.newEntity();
 	out.speed = 3;
 	imge = Images["player"]; //document.getElementById("player");
 	out.position.width = 48;
 	out.position.height = 48;
+	out.collider = new entBuilder.newCollider(out, 24, 24, 8, 24);
 	out.frame = new entBuilder.newFrame(imge,54,54,50);
 	out.frame.xBuffer = 10;
 	out.frame.yBuffer = 10;
@@ -645,6 +776,7 @@ function updateGame() {
 
 	gameArea.clear();
 	cam.flush();
+	state.scene.debugDraw(cam);
 }
 
 
