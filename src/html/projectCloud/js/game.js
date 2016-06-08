@@ -301,25 +301,28 @@ nullandvoidgaming.com.projectCloud.Game.Position = {
 	}
 }
 
-var map = {
-	entities: [], //collision detection will be done
-	tiles : [], //no collission detection
-	colbuckets: [],
-	bucketsize: 5,
-	tilesize: 64,
-	width : 64 * 20,
-	height: 64 * 20,
-	initbuckets: function() {
-		this.colbuckets = [];
-		var count = (this.width * this.height) / (this.bucketsize * this.tilesize);
-		var i = 0;
-		do
-		{
-			this.colbuckets[i] = [];//initialize to a 0 array
-			i++;
-		} while (i < count)
-	},
-	update: function(gT) {
+nullandvoidgaming.com.projectCloud.Game.Map = function() {
+	this.entities = [];
+	this.tiles = [];
+	this.colbuckets = [];
+	this.bucketsize = 5;
+	this.tileSize = 0;
+	this.horTile = 0;
+	this.verTile = 0;
+	this.width = function() { return this.tileSize * this.horTile; };
+	this.height = function() { return this.tileSize * this.verTile; };
+	//This function is for collision detection to work
+	this.initbuckets = function()  {
+			this.colbuckets = [];
+			var count = (this.width() * this.height()) / (this.bucketsize * this.tileSize);
+			var i = 0;
+			do
+			{
+				this.colbuckets[i] = [];//initialize to a 0 array
+				i++;
+			} while (i < count);
+		};
+	this.update = function(gT) {
 			this.initbuckets();
 			for (e of this.entities) {
 				e.update(gT);
@@ -343,24 +346,28 @@ var map = {
 					}
 				}
 			}
-		},
-	draw: function(gT,camera) {
+		};
+	this.draw = function(gT,camera) {
 			for (i = 0; i < this.entities.length; i++) {
 				this.entities[i].draw(gT,camera);
 			}
 			for (i = 0; i < this.tiles.length; i++) {
 				this.tiles[i].draw(gT,camera);
 			}
-		},
-	debugDraw: function(camera) {
+		};
+	this.debugDraw = function(camera) {
 			if(nullandvoidgaming.com.projectCloud.flags.debug)
 				for(e of this.entities) {
 					if(nullandvoidgaming.com.projectCloud.flags.draw.hitbox && e.collider) {
 						e.collider.debugDraw(0,camera);
 					}
 				}
-		}
+		};
+	return this;
 }
+
+var map = new nullandvoidgaming.com.projectCloud.Game.Map();
+
 var time = new Date()
 var state = {
 	running: true,
@@ -416,7 +423,7 @@ nullandvoidgaming.com.projectCloud.IO.Input.KeyBoardController = function() {
 		};
 	return this;
 };
-var controller = nullandvoidgaming.com.projectCloud.IO.Input.KeyBoardController();
+var controller = new nullandvoidgaming.com.projectCloud.IO.Input.KeyBoardController();
 
 var gameArea = {
 	canvas: document.createElement("canvas"),
@@ -594,6 +601,9 @@ newEntity()
 			}
 		}
 	}
+	map.tileSize = 64;
+	map.horTile = 20;
+	map.verTile = 20;
 }
 
 
@@ -723,7 +733,7 @@ nullandvoidgaming.com.projectCloud.Entity.EntBuilder = {
 		this.update = function(dt) { }//default update is a noop
 		this.draw = function(dt,c) {
 				var y = this.position.center().y
-				var depth = this.layer + (y / map.height) * 0.2;
+				var depth = this.layer + (y / map.height()) * 0.2;
 				c.draw( {
 					frame: this.frame,
 					pos: this.position,
@@ -778,10 +788,10 @@ nullandvoidgaming.com.projectCloud.Entity.NewPlayer = function(imageStr,controll
 			y = y * 0.70710678;
 		}
 		if (this.position.x + x * this.speed < 1 ||
-			this.position.x + x * this.speed + this.position.width > map.width)
+			this.position.x + x * this.speed + this.position.width > map.width())
 			x = 0;
 		if (this.position.center().y + y * this.speed < 1 ||
-			this.position.y + y * this.speed + this.position.height > map.height)
+			this.position.y + y * this.speed + this.position.height > map.height())
 			y = 0;
 		if (x || y) {
 			if (x < 0) {
@@ -800,8 +810,8 @@ nullandvoidgaming.com.projectCloud.Entity.NewPlayer = function(imageStr,controll
 		} else {
 			this.frame.horizontal = 0;
 		}
-		cam.Position.x = ((this.position.center().x / map.width) * map.width) - 300;
-		cam.Position.y = ((this.position.center().y / map.height) * map.height) - 300;
+		cam.Position.x = ((this.position.center().x / map.width()) * map.width()) - 300;
+		cam.Position.y = ((this.position.center().y / map.height()) * map.height()) - 300;
 		if (controller.action) {
 			var debug = document.getElementById("debug");
 			debug.innerHTML = "<table border='1'>" +  controller.toString("</td>","<td>")  + "</table>";
