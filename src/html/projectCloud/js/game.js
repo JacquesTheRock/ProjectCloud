@@ -1,4 +1,36 @@
-var flags = {
+var nullandvoidgaming = {} || nullandvoidgaming;
+function makeSubNameSpace(ns, p) {
+	var nsparts = ns.split(".");
+	var parent = p;
+	var pName = parent.toString();
+	if(typeof parent === "undefined") {
+		parent = {};
+	}
+	for (i = 0; i < nsparts.length; i++) {
+		var name = nsparts[i];
+		if(typeof parent[name] === "undefined") {
+			parent[name] = {};
+		}
+		parent = parent[name];
+	}
+	return parent;
+}
+
+makeSubNameSpace("com.projectCloud.IO.Input", nullandvoidgaming);
+makeSubNameSpace("com.projectCloud.IO.Display", nullandvoidgaming);
+makeSubNameSpace("com.projectCloud.Entity", nullandvoidgaming);
+makeSubNameSpace("com.projectCloud.Game", nullandvoidgaming);
+
+/*
+var nullandvoidgaming = {
+	com : {
+		projectCloud : {
+		}
+	}
+}
+*/
+//Flags are a global namespace object
+nullandvoidgaming.com.projectCloud.flags = {
 	draw : {
 		hitbox : true,
 		coords : false
@@ -7,7 +39,7 @@ var flags = {
 
 }
 
-var keycodeMap = [
+nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap = [
 "", // [0]
 "", // [1]
 "", // [2]
@@ -265,7 +297,7 @@ var keycodeMap = [
 ];
 
 
-var Position = {
+nullandvoidgaming.com.projectCloud.Game.Position = {
 	NewPosition : function(x,y) {
 		this.x = x;
 		this.y = y;
@@ -275,11 +307,8 @@ var Position = {
 			this,y = this.y / cur;
 		}
 	}
-
-
-
-
 }
+
 var map = {
 	entities: [], //collision detection will be done
 	tiles : [], //no collission detection
@@ -292,7 +321,7 @@ var map = {
 		this.colbuckets = [];
 		var count = (this.width * this.height) / (this.bucketsize * this.tilesize);
 		var i = 0;
-		do 
+		do
 		{
 			this.colbuckets[i] = [];//initialize to a 0 array
 			i++;
@@ -332,9 +361,9 @@ var map = {
 			}
 		},
 	debugDraw: function(camera) {
-			if(flags.debug)
+			if(nullandvoidgaming.com.projectCloud.flags.debug)
 				for(e of this.entities) {
-					if(flags.draw.hitbox && e.collider) {
+					if(nullandvoidgaming.com.projectCloud.flags.draw.hitbox && e.collider) {
 						e.collider.debugDraw(0,camera);
 					}
 				}
@@ -343,7 +372,7 @@ var map = {
 var time = new Date()
 var state = {
 	running: true,
-	scene: map 
+	scene: map
 }
 
 var Images = [];
@@ -384,12 +413,12 @@ var controller = { //Player Controller
 		if (pre == null) pre = "";
 		if (sep == null) sep = "";
 		var out = "";
-		out += pre + "Up: " + keycodeMap[this.keymap.up] + sep;
-		out += pre + "Down: " + keycodeMap[this.keymap.down] + sep;
-		out += pre + "Left: " + keycodeMap[this.keymap.left] + sep;
-		out += pre + "Right: " + keycodeMap[this.keymap.right] + sep;
-		out += pre + "Action: " + keycodeMap[this.keymap.action] + sep;
-		out += pre + "Cancel: " + keycodeMap[this.keymap.cancel];
+		out += pre + "Up: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.up] + sep;
+		out += pre + "Down: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.down] + sep;
+		out += pre + "Left: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.left] + sep;
+		out += pre + "Right: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.right] + sep;
+		out += pre + "Action: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.action] + sep;
+		out += pre + "Cancel: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.cancel];
 		return out
 	}
 }
@@ -454,16 +483,16 @@ function MinHeapPop(a, compareFunc) {
 	return out;
 }
 
-function NewCamera(context, x, y) {
+nullandvoidgaming.com.projectCloud.IO.Display.NewCamera = function(context, x, y) {
 	this.ctx = context;
 	this.spriteData = [];
 	this.useDepth = true;
-	this.Position = new Position.NewPosition(x,y);
+	this.Position = new nullandvoidgaming.com.projectCloud.Game.Position.NewPosition(x,y);
 	this.draw = function(SpriteDatum) {
 		if(this.useDepth) {
 			MinHeapInsert(
-				this.spriteData,SpriteDatum, 
-				function(a,b) { 
+				this.spriteData,SpriteDatum,
+				function(a,b) {
 					return b == null || a.depth < b.depth;
 					}
 				);
@@ -490,8 +519,8 @@ function NewCamera(context, x, y) {
 		while (this.spriteData.length > 0) {
 			debug.innerHTML += "<li>" + MinHeapPop(
 				this.spriteData,
-				function(a,b) { 
-					return a.depth < b.depth; 
+				function(a,b) {
+					return a.depth < b.depth;
 					}
 				).depth + "</li>";
 		}
@@ -515,32 +544,32 @@ function NewCamera(context, x, y) {
 				);
 			}
 		} else {
-			
+
 		}
 	}
 }
 
 function loadGame() {
-	cam = new NewCamera(gameArea.context, 0,0);
+	cam = new nullandvoidgaming.com.projectCloud.IO.Display.NewCamera(gameArea.context, 0,0);
 	Images["player"] = document.getElementById("player");
 	Images["outside"] = document.getElementById("TS_outside");
-	map.entities[map.entities.length] =  newPlayer();
-	var ent = new entBuilder.newEntity();
-	ent.frame = new entBuilder.newFrame(Images["player"],54,54,60)
+	map.entities[map.entities.length] =  nullandvoidgaming.com.projectCloud.Entity.NewPlayer("player",controller);
+	var ent = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newEntity();
+	ent.frame = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newFrame(Images["player"],54,54,60)
 	ent.position.width = 48; ent.position.height = 48;
 	ent.position.x = 100; ent.position.y = 100;
 	ent.frame.xBuffer = 10;
 	ent.frame.xBuffer = 10;
-	ent.collider = new entBuilder.newCollider(ent,24,24,8,24)
+	ent.collider = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newCollider(ent,24,24,8,24)
 	map.entities[map.entities.length] = ent;
-/*API: entBuilder
+/*API:nullandvoidgaming.com.projectCloud.Entity.EntBuilder
 newPos(x,y)
 newFrame(img,width,height,f)
 newEntity()
 */
 	for (var x = 0; x < 20; x++) {
 		for (var y = 0; y < 20; y++) {
-			var pos = new Position.NewPosition(x*64, y*64)
+			var pos = new nullandvoidgaming.com.projectCloud.Game.Position.NewPosition(x*64, y*64)
 			pos.width = 64;
 			pos.height = 64;
 			var frame = {
@@ -578,22 +607,22 @@ function startGame() {
 	loadGame();
 }
 
-/*API: entBuilder
+/*API:nullandvoidgaming.com.projectCloud.Entity.EntBuilder
 newPos(x,y)
 newFrame(img,width,height,f)
 newEntity()
 */
-var entBuilder = {
+nullandvoidgaming.com.projectCloud.Entity.EntBuilder = {
 	newPos : function(x,y) {
 		this.x = x;
 		this.y = y;
 		this.width = 4;
 		this.height = 40;
-		this.center = function() { 
-			return { 
-				x: this.x + this.width /2, 
+		this.center = function() {
+			return {
+				x: this.x + this.width /2,
 				y: this.y + this.height/2
-			} 
+			}
 		}
 	},
 	newFrame : function(image,width,height, frequency) {
@@ -607,7 +636,7 @@ var entBuilder = {
 		this.yBuffer = 14;
 		this.time = frequency;
 		this.fCount = 8;
-		this.animate = function(dt) { 
+		this.animate = function(dt) {
 			this.time = this.time - dt;
 			if (this.time < 0 ) {
 				this.horizontal++;
@@ -641,8 +670,8 @@ var entBuilder = {
 				this.Top = nextY;
 				this.Bottom = this.Top + height;
 			}
-		this.intersects = function(other) { 
-				return (this.Left <= other.Right && 
+		this.intersects = function(other) {
+				return (this.Left <= other.Right &&
 						this.Right >= other.Left &&
 						this.Top <= other.Bottom &&
 						this.Bottom >= other.Top);
@@ -654,7 +683,7 @@ var entBuilder = {
 					this.Bottom >= other.Bottom;
 			}
 		this.collides = function(other) {
-				var collision = { 
+				var collision = {
 						trigger: other.trigger,
 						collidewith: other.owner,
 						me: this.owner,
@@ -684,15 +713,15 @@ var entBuilder = {
 				}
 			}
 		this.debugDraw = function(dt,c) {
-				c.drawRect(this.Left, 
+				c.drawRect(this.Left,
 					this.Top,
-					this.width, 
+					this.width,
 					this.height,
 					'rgba(255,0,0,0.5)');
 			}
 	},
 	newEntity : function() {
-		this.position = new entBuilder.newPos(0,0);
+		this.position = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newPos(0,0);
 		this.frame = null;
 		this.collider = null;
 		this.layer = 0.5; //used for draw depth
@@ -723,40 +752,41 @@ var entBuilder = {
 			}//default collision detection
 	}
 }
-function newPlayer() {
-	out = new entBuilder.newEntity();
+nullandvoidgaming.com.projectCloud.Entity.NewPlayer = function(imageStr,controller) {
+	out = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newEntity();
 	out.speed = 3;
-	imge = Images["player"]; //document.getElementById("player");
+	out.controller = controller;
+	imge = Images[imageStr]; //document.getElementById("player");
 	out.position.width = 48;
 	out.position.height = 48;
-	out.collider = new entBuilder.newCollider(out, 24, 24, 8, 24);
-	out.frame = new entBuilder.newFrame(imge,54,54,50);
+	out.collider = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newCollider(out, 24, 24, 8, 24);
+	out.frame = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newFrame(imge,54,54,50);
 	out.frame.xBuffer = 10;
 	out.frame.yBuffer = 10;
 	out.update = function(dt) {
 		var x = 0;
 		var y = 0;
-		if (controller.up) {
+		if (this.controller.up) {
 			y -= 1;
 		}
-		if (controller.down) {
+		if (this.controller.down) {
 			y += 1;
 		}
-		if (controller.right) {
+		if (this.controller.right) {
 			x+=1;
 		}
-		if (controller.left) {
+		if (this.controller.left) {
 			x-=1;
 		}
 		if (x && y) {
 			x = x * 0.70710678;
 			y = y * 0.70710678;
 		}
-		if (this.position.x + x * this.speed < 1 || 
-			this.position.x + x * this.speed + this.position.width > map.width) 
+		if (this.position.x + x * this.speed < 1 ||
+			this.position.x + x * this.speed + this.position.width > map.width)
 			x = 0;
-		if (this.position.center().y + y * this.speed < 1 || 
-			this.position.y + y * this.speed + this.position.height > map.height) 
+		if (this.position.center().y + y * this.speed < 1 ||
+			this.position.y + y * this.speed + this.position.height > map.height)
 			y = 0;
 		if (x || y) {
 			if (x < 0) {
