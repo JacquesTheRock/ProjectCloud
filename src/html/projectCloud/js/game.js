@@ -21,14 +21,6 @@ makeSubNameSpace("com.projectCloud.IO.Display", nullandvoidgaming);
 makeSubNameSpace("com.projectCloud.Entity", nullandvoidgaming);
 makeSubNameSpace("com.projectCloud.Game", nullandvoidgaming);
 
-/*
-var nullandvoidgaming = {
-	com : {
-		projectCloud : {
-		}
-	}
-}
-*/
 //Flags are a global namespace object
 nullandvoidgaming.com.projectCloud.flags = {
 	draw : {
@@ -376,52 +368,55 @@ var state = {
 }
 
 var Images = [];
-var controller = { //Player Controller
-	keymap : {
-		up : 38,
-		down : 40,
-		left : 37,
-		right : 39,
-		action: 65,
-		cancel: 88
-	},
-	up : 0,
-	down: 0,
-	left : 0,
-	right : 0,
-	action : 0,
-	cancel: 0,
-	keyChange : function(e,val) {
-		if (e.keyCode == controller.keymap.up) { controller.up = val; }
-		if (e.keyCode == controller.keymap.down) { controller.down = val; }
-		if (e.keyCode == controller.keymap.left) { controller.left = val; }
-		if (e.keyCode == controller.keymap.right) { controller.right = val; }
-		if (e.keyCode == controller.keymap.action) { controller.action = val; }
-		if (e.keyCode == controller.keymap.cancel) { controller.cancel = val; }
-	},
-	relKey : function(e) { controller.keyChange(e,0); },
-	pressKey : function(e) { controller.keyChange(e,1); },
-	clear : function() { //lose focus means no keys are pressed
-		controller.up = 0;
-		controller.down = 0;
-		controller.left = 0;
-		controller.right = 0;
-		controller.action = 0;
-		controller.cancel = 0;
-	},
-	toString: function(sep, pre) {
-		if (pre == null) pre = "";
-		if (sep == null) sep = "";
-		var out = "";
-		out += pre + "Up: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.up] + sep;
-		out += pre + "Down: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.down] + sep;
-		out += pre + "Left: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.left] + sep;
-		out += pre + "Right: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.right] + sep;
-		out += pre + "Action: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.action] + sep;
-		out += pre + "Cancel: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.cancel];
-		return out
-	}
-}
+
+nullandvoidgaming.com.projectCloud.IO.Input.KeyBoardController = function() {
+	this.keymap = {
+			up : 38,
+			down : 40,
+			left : 37,
+			right : 39,
+			action: 65,
+			cancel: 88
+		};
+	this.up = 0;
+	this.down = 0;
+	this.left = 0;
+	this.right = 0;
+	this.action = 0;
+	this.cancel = 0;
+	this.keyChange = function(e,val) {
+			if (e.keyCode == controller.keymap.up) { controller.up = val; }
+			if (e.keyCode == controller.keymap.down) { controller.down = val; }
+			if (e.keyCode == controller.keymap.left) { controller.left = val; }
+			if (e.keyCode == controller.keymap.right) { controller.right = val; }
+			if (e.keyCode == controller.keymap.action) { controller.action = val; }
+			if (e.keyCode == controller.keymap.cancel) { controller.cancel = val; }
+		};
+	this.relKey = function(e) { controller.keyChange(e,0); };
+	this.pressKey = function(e) { controller.keyChange(e,1); };
+	this.clear = function() { //lose focus means no keys are pressed
+			controller.up = 0;
+			controller.down = 0;
+			controller.left = 0;
+			controller.right = 0;
+			controller.action = 0;
+			controller.cancel = 0;
+		};
+	this.toString = function(sep, pre) {
+			if (pre == null) pre = "";
+			if (sep == null) sep = "";
+			var out = "";
+			out += pre + "Up: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.up] + sep;
+			out += pre + "Down: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.down] + sep;
+			out += pre + "Left: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.left] + sep;
+			out += pre + "Right: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.right] + sep;
+			out += pre + "Action: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.action] + sep;
+			out += pre + "Cancel: " + nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap[this.keymap.cancel];
+			return out
+		};
+	return this;
+};
+var controller = nullandvoidgaming.com.projectCloud.IO.Input.KeyBoardController();
 
 var gameArea = {
 	canvas: document.createElement("canvas"),
