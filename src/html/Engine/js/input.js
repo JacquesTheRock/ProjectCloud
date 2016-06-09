@@ -260,6 +260,7 @@ nullandvoidgaming.com.Engine.IO.Input.keycodeMap = [
 ];
 
 nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
+	me = this;
 	this.keymap = {
 			up : 38,
 			down : 40,
@@ -275,34 +276,51 @@ nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 	this.action = 0;
 	this.cancel = 0;
 	this.keyChange = function(e,val) {
-			if (e.keyCode == controller.keymap.up) { controller.up = val; }
-			if (e.keyCode == controller.keymap.down) { controller.down = val; }
-			if (e.keyCode == controller.keymap.left) { controller.left = val; }
-			if (e.keyCode == controller.keymap.right) { controller.right = val; }
-			if (e.keyCode == controller.keymap.action) { controller.action = val; }
-			if (e.keyCode == controller.keymap.cancel) { controller.cancel = val; }
+			if (e.keyCode == me.keymap.up) { me.up = val; }
+			if (e.keyCode == me.keymap.down) { me.down = val; }
+			if (e.keyCode == me.keymap.left) { me.left = val; }
+			if (e.keyCode == me.keymap.right) { me.right = val; }
+			if (e.keyCode == me.keymap.action) { me.action = val; }
+			if (e.keyCode == me.keymap.cancel) { me.cancel = val; }
 		};
-	this.relKey = function(e) { controller.keyChange(e,0); };
-	this.pressKey = function(e) { controller.keyChange(e,1); };
+	this.relKey = function(e) { me.keyChange(e,0); };
+	this.pressKey = function(e) { me.keyChange(e,1); };
 	this.clear = function() { //lose focus means no keys are pressed
-			controller.up = 0;
-			controller.down = 0;
-			controller.left = 0;
-			controller.right = 0;
-			controller.action = 0;
-			controller.cancel = 0;
+			me.up = 0;
+			me.down = 0;
+			me.left = 0;
+			me.right = 0;
+			me.action = 0;
+			me.cancel = 0;
 		};
 	this.toString = function(sep, pre) {
 			if (pre == null) pre = "";
 			if (sep == null) sep = "";
 			var out = "";
-			out += pre + "Up: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.up] + sep;
-			out += pre + "Down: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.down] + sep;
-			out += pre + "Left: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.left] + sep;
-			out += pre + "Right: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.right] + sep;
-			out += pre + "Action: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.action] + sep;
-			out += pre + "Cancel: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.cancel];
+			out += pre + "Up: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.up] + sep;
+			out += pre + "Down: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.down] + sep;
+			out += pre + "Left: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.left] + sep;
+			out += pre + "Right: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.right] + sep;
+			out += pre + "Action: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.action] + sep;
+			out += pre + "Cancel: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.cancel];
 			return out
 		};
+	this.setControlled = function(controlled) {
+		me.p = controlled;
+		me.clear();
+		if(controlled == null) return;
+		window.addEventListener('keydown', 
+			function(e) { 
+				if(me.p == null) window.removeEventListener('keydown',this);
+				else me.pressKey(e); 
+				} 
+			);
+		window.addEventListener('keyup', 
+			function(e) { 
+				if(me.p == null) window.removeEventListener('keyup', this);
+				else me.relKey(e); 
+				}
+			);
+	}
 	return this;
 };

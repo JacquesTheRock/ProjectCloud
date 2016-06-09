@@ -132,6 +132,7 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 
 nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr,controller) {
 	out = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newEntity();
+	controller.setControlled(out);
 	out.speed = 3;
 	out.controller = controller;
 	imge = nullandvoidgaming.com.Engine.IO.Display.getImage(imageStr);

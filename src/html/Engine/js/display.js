@@ -13,9 +13,17 @@ nullandvoidgaming.com.Engine.IO.Display.setImage = function(id,img) {
 	nullandvoidgaming.com.Engine.IO.Display.images[id] = img;
 }
 
+nullandvoidgaming.com.Engine.IO.Display.isLower = function(a,b) {
+	return b == null || a.depth < b.depth;
+}
+nullandvoidgaming.com.Engine.IO.Display.isHigher = function(a,b) {
+	return b == null || a.depth > b.depth;
+}
+
 nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, width, height) {
 	this.ctx = context;
 	this.spriteData = [];
+	this.spriteDataLength = 0;
 	this.useDepth = true;
 	this.position = new nullandvoidgaming.com.Engine.Game.Position.NewPosition(x,y);
 	this.follows = null;
@@ -34,12 +42,11 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 		if(this.useDepth) {
 			nullandvoidgaming.com.Engine.util.MinHeapInsert(
 				this.spriteData,SpriteDatum,
-				function(a,b) {
-					return b == null || a.depth < b.depth;
-					}
+					nullandvoidgaming.com.Engine.IO.Display.isLower,
+				this.spriteDataLength++
 				);
 		} else {
-			this.spriteData[this.spriteData.length] = SpriteDatum;
+			this.spriteData[this.spriteDataLength++] = SpriteDatum;
 		}
 	};
 	this.drawRect = function(x,y,w,h,color) {
@@ -55,23 +62,27 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 			);
 	};
 	this.show = function() {
-		if(this.spriteData.length < 100) return;
+		if(this.spriteDataLength < 100) return;
 		debug = document.getElementById("debug");
 		debug.innerHTML = "<ol>";
-		while (this.spriteData.length > 0) {
+		while (this.spriteDataLength > 0) {
 			debug.innerHTML += "<li>" + nullandvoidgaming.com.Engine.util.MinHeapPop(
 				this.spriteData,
 				function(a,b) {
 					return a.depth < b.depth;
-					}
+					},
+				this.spriteDataLength
 				).depth + "</li>";
 		}
 		debug.innerHTML = "</ol>";
 	};
 	this.flush = function() {
 		if(this.useDepth) {
-			while(this.spriteData.length > 0) {
-				var data =  nullandvoidgaming.com.Engine.util.MinHeapPop(this.spriteData, function(a,b) { return a.depth < b.depth; });
+			while(this.spriteDataLength > 0) {
+				var data =  nullandvoidgaming.com.Engine.util.MinHeapPop(
+					this.spriteData,
+					nullandvoidgaming.com.Engine.IO.Display.isLower,
+					this.spriteDataLength--);
 				this.ctx.drawImage(
 					data.frame.image,
 					data.frame.X(),
@@ -85,6 +96,7 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 
 				);
 			}
+			this.spriteDataLength = 0;
 		} else {
 
 		}

@@ -78,7 +78,7 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 				e.update(gT);
 				if(e.collider) {
 					e.collider.fix();
-					bucket = this.colbuckets[0];
+					bucket = this.colbuckets[0];//TODO: Choose Bucket smartly
 					bucket[bucket.length] = e;
 				}
 			}
@@ -98,11 +98,26 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 			}
 		};
 	this.draw = function(gT,camera) {
+			var Game =  nullandvoidgaming.com.Engine.Game;
 			for (i = 0; i < this.entities.length; i++) {
 				this.entities[i].draw(gT,camera);
 			}
-			for (i = 0; i < this.tiles.length; i++) {
-				this.tiles[i].draw(gT,camera);
+			//Draw only tiles we can see
+			var yS = Math.max(0,camera.position.vector.y / Game.state.scene.tileSize - 1);
+			var yE = Math.min(yS + 1+ (camera.position.height / Game.state.scene.tileSize), 
+				Game.state.scene.verTile);
+			var xS = Math.max(0,camera.position.vector.x / Game.state.scene.tileSize - 1);
+			var xE = Math.min(xS + 1 + (camera.position.width / Game.state.scene.tileSize),
+				Game.state.scene.horTile);
+			yS = Math.floor(yS) ;
+			yE = Math.ceil(yE);
+			xS = Math.floor(xS);
+			xE = Math.ceil(xE);
+			for (var y = yS; y < yE ; y++) {
+				for (var x = xS;  x < xE; x++) {
+					var id = y*Game.state.scene.horTile + x;
+					Game.state.scene.tiles[ id ].draw(gT,camera);
+				}
 			}
 		};
 	this.debugDraw = function(camera) {
