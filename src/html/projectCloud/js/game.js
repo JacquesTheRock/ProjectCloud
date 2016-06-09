@@ -291,13 +291,50 @@ nullandvoidgaming.com.projectCloud.IO.Input.keycodeMap = [
 
 nullandvoidgaming.com.projectCloud.Game.Position = {
 	NewPosition : function(x,y) {
+		this.vector = new nullandvoidgaming.com.projectCloud.Game.Vector.NewVector(x,y);
+		this.width = 0;
+		this.height = 0;
+		this.center = function() {
+				var out = new nullandvoidgaming.com.projectCloud.Game.Vector.NewVector(this.vector.x + this.width / 2, this.vector.y + this.height / 2);
+				return out;
+			};
+		this.setcenter = function(vector) {
+				this.vector.x = vector.x - this.width / 2;
+				this.vector.y = vector.y - this.height / 2;
+			};
+		return this;
+	}
+}
+
+nullandvoidgaming.com.projectCloud.Game.Vector = {
+	NewVector : function(x,y) {
 		this.x = x;
 		this.y = y;
-		this.Normalize = function() {
-			cur = Math.sqrt((this.x * this.x) + (this.y * this.y));
-			this.x = this.x / cur;
-			this,y = this.y / cur;
-		}
+		return this;
+	},
+	Add : function(op1,op2) {
+		var Vector = nullandvoidgaming.com.projectCloud.Game.Vector;
+		return new Vector.NewVector(op1.x + op2.x,op1.y + op2.y);
+	},
+	Subtract : function(op1,op2) {
+		var Vector = nullandvoidgaming.com.projectCloud.Game.Vector;
+		return new Vector.NewVector(op1.x - op2.x,op1.y - op2.y);
+	},
+	Multiply : function(op,f) {
+		var Vector = nullandvoidgaming.com.projectCloud.Game.Vector;
+		return new Vector.NewVector(op.x * f,op.y * f);
+
+	},
+	Normalize : function(op) {
+			var Vector = nullandvoidgaming.com.projectCloud.Game.Vector;
+			var out = Vector.NewVector(0,0);
+			var len = this.Length(op);
+			out.x = op.x / len;
+			out.y = op.y / len;
+			return out;
+	},
+	Length : function(op) {
+			return Math.sqrt((op.x * op.x) + (op.y * op.y));
 	}
 }
 
@@ -485,11 +522,23 @@ function MinHeapPop(a, compareFunc) {
 	return out;
 }
 
-nullandvoidgaming.com.projectCloud.IO.Display.NewCamera = function(context, x, y) {
+nullandvoidgaming.com.projectCloud.IO.Display.NewCamera = function(context, x, y, width, height) {
 	this.ctx = context;
 	this.spriteData = [];
 	this.useDepth = true;
-	this.Position = new nullandvoidgaming.com.projectCloud.Game.Position.NewPosition(x,y);
+	this.position = new nullandvoidgaming.com.projectCloud.Game.Position.NewPosition(x,y);
+	this.follows = null;
+	this.followDamper = 0; //essentially k in Spring Equatioon (F = kX)
+	if(typeof width === "undefined") {
+		this.position.width = context.canvas.width;
+	} else {
+		this.position.width = width;
+	}
+	if(typeof height === "undefined") {
+		this.position.height = context.canvas.height;
+	} else {
+		this.position.height = height;
+	}
 	this.draw = function(SpriteDatum) {
 		if(this.useDepth) {
 			MinHeapInsert(
@@ -501,19 +550,19 @@ nullandvoidgaming.com.projectCloud.IO.Display.NewCamera = function(context, x, y
 		} else {
 			this.spriteData[this.spriteData.length] = SpriteDatum;
 		}
-	}
+	};
 	this.drawRect = function(x,y,w,h,color) {
 		if (!color)
 			this.ctx.fillStyle = "#000000";
 		else
 			this.ctx.fillStyle = color;
 		this.ctx.fillRect(
-			Math.round(x - this.Position.x),
-			Math.round(y - this.Position.y),
+			Math.round(x - this.position.vector.x),
+			Math.round(y - this.position.vector.y),
 			w,
 			h
 			);
-	}
+	};
 	this.show = function() {
 		if(this.spriteData.length < 100) return;
 		debug = document.getElementById("debug");
@@ -527,19 +576,19 @@ nullandvoidgaming.com.projectCloud.IO.Display.NewCamera = function(context, x, y
 				).depth + "</li>";
 		}
 		debug.innerHTML = "</ol>";
-	}
+	};
 	this.flush = function() {
 		if(this.useDepth) {
 			while(this.spriteData.length > 0) {
-				data =  MinHeapPop(this.spriteData, function(a,b) { return a.depth < b.depth; });
+				var data =  MinHeapPop(this.spriteData, function(a,b) { return a.depth < b.depth; });
 				this.ctx.drawImage(
 					data.frame.image,
 					data.frame.X(),
 					data.frame.Y(),
 					data.frame.width,
 					data.frame.height,
-					Math.round(data.pos.x - this.Position.x),
-					Math.round(data.pos.y - this.Position.y),
+					Math.round(data.pos.vector.x - this.position.vector.x),
+					Math.round(data.pos.vector.y - this.position.vector.y),
 					data.pos.width,
 					data.pos.height
 
@@ -548,19 +597,40 @@ nullandvoidgaming.com.projectCloud.IO.Display.NewCamera = function(context, x, y
 		} else {
 
 		}
-	}
+	};
+	this.followEntity = function(ent,damper) {
+		if(typeof ent.position !== "undefined") {
+			this.follows = ent.position;
+			this.position.setcenter(ent.position.center());
+		}
+		if(typeof damper === "number")
+			this.followDamper = damper;
+		else
+			this.followDamper= 500;//default should be no dampening
+	};
+	this.update = function(gT) {
+		if(this.follows) {
+			var Vector = nullandvoidgaming.com.projectCloud.Game.Vector;
+			var c = this.follows.center();
+			var myC = this.position.center();
+			var F = Vector.Multiply(Vector.Subtract(myC,c),this.followDamper);
+			this.position.setcenter(Vector.Subtract(myC,F));
+		}
+	};
 }
 
 function loadGame() {
 	cam = new nullandvoidgaming.com.projectCloud.IO.Display.NewCamera(gameArea.context, 0,0);
 	Images["player"] = document.getElementById("player");
 	Images["outside"] = document.getElementById("TS_outside");
-	map.entities[map.entities.length] =  nullandvoidgaming.com.projectCloud.Entity.NewPlayer("player",controller);
+
+	var p1 =  nullandvoidgaming.com.projectCloud.Entity.NewPlayer("player",controller);
+	map.entities[map.entities.length] =  p1;
+	cam.followEntity(p1,0.08);
 	var ent = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newEntity();
 	ent.frame = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newFrame(Images["player"],54,54,60)
 	ent.position.width = 48; ent.position.height = 48;
-	ent.position.x = 100; ent.position.y = 100;
-	ent.frame.xBuffer = 10;
+	ent.position.vector.x = 100; ent.position.vector.y = 100;
 	ent.frame.xBuffer = 10;
 	ent.collider = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newCollider(ent,24,24,8,24)
 	map.entities[map.entities.length] = ent;
@@ -618,18 +688,6 @@ newFrame(img,width,height,f)
 newEntity()
 */
 nullandvoidgaming.com.projectCloud.Entity.EntBuilder = {
-	newPos : function(x,y) {
-		this.x = x;
-		this.y = y;
-		this.width = 4;
-		this.height = 40;
-		this.center = function() {
-			return {
-				x: this.x + this.width /2,
-				y: this.y + this.height/2
-			}
-		}
-	},
 	newFrame : function(image,width,height, frequency) {
 		this.image = image;
 		this.horizontal = 0;
@@ -666,8 +724,8 @@ nullandvoidgaming.com.projectCloud.Entity.EntBuilder = {
 		this.deltaY = 0;
 		this.trigger = false;
 		this.fix = function() {
-				var nextX = this.owner.position.x + xoffset;
-				var nextY = this.owner.position.y + yoffset;
+				var nextX = this.owner.position.vector.x + xoffset;
+				var nextY = this.owner.position.vector.y + yoffset;
 				this.deltaX = nextX - this.Left;
 				this.deltaY = nextY - this.Top;
 				this.Left = nextX;
@@ -726,13 +784,13 @@ nullandvoidgaming.com.projectCloud.Entity.EntBuilder = {
 			}
 	},
 	newEntity : function() {
-		this.position = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newPos(0,0);
+		this.position = new nullandvoidgaming.com.projectCloud.Game.Position.NewPosition(0,0);
 		this.frame = null;
 		this.collider = null;
 		this.layer = 0.5; //used for draw depth
 		this.update = function(dt) { }//default update is a noop
 		this.draw = function(dt,c) {
-				var y = this.position.center().y
+				var y = this.position.center().y;
 				var depth = this.layer + (y / map.height()) * 0.2;
 				c.draw( {
 					frame: this.frame,
@@ -745,13 +803,13 @@ nullandvoidgaming.com.projectCloud.Entity.EntBuilder = {
 					var hori = c.xCol - Math.abs(c.xVel) <= 0;
 					var vert = c.yCol - Math.abs(c.yVel) <= 0;
 					if(hori && c.xVel < 0)
-						this.position.x += c.xCol;
+						this.position.vector.x += c.xCol;
 					if(hori && c.xVel > 0)
-						this.position.x -= c.xCol;
+						this.position.vector.x -= c.xCol;
 					if(vert && c.yVel < 0)
-						this.position.y += c.yCol;
+						this.position.vector.y += c.yCol;
 					if(vert && c.yVel > 0)
-						this.position.y -= c.yCol;
+						this.position.vector.y -= c.yCol;
 					this.collider.fix();
 				}
 			}//default collision detection
@@ -787,11 +845,11 @@ nullandvoidgaming.com.projectCloud.Entity.NewPlayer = function(imageStr,controll
 			x = x * 0.70710678;
 			y = y * 0.70710678;
 		}
-		if (this.position.x + x * this.speed < 1 ||
-			this.position.x + x * this.speed + this.position.width > map.width())
+		if (this.position.vector.x + x * this.speed < 1 ||
+			this.position.vector.x + x * this.speed + this.position.width > map.width())
 			x = 0;
 		if (this.position.center().y + y * this.speed < 1 ||
-			this.position.y + y * this.speed + this.position.height > map.height())
+			this.position.vector.y + y * this.speed + this.position.height > map.height())
 			y = 0;
 		if (x || y) {
 			if (x < 0) {
@@ -805,13 +863,11 @@ nullandvoidgaming.com.projectCloud.Entity.NewPlayer = function(imageStr,controll
 				this.frame.vertical = 2;
 			}
 			this.frame.animate(20 * (Math.abs(x) + Math.abs(y)));
-			this.position.x += x * this.speed;
-			this.position.y += y * this.speed;
+			this.position.vector.x += x * this.speed;
+			this.position.vector.y += y * this.speed;
 		} else {
 			this.frame.horizontal = 0;
 		}
-		cam.Position.x = ((this.position.center().x / map.width()) * map.width()) - 300;
-		cam.Position.y = ((this.position.center().y / map.height()) * map.height()) - 300;
 		if (controller.action) {
 			var debug = document.getElementById("debug");
 			debug.innerHTML = "<table border='1'>" +  controller.toString("</td>","<td>")  + "</table>";
@@ -829,6 +885,7 @@ function updateGame() {
 
 	if (state.running) {
 		state.scene.update();
+		cam.update();
 	}
 	state.scene.draw(gT,cam);
 
