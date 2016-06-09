@@ -606,15 +606,19 @@ nullandvoidgaming.com.projectCloud.IO.Display.NewCamera = function(context, x, y
 		if(typeof damper === "number")
 			this.followDamper = damper;
 		else
-			this.followDamper= 500;//default should be no dampening
+			this.followDamper = -1;//default should be no dampening
 	};
 	this.update = function(gT) {
 		if(this.follows) {
 			var Vector = nullandvoidgaming.com.projectCloud.Game.Vector;
 			var c = this.follows.center();
-			var myC = this.position.center();
-			var F = Vector.Multiply(Vector.Subtract(myC,c),this.followDamper);
-			this.position.setcenter(Vector.Subtract(myC,F));
+			if(this.followDamper < 0) {
+				this.position.setcenter(c);
+			} else {
+				var myC = this.position.center();
+				var F = Vector.Multiply(Vector.Subtract(myC,c),this.followDamper);
+				this.position.setcenter(Vector.Subtract(myC,F));
+			}
 		}
 	};
 }
@@ -626,7 +630,7 @@ function loadGame() {
 
 	var p1 =  nullandvoidgaming.com.projectCloud.Entity.NewPlayer("player",controller);
 	map.entities[map.entities.length] =  p1;
-	cam.followEntity(p1,0.08);
+	cam.followEntity(p1,0.07);
 	var ent = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newEntity();
 	ent.frame = new nullandvoidgaming.com.projectCloud.Entity.EntBuilder.newFrame(Images["player"],54,54,60)
 	ent.position.width = 48; ent.position.height = 48;
