@@ -2,14 +2,12 @@ if(typeof nullandvoidgaming === "undefined")
 	throw new Error("FATAL: nullandvoidgaming namespace missing");
 nullandvoidgaming.makeSubNameSpace("com.projectCloud", nullandvoidgaming);
 
-var map = new nullandvoidgaming.com.Engine.Game.Map();
 var time = new Date()
-var state = {
+nullandvoidgaming.com.Engine.Game.state = {
 	running: true,
-	scene: map
+	scene: new nullandvoidgaming.com.Engine.Game.Map()
 }
 
-var Images = [];
 
 var controller = new nullandvoidgaming.com.Engine.IO.Input.KeyBoardController();
 
@@ -37,27 +35,30 @@ var gameArea = {
 var cam = null;
 
 function loadGame() {
-	cam = new nullandvoidgaming.com.Engine.IO.Display.NewCamera(gameArea.context, 0,0);
-	Images["player"] = document.getElementById("player");
-	Images["outside"] = document.getElementById("TS_outside");
+	var Display = nullandvoidgaming.com.Engine.IO.Display;
+	var Game = nullandvoidgaming.com.Engine.Game;
+	var projectCloud = nullandvoidgaming.com.projectCloud;
+	nullandvoidgaming.com.projectCloud.cam = new Display.NewCamera(gameArea.context, 0,0);
+	Display.setImage("player",document.getElementById("player"));
+	Display.setImage("outside",document.getElementById("TS_outside"));
 
 	var p1 =  nullandvoidgaming.com.Engine.Entity.NewPlayer("player",controller);
-	map.entities[map.entities.length] =  p1;
-	cam.followEntity(p1,0.07);
+	Game.state.scene.entities[Game.state.scene.entities.length] =  p1;
+	projectCloud.cam.followEntity(p1,0.07);
 	var ent = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newEntity();
-	ent.frame = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newFrame(Images["player"],54,54,60)
+	ent.frame = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newFrame(Display.getImage("player"),54,54,60);
 	ent.position.width = 48; ent.position.height = 48;
 	ent.position.vector.x = 100; ent.position.vector.y = 100;
 	ent.frame.xBuffer = 10;
-	ent.collider = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newCollider(ent,24,24,8,24)
-	map.entities[map.entities.length] = ent;
+	ent.collider = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newCollider(ent,24,24,8,24);
+	Game.state.scene.entities[Game.state.scene.entities.length] = ent;
 	for (var x = 0; x < 20; x++) {
 		for (var y = 0; y < 20; y++) {
-			var pos = new nullandvoidgaming.com.Engine.Game.Position.NewPosition(x*64, y*64)
+			var pos = new Game.Position.NewPosition(x*64, y*64)
 			pos.width = 64;
 			pos.height = 64;
 			var frame = {
-					image : Images["outside"],
+					image : Display.getImage("outside"),
 					horizontal : 1,
 					vertical : 1,
 					X : function() { return this.horizontal * this.width;},
@@ -70,7 +71,7 @@ function loadGame() {
 			if( x == 19) { frame.horizontal = 2; }
 			if( y == 19) { frame.vertical = 2;}
 
-			map.tiles[map.tiles.length] = {
+			Game.state.scene.tiles[Game.state.scene.tiles.length] = {
 				pos: pos,
 				frame: frame,
 				draw: function(dt,c) {
@@ -83,9 +84,9 @@ function loadGame() {
 			}
 		}
 	}
-	map.tileSize = 64;
-	map.horTile = 20;
-	map.verTile = 20;
+	Game.state.scene.tileSize = 64;
+	Game.state.scene.horTile = 20;
+	Game.state.scene.verTile = 20;
 }
 
 
@@ -95,17 +96,19 @@ function startGame() {
 }
 
 function updateGame() {
+	var using = nullandvoidgaming.com.projectCloud;
+	var Game = nullandvoidgaming.com.Engine.Game;
 	var oldTime = time;
 	time = new Date();
 	var gT = time - oldTime;
 
-	if (state.running) {
-		state.scene.update();
-		cam.update();
+	if (Game.state.running) {
+		Game.state.scene.update();
+		using.cam.update();
 	}
-	state.scene.draw(gT,cam);
+	Game.state.scene.draw(gT,using.cam);
 
 	gameArea.clear();
-	cam.flush();
-	state.scene.debugDraw(cam);
+	using.cam.flush();
+	Game.state.scene.debugDraw(using.cam);
 }

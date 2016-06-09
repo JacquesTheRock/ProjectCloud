@@ -105,7 +105,7 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 		this.update = function(dt) { }//default update is a noop
 		this.draw = function(dt,c) {
 				var y = this.position.center().y;
-				var depth = this.layer + (y / map.height()) * 0.2;
+				var depth = this.layer + (y / nullandvoidgaming.com.Engine.Game.state.scene.height()) * 0.2;
 				c.draw( {
 					frame: this.frame,
 					pos: this.position,
@@ -134,7 +134,7 @@ nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr,controller) {
 	out = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newEntity();
 	out.speed = 3;
 	out.controller = controller;
-	imge = Images[imageStr]; //document.getElementById("player");
+	imge = nullandvoidgaming.com.Engine.IO.Display.getImage(imageStr);
 	out.position.width = 48;
 	out.position.height = 48;
 	out.collider = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newCollider(out, 24, 24, 8, 24);
@@ -142,6 +142,7 @@ nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr,controller) {
 	out.frame.xBuffer = 10;
 	out.frame.yBuffer = 10;
 	out.update = function(dt) {
+		var map = nullandvoidgaming.com.Engine.Game.state.scene;
 		var x = 0;
 		var y = 0;
 		if (this.controller.up) {
@@ -161,22 +162,22 @@ nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr,controller) {
 			y = y * 0.70710678;
 		}
 		if (this.position.vector.x + x * this.speed < 1 ||
-			this.position.vector.x + x * this.speed + this.position.width > map.width())
-			x = 0;
+		this.position.vector.x + x * this.speed + this.position.width > map.width())
+		x = 0;
 		if (this.position.center().y + y * this.speed < 1 ||
-			this.position.vector.y + y * this.speed + this.position.height > map.height())
-			y = 0;
-		if (x || y) {
-			if (x < 0) {
-				this.frame.vertical = 1;
-			} else if (x > 0) {
-				this.frame.vertical = 3;
-			}
-			else if(y<0) {
-				this.frame.vertical = 0;
-			} else if (y > 0) {
-				this.frame.vertical = 2;
-			}
+		this.position.vector.y + y * this.speed + this.position.height > map.height())
+		y = 0;
+		if (x < 0) {
+			this.frame.vertical = 1;
+		} else if (x > 0) {
+			this.frame.vertical = 3;
+		}
+		else if(y<0) {
+			this.frame.vertical = 0;
+		} else if (y > 0) {
+			this.frame.vertical = 2;
+		}
+		if(x||y) {
 			this.frame.animate(20 * (Math.abs(x) + Math.abs(y)));
 			this.position.vector.x += x * this.speed;
 			this.position.vector.y += y * this.speed;

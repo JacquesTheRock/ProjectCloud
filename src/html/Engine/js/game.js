@@ -18,6 +18,7 @@ nullandvoidgaming.com.Engine.Game.Position = {
 	}
 }
 
+
 nullandvoidgaming.com.Engine.Game.Vector = {
 	NewVector : function(x,y) {
 		this.x = x;
@@ -112,5 +113,27 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 					}
 				}
 		};
+
 	return this;
+}
+
+
+/*
+This is an 'Interface' definition
+*/
+nullandvoidgaming.com.Engine.Game.Scene = function() {
+	this.update = function(gT) { };
+	this.width = function() {
+			return 10000000;
+		};
+	this.height = function() {
+		return 10000000;
+		 };
+	this.draw = function(gT,camera) { };
+	this.debugDraw = function(camera) { };
+}
+
+nullandvoidgaming.com.Engine.Game.state = {
+	running: false,
+	scene: new nullandvoidgaming.com.Engine.Game.Scene()
 }

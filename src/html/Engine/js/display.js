@@ -2,6 +2,17 @@ if(typeof nullandvoidgaming === "undefined")
 	throw new Error("Fatal: nullandvoidgaming namespace missing");
 nullandvoidgaming.makeSubNameSpace("com.Engine.IO.Display", nullandvoidgaming);
 
+
+nullandvoidgaming.com.Engine.IO.Display.images = [];
+
+nullandvoidgaming.com.Engine.IO.Display.getImage = function(id) {
+	return nullandvoidgaming.com.Engine.IO.Display.images[id];
+}
+
+nullandvoidgaming.com.Engine.IO.Display.setImage = function(id,img) {
+	nullandvoidgaming.com.Engine.IO.Display.images[id] = img;
+}
+
 nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, width, height) {
 	this.ctx = context;
 	this.spriteData = [];
