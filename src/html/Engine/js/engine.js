@@ -1,3 +1,4 @@
+'use strict';
 if(typeof nullandvoidgaming === "undefined")
 	throw new Error("FATAL: nullandvoidgaming namespace missing");
 nullandvoidgaming.makeSubNameSpace("com.Engine", nullandvoidgaming);

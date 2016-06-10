@@ -1,3 +1,4 @@
+'use strict';
 if(typeof nullandvoidgaming === "undefined")
 	throw new Error("FATAL: nullandvoidgaming namespace missing");
 nullandvoidgaming.makeSubNameSpace("com.Engine.Game", nullandvoidgaming);
@@ -74,6 +75,8 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 		};
 	this.update = function(gT) {
 			this.initbuckets();
+			var e = null;
+			var bucket = null;
 			for (e of this.entities) {
 				e.update(gT);
 				if(e.collider) {
@@ -82,9 +85,10 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 					bucket[bucket.length] = e;
 				}
 			}
+			bucket = null;
 			for (bucket of this.colbuckets) {
-				for(x = 0; x < bucket.length; x++) {
-					for(y = x + 1; y < bucket.length; y++) {
+				for(var x = 0; x < bucket.length; x++) {
+					for(var y = x + 1; y < bucket.length; y++) {
 						if(x != y) {
 							var collision1 = bucket[x].collider.collides(bucket[y].collider);
 							if(collision1) {
@@ -99,7 +103,7 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 		};
 	this.draw = function(gT,camera) {
 			var Game =  nullandvoidgaming.com.Engine.Game;
-			for (i = 0; i < this.entities.length; i++) {
+			for (var i = 0; i < this.entities.length; i++) {
 				this.entities[i].draw(gT,camera);
 			}
 			//Draw only tiles we can see
@@ -122,7 +126,7 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 		};
 	this.debugDraw = function(camera) {
 			if(nullandvoidgaming.com.Engine.flags.debug)
-				for(e of this.entities) {
+				for(var e of this.entities) {
 					if(nullandvoidgaming.com.Engine.flags.draw.hitbox && e.collider) {
 						e.collider.debugDraw(0,camera);
 					}

@@ -1,3 +1,4 @@
+'use strict';
 if(typeof nullandvoidgaming === "undefined")
 	throw new Error("FATAL: nullandvoidgaming namespace missing");
 nullandvoidgaming.makeSubNameSpace("com.Engine.Entity", nullandvoidgaming);
@@ -131,11 +132,11 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 }
 
 nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr,controller) {
-	out = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newEntity();
+	var out = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newEntity();
 	controller.setControlled(out);
 	out.speed = 3;
 	out.controller = controller;
-	imge = nullandvoidgaming.com.Engine.IO.Display.getImage(imageStr);
+	var imge = nullandvoidgaming.com.Engine.IO.Display.getImage(imageStr);
 	out.position.width = 48;
 	out.position.height = 48;
 	out.collider = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newCollider(out, 24, 24, 8, 24);

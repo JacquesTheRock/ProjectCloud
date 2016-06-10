@@ -1,3 +1,4 @@
+'use strict';
 var nullandvoidgaming = {} || nullandvoidgaming;
 nullandvoidgaming.makeSubNameSpace = function(ns, p) {
 	var nsparts = ns.split(".");
@@ -6,7 +7,7 @@ nullandvoidgaming.makeSubNameSpace = function(ns, p) {
 	if(typeof parent === "undefined") {
 		parent = {};
 	}
-	for (i = 0; i < nsparts.length; i++) {
+	for (var i = 0; i < nsparts.length; i++) {
 		var name = nsparts[i];
 		if(typeof parent[name] === "undefined") {
 			parent[name] = {};
