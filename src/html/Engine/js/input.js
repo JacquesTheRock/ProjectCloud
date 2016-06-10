@@ -1,3 +1,4 @@
+'use strict';
 if(typeof nullandvoidgaming === "undefined")
 	throw new Error("FATAL: nullandvoidgaming namespace missing");
 nullandvoidgaming.makeSubNameSpace("com.Engine.IO.Input", nullandvoidgaming);
@@ -260,7 +261,6 @@ nullandvoidgaming.com.Engine.IO.Input.keycodeMap = [
 ];
 
 nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
-	me = this;
 	this.keymap = {
 			up : 38,
 			down : 40,
@@ -276,38 +276,39 @@ nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 	this.action = 0;
 	this.cancel = 0;
 	this.keyChange = function(e,val) {
-			if (e.keyCode == me.keymap.up) { me.up = val; }
-			if (e.keyCode == me.keymap.down) { me.down = val; }
-			if (e.keyCode == me.keymap.left) { me.left = val; }
-			if (e.keyCode == me.keymap.right) { me.right = val; }
-			if (e.keyCode == me.keymap.action) { me.action = val; }
-			if (e.keyCode == me.keymap.cancel) { me.cancel = val; }
+			if (e.keyCode == this.keymap.up) { this.up = val; }
+			if (e.keyCode == this.keymap.down) { this.down = val; }
+			if (e.keyCode == this.keymap.left) { this.left = val; }
+			if (e.keyCode == this.keymap.right) { this.right = val; }
+			if (e.keyCode == this.keymap.action) { this.action = val; }
+			if (e.keyCode == this.keymap.cancel) { this.cancel = val; }
 		};
-	this.relKey = function(e) { me.keyChange(e,0); };
-	this.pressKey = function(e) { me.keyChange(e,1); };
-	this.clear = function() { //lose focus means no keys are pressed
-			me.up = 0;
-			me.down = 0;
-			me.left = 0;
-			me.right = 0;
-			me.action = 0;
-			me.cancel = 0;
+	this.relKey = function(e) { this.keyChange(e,0); };
+	this.pressKey = function(e) { this.keyChange(e,1); };
+	this.clear = function() { //lose focus thisans no keys are pressed
+			this.up = 0;
+			this.down = 0;
+			this.left = 0;
+			this.right = 0;
+			this.action = 0;
+			this.cancel = 0;
 		};
 	this.toString = function(sep, pre) {
 			if (pre == null) pre = "";
 			if (sep == null) sep = "";
 			var out = "";
-			out += pre + "Up: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.up] + sep;
-			out += pre + "Down: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.down] + sep;
-			out += pre + "Left: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.left] + sep;
-			out += pre + "Right: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.right] + sep;
-			out += pre + "Action: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.action] + sep;
-			out += pre + "Cancel: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[me.keymap.cancel];
+			out += pre + "Up: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.up] + sep;
+			out += pre + "Down: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.down] + sep;
+			out += pre + "Left: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.left] + sep;
+			out += pre + "Right: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.right] + sep;
+			out += pre + "Action: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.action] + sep;
+			out += pre + "Cancel: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.cancel];
 			return out
 		};
 	this.setControlled = function(controlled) {
-		me.p = controlled;
-		me.clear();
+		var me = this;
+		this.p = controlled;
+		this.clear();
 		if(controlled == null) return;
 		window.addEventListener('keydown', 
 			function(e) { 
