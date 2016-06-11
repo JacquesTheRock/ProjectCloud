@@ -39,12 +39,15 @@ function loadGame() {
 	var Display = nullandvoidgaming.com.Engine.IO.Display;
 	var Game = nullandvoidgaming.com.Engine.Game;
 	var Entity = nullandvoidgaming.com.Engine.Entity;
+	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	var projectCloud = nullandvoidgaming.com.projectCloud;
 	projectCloud.cam = new Display.NewCamera(projectCloud.gameArea.context, 0,0);
 	Display.setImage("player",document.getElementById("player"));
 	Display.setImage("outside",document.getElementById("TS_outside"));
-	var controller = new nullandvoidgaming.com.Engine.IO.Input.KeyBoardController();
+	//var controller = new Input.KeyBoardController();
+	var controller = new Input.MouseController(projectCloud.gameArea.canvas);
 	var p1 =  Entity.NewPlayer("player",controller);
+	controller.setControlled(p1,projectCloud.cam);
 	Game.state.scene.entities[Game.state.scene.entities.length] =  p1;
 	projectCloud.cam.followEntity(p1,0.07);
 	var ent = new Entity.EntBuilder.newEntity();

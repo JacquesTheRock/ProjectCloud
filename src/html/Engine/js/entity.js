@@ -192,11 +192,9 @@ nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate = function(dt) {
 	}
 }
 
-nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr,controller) {
+nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr) {
 	var out = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newEntity();
-	controller.setControlled(out);
 	out.speed = 3;
-	out.controller = controller;
 	var imge = nullandvoidgaming.com.Engine.IO.Display.getImage(imageStr);
 	out.position.width = 48;
 	out.position.height = 48;

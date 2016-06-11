@@ -97,6 +97,7 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 			var bucket = null;
 			for (var i = 0; i < this.entities.length; i++) {
 				var e = this.entities[i];
+				if(e.controller) e.controller.update(gT);
 				e.update(gT);
 				if(e.collider) {
 					e.collider.fix();

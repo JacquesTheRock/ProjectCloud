@@ -131,6 +131,11 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 		else
 			this.followDamper = -1;//default should be no dampening
 	};
+	this.screenToGame = function(vector) {
+		vector.x += this.position.vector.x;
+		vector.y += this.position.vector.y;
+		return vector;
+	};
 	this.update = function(gT) {
 		if(this.follows) {
 			var Vector = nullandvoidgaming.com.Engine.Game.Vector;

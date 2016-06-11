@@ -260,7 +260,8 @@ nullandvoidgaming.com.Engine.IO.Input.keycodeMap = [
 "" // [255]
 ];
 
-nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
+nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
+	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	this.keymap = {
 			up : 38,
 			down : 40,
@@ -305,7 +306,17 @@ nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 			out += pre + "Cancel: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.cancel];
 			return out
 		};
-	this.setControlled = function(controlled) {
+	this.setControlled = nullandvoidgaming.com.Noop;
+	this.update = nullandvoidgaming.com.Noop;
+	return this;
+};
+
+
+
+nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
+	var Input = nullandvoidgaming.com.Engine.IO.Input;
+	var out = Input.Controller();
+	out.setControlled = function(controlled) {
 		var me = this;
 		this.p = controlled;
 		this.clear();
@@ -323,5 +334,71 @@ nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 				}
 			);
 	}
-	return this;
-};
+	return out;
+}
+
+nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
+	var Input = nullandvoidgaming.com.Engine.IO.Input;
+	var Vector = nullandvoidgaming.com.Engine.Game.Vector;
+	var out = Input.Controller();
+	if(!clickTarget) {
+		throw new Error("Must Specify Dom Object to Click");
+		return null;
+	}
+	out.clickTarget = clickTarget;
+	out.error = 25;//If you get within this, you have reached the destination
+	out.setControlled = function(controlled, camera) {
+		var me = this;
+		me.p = controlled;
+		me.p.controller = me;
+		me.cam = camera;
+		this.clear();
+		if(!controlled || !camera) {
+			throw new Eror("Null Controlled Object or Camera");
+		}
+		me.clickTarget.addEventListener('click',
+			function(e) {
+				if(!me.p || !me.cam || !me.cam.screenToGame) {
+					me.clickTarget.removeEventListener('click',this);
+					me.targetPos = null;
+					me.clickTarget = null;
+				}
+				else {
+					//TODO: Translations
+					var pos  = new Vector.NewVector(e.clientX, e.clientY);
+					pos = me.cam.screenToGame(pos);
+					me.targetPos = pos;
+				}
+			});
+	};
+	out.update = function(gT) {
+		if(this.targetPos && this.p) {
+			var error = 16 || this.error;
+			var center = this.p.position.center();
+			var e = {};
+			if(center.x + error < this.targetPos.x) {
+				this.right = 1;
+				this.left = 0;
+			} else if(center.x - error > this.targetPos.x) {
+				this.left = 1;
+				this.right = 0;
+			} else {
+				this.left = 0;
+				this.right = 0;
+			}
+			if(center.y + error < this.targetPos.y) {
+				this.down = 1;
+				this.up = 0;
+			} else if(center.y - error > this.targetPos.y) {
+				this.up = 1;
+				this.down = 0;
+			} else {
+				this.up = 0;
+				this.down = 0;
+			}
+			if(!this.up && !this.down && !this.left && !this.right)
+				this.targetPos = null;
+		}
+	};
+	return out;
+}
