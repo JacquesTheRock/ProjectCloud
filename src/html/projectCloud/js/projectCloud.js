@@ -1,7 +1,7 @@
 'use strict';
-if(typeof nullandvoidgaming === "undefined")
+if(typeof nullandvoidgaming === "undefined" || typeof nullandvoidgaming.com === "undefined")
 	throw new Error("FATAL: nullandvoidgaming namespace missing");
-nullandvoidgaming.makeSubNameSpace("com.projectCloud", nullandvoidgaming);
+nullandvoidgaming.com.makeSubNameSpace("com.projectCloud", nullandvoidgaming);
 
 
 

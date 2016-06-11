@@ -1,7 +1,7 @@
 'use strict';
-if(typeof nullandvoidgaming === "undefined")
-	throw new Error("FATAL: nullandvoidgaming namespace missing");
-nullandvoidgaming.makeSubNameSpace("com.Engine", nullandvoidgaming);
+if(typeof nullandvoidgaming.com === "undefined")
+	throw new Error("FATAL: nullandvoidgaming.com namespace missing");
+nullandvoidgaming.com.makeSubNameSpace("Engine", nullandvoidgaming.com);
 nullandvoidgaming.com.Engine.flags = {
 	draw : {
 		hitbox : true,

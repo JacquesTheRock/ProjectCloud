@@ -1,8 +1,8 @@
 'use strict';
 if(typeof nullandvoidgaming === "undefined")
 	throw new Error("FATAL: nullandvoidgaming namespace missing");
-nullandvoidgaming.makeSubNameSpace("com.Engine.Game", nullandvoidgaming);
-nullandvoidgaming.makeSubNameSpace("com.Engine.Game.Position", nullandvoidgaming);
+nullandvoidgaming.com.makeSubNameSpace("Engine.Game", nullandvoidgaming.com);
+nullandvoidgaming.com.makeSubNameSpace("Engine.Game.Position", nullandvoidgaming.com);
 
 //Default Functions to help on Memory Allocation
 nullandvoidgaming.com.Engine.Game.Position.DefaultCenter = function() {
@@ -164,12 +164,11 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 This is an 'Interface' definition
 */
 nullandvoidgaming.com.Engine.Game.Scene = function() {
-	this.update = nullandvoidgaming.Noop;//function(gT)
-	this.width = nullandvoidgaming.NoopInt;//function()
-	this.height = nullandvoidgaming.NoopInt;//function()
-	this.draw = nullandvoidgaming.Noop;//function(gT,c)
-	this.debugDraw = nullandvoidgaming.Noop;//function(gT,c)
-	//function(gT)
+	this.update = nullandvoidgaming.com.Noop;//function(gT)
+	this.width = nullandvoidgaming.com.NoopInt;//function()
+	this.height = nullandvoidgaming.com.NoopInt;//function()
+	this.draw = nullandvoidgaming.com.Noop;//function(gT,c)
+	this.debugDraw = nullandvoidgaming.com.Noop;//function(gT,c)
 }
 
 nullandvoidgaming.com.Engine.Game.state = {

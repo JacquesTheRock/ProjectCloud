@@ -1,6 +1,7 @@
 'use strict';
 var nullandvoidgaming = {} || nullandvoidgaming;
-nullandvoidgaming.makeSubNameSpace = function(ns, p) {
+nullandvoidgaming.com = {} || nullandvoidgaming.com;
+nullandvoidgaming.com.makeSubNameSpace = function(ns, p) {
 	var nsparts = ns.split(".");
 	var parent = p;
 	var pName = parent.toString();
@@ -16,4 +17,5 @@ nullandvoidgaming.makeSubNameSpace = function(ns, p) {
 	}
 	return parent;
 }
-nullandvoidgaming.Noop = function() {};
+nullandvoidgaming.com.Noop = function() {};
+nullandvoidgaming.com.NoopInt = function() { return 0; };

@@ -1,8 +1,8 @@
 'use strict';
-if(typeof nullandvoidgaming === "undefined")
-	throw new Error("FATAL: nullandvoidgaming namespace missing");
-nullandvoidgaming.makeSubNameSpace("com.Engine.Entity", nullandvoidgaming);
-nullandvoidgaming.makeSubNameSpace("com.Engine.Entity.DefaultFuncs", nullandvoidgaming);
+if(typeof nullandvoidgaming.com === "undefined")
+	throw new Error("FATAL: nullandvoidgaming.com namespace missing");
+nullandvoidgaming.com.makeSubNameSpace("Engine.Entity", nullandvoidgaming.com);
+nullandvoidgaming.com.makeSubNameSpace("Engine.Entity.DefaultFuncs", nullandvoidgaming.com);
 
 /*
 I Seperate the Default Frame functions so that Tiles may utilize Frames without
@@ -121,7 +121,7 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 		this.frame = null;
 		this.collider = null;
 		this.layer = 0.5; //used for draw depth
-		this.update = nullandvoidgaming.Noop;//does nothing
+		this.update = nullandvoidgaming.com.Noop;//does nothing
 		this.draw = function(dt,c) {
 				var y = this.position.center().y;
 				var depth = this.layer + (y / nullandvoidgaming.com.Engine.Game.state.scene.height()) * 0.2;

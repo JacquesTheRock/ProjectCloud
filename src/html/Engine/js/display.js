@@ -1,7 +1,7 @@
 'use strict';
-if(typeof nullandvoidgaming === "undefined")
-	throw new Error("Fatal: nullandvoidgaming namespace missing");
-nullandvoidgaming.makeSubNameSpace("com.Engine.IO.Display", nullandvoidgaming);
+if(typeof nullandvoidgaming.com === "undefined")
+	throw new Error("Fatal: nullandvoidgaming.com namespace missing");
+nullandvoidgaming.com.makeSubNameSpace("Engine.IO.Display", nullandvoidgaming.com);
 
 
 nullandvoidgaming.com.Engine.IO.Display.images = [];

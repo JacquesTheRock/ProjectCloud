@@ -1,7 +1,7 @@
 'use strict';
-if(typeof nullandvoidgaming === "undefined")
-	throw new Error("FATAL: nullandvoidgaming namespace missing");
-nullandvoidgaming.makeSubNameSpace("com.Engine.util", nullandvoidgaming);
+if(typeof nullandvoidgaming.com === "undefined")
+	throw new Error("FATAL: nullandvoidgaming.com namespace missing");
+nullandvoidgaming.com.makeSubNameSpace("Engine.util", nullandvoidgaming.com);
 nullandvoidgaming.com.Engine.util.MinHeapPop = function(a, compareFunc,l) {
 	if (a == null)
 		return null;
