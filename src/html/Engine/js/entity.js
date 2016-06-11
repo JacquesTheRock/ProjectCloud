@@ -79,16 +79,16 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 					this.Bottom >= other.Bottom;
 			}
 		this.collides = function(other) {
-				var collision = {
-						trigger: other.trigger,
-						collidewith: other.owner,
-						me: this.owner,
-						xVel : 0,
-						yVel : 0,
-						xCol : 0,
-						yCol : 0
-					}
 				if(this.intersects(other)) {
+					var collision = {
+							trigger: other.trigger,
+							collidewith: other.owner,
+							me: this.owner,
+							xVel : 0,
+							yVel : 0,
+							xCol : 0,
+							yCol : 0
+						};
 					var delL = other.Right - this.Left;
 					var delR = this.Right - other.Left;
 					if(delL < delR)
