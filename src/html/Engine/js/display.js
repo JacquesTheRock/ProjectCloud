@@ -66,14 +66,18 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 		if(this.spriteDataLength < 100) return;
 		debug = document.getElementById("debug");
 		debug.innerHTML = "<ol>";
-		while (this.spriteDataLength > 0) {
-			debug.innerHTML += "<li>" + nullandvoidgaming.com.Engine.util.MinHeapPop(
-				this.spriteData,
-				function(a,b) {
-					return a.depth < b.depth;
-					},
-				this.spriteDataLength
-				).depth + "</li>";
+		if(this.useDepth) {
+			while (this.spriteDataLength > 0) {
+				debug.innerHTML += "<li>" + nullandvoidgaming.com.Engine.util.MinHeapPop(
+					this.spriteData,
+					nullandvoidgaming.com.Engine.IO.Display.isLower,
+					this.spriteDataLength
+					).depth + "</li>";
+			} 
+		} else {
+			while(this.spriteDataLength > 1) { //Use Fact that length = 1 means last element to use
+				debug.innerHTML += "<li>" +this.spriteData[--this.spriteDataLength]  + "</li>";
+			}
 		}
 		debug.innerHTML = "</ol>";
 	};
@@ -99,6 +103,21 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 			}
 			this.spriteDataLength = 0;
 		} else {
+			while(this.spriteDataLength > 1) {
+				var data =  this.spriteData[--this.spriteDataLength];
+				this.ctx.drawImage(
+					data.frame.image,
+					data.frame.X(),
+					data.frame.Y(),
+					data.frame.width,
+					data.frame.height,
+					Math.round(data.pos.vector.x - this.position.vector.x),
+					Math.round(data.pos.vector.y - this.position.vector.y),
+					data.pos.width,
+					data.pos.height
+
+				);
+			}
 
 		}
 	};
