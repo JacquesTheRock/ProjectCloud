@@ -346,7 +346,7 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 		return null;
 	}
 	out.clickTarget = clickTarget;
-	out.error = 25;//If you get within this, you have reached the destination
+	out.error = 5;//If you get within this, you have reached the destination
 	out.setControlled = function(controlled, camera) {
 		var me = this;
 		me.p = controlled;
@@ -356,16 +356,15 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 		if(!controlled || !camera) {
 			throw new Eror("Null Controlled Object or Camera");
 		}
-		me.clickTarget.addEventListener('click',
+		me.clickTarget.addEventListener('mousedown',
 			function(e) {
 				if(!me.p || !me.cam || !me.cam.screenToGame) {
-					me.clickTarget.removeEventListener('click',this);
+					me.clickTarget.removeEventListener('mousedown',this);
 					me.targetPos = null;
 					me.clickTarget = null;
 				}
 				else {
-					//TODO: Translations
-					var pos  = new Vector.NewVector(e.clientX, e.clientY);
+					var pos = new Vector.NewVector(e.clientX, e.clientY);
 					pos = me.cam.screenToGame(pos);
 					me.targetPos = pos;
 				}
@@ -373,9 +372,8 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 	};
 	out.update = function(gT) {
 		if(this.targetPos && this.p) {
-			var error = 16 || this.error;
+			var error = 15 || this.error;
 			var center = this.p.position.center();
-			var e = {};
 			if(center.x + error < this.targetPos.x) {
 				this.right = 1;
 				this.left = 0;
@@ -396,8 +394,13 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 				this.up = 0;
 				this.down = 0;
 			}
-			if(!this.up && !this.down && !this.left && !this.right)
-				this.targetPos = null;
+			if(!this.up && !this.down && !this.left && !this.right) {
+				this.targetPos = null;//Trigger An action
+				this.action = 1;
+			}
+		} else {
+			this.action = 0;
+			this.cancel = 0;
 		}
 	};
 	return out;
