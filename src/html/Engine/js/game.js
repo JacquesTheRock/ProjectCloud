@@ -55,8 +55,9 @@ nullandvoidgaming.com.Engine.Game.Vector = {
 nullandvoidgaming.com.Engine.Game.Map = function() {
 	this.entities = [];
 	this.tiles = [];
-	this.colbuckets = [];
-	this.bucketsize = 5;
+	this.bucketTileCount = 16;
+	this.bucketSize = 0;
+	this.bucketCounts = [];
 	this.tileSize = 0;
 	this.horTile = 0;
 	this.verTile = 0;
@@ -64,14 +65,22 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 	this.height = function() { return this.tileSize * this.verTile; };
 	//This function is for collision detection to work
 	this.initbuckets = function()  {
-			this.colbuckets = [];
-			var count = (this.width() * this.height()) / (this.bucketsize * this.tileSize);
-			var i = 0;
-			do
-			{
-				this.colbuckets[i] = [];//initialize to a 0 array
-				i++;
-			} while (i < count);
+			if(!this.colbuckets) {
+				this.colbuckets = [];
+				this.bucketSize = (this.bucketTileCount);
+				var count = (this.horTile * this.verTile) / this.bucketSize;
+				var i = 0;
+				do
+				{
+					this.colbuckets[i] = [];//initialize to a 0 array
+					this.bucketCounts[i] = 0;
+					i++;
+				} while (i < count);
+			} else {
+				for(var i = 0; i < this.colbuckets.length; i++) {
+					this.bucketCounts[i] = 0;
+				}
+			}
 		};
 	this.update = function(gT) {
 			this.initbuckets();
@@ -81,20 +90,23 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 				e.update(gT);
 				if(e.collider) {
 					e.collider.fix();
-					bucket = this.colbuckets[0];//TODO: Choose Bucket smartly
-					bucket[bucket.length] = e;
+					var bucketID = 0;
+					bucket = this.colbuckets[bucketID];
+					bucket[this.bucketCounts[bucketID]++] = e;
 				}
 			}
 			bucket = null;
-			for (bucket of this.colbuckets) {
-				for(var x = 0; x < bucket.length; x++) {
-					for(var y = x + 1; y < bucket.length; y++) {
-						if(x != y) {
-							var collision1 = bucket[x].collider.collides(bucket[y].collider);
-							if(collision1) {
-							var collision2 = bucket[y].collider.collides(bucket[x].collider);
-								bucket[x].collision(collision1);
-								bucket[y].collision(collision2);
+			for(var b = 0; b < this.colbuckets.length; b++) {
+				bucket = this.colbuckets[b];
+				var count = this.bucketCounts[b];
+				for(var e1 = 0; e1 < count - 1; e1++) {
+					for(var e2 = e1 + 1; e2 < count; e2++) {
+						if(e1 != e2) {
+							var col1 = bucket[e1].collider.collides(bucket[e2].collider);
+							if(col1) {
+								var col2 = bucket[e2].collider.collides(bucket[e1].collider);
+								bucket[e1].collision(col1);
+								bucket[e2].collision(col2);
 							}
 						}
 					}
