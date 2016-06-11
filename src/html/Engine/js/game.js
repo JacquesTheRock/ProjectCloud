@@ -95,7 +95,8 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 			this.initbuckets();
 			var e = null;
 			var bucket = null;
-			for (e of this.entities) {
+			for (var i = 0; i < this.entities.length; i++) {
+				var e = this.entities[i];
 				e.update(gT);
 				if(e.collider) {
 					e.collider.fix();
@@ -147,7 +148,8 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 		};
 	this.debugDraw = function(camera) {
 			if(nullandvoidgaming.com.Engine.flags.debug)
-				for(var e of this.entities) {
+				for(var i = 0; i < this.entities.length; i++) {
+					var e = this.entities[i];
 					if(nullandvoidgaming.com.Engine.flags.draw.hitbox && e.collider) {
 						e.collider.debugDraw(0,camera);
 					}
