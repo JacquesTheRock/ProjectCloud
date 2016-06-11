@@ -16,3 +16,4 @@ nullandvoidgaming.makeSubNameSpace = function(ns, p) {
 	}
 	return parent;
 }
+nullandvoidgaming.Noop = function() {};

@@ -2,8 +2,33 @@
 if(typeof nullandvoidgaming === "undefined")
 	throw new Error("FATAL: nullandvoidgaming namespace missing");
 nullandvoidgaming.makeSubNameSpace("com.Engine.Entity", nullandvoidgaming);
+nullandvoidgaming.makeSubNameSpace("com.Engine.Entity.DefaultFuncs", nullandvoidgaming);
+
+/*
+I Seperate the Default Frame functions so that Tiles may utilize Frames without
+causing a massive hit due to unique Animations. This takes advantage of the this keyword
+but may cause issues later. lets hope not.
+*/
+nullandvoidgaming.com.Engine.Entity.DefaultFuncs.FrameAnimate = function(dt) {
+	this.time = this.time - dt;
+	if (this.time < 0 ) {
+		this.horizontal++;
+		if(this.horizontal > this.fCount) { this.horizontal = 0; }
+			this.time = this.time + this.frequency;
+	}
+}
+
+nullandvoidgaming.com.Engine.Entity.DefaultFuncs.FrameX = function() {
+	return this.horizontal * (this.width + this.xBuffer) + this.xBuffer;	
+}
+
+nullandvoidgaming.com.Engine.Entity.DefaultFuncs.FrameY = function() { 
+	return this.vertical * (this.height +this.yBuffer) + this.yBuffer; 
+}
+
 nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 	newFrame : function(image,width,height, frequency) {
+		var DFuncs = nullandvoidgaming.com.Engine.Entity.DefaultFuncs;
 		this.image = image;
 		this.horizontal = 0;
 		this.vertical = 0;
@@ -14,16 +39,9 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 		this.yBuffer = 14;
 		this.time = frequency;
 		this.fCount = 8;
-		this.animate = function(dt) {
-			this.time = this.time - dt;
-			if (this.time < 0 ) {
-				this.horizontal++;
-				if(this.horizontal > this.fCount) { this.horizontal = 0; }
-				this.time = this.time + this.frequency;
-			}
-		}//needs to be defined
-		this.X = function() { return this.horizontal * (this.width + this.xBuffer) + this.xBuffer; }
-		this.Y = function() { return this.vertical * (this.height +this.yBuffer) + this.yBuffer; }
+		this.animate = DFuncs.FrameAnimate;
+		this.X = DFuncs.FrameX;
+		this.Y = DFuncs.FrameY;
 	},
 	newCollider : function(entity, width,height, xoffset,yoffset) {
 		this.owner = entity;
@@ -103,17 +121,10 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 		this.frame = null;
 		this.collider = null;
 		this.layer = 0.5; //used for draw depth
-		this.update = function(dt) { }//default update is a noop
+		this.update = nullandvoidgaming.Noop;//does nothing
 		this.draw = function(dt,c) {
 				var y = this.position.center().y;
 				var depth = this.layer + (y / nullandvoidgaming.com.Engine.Game.state.scene.height()) * 0.2;
-				/*
-				c.draw( {
-					frame: this.frame,
-					pos: this.position,
-					depth: depth
-				})
-				*/
 				this.depth = depth;
 				c.draw(this);// why not just draw myself, can decrease data use
 				;
@@ -136,6 +147,51 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 	}
 }
 
+nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate = function(dt) {
+	var map = nullandvoidgaming.com.Engine.Game.state.scene;
+	var x = 0;
+	var y = 0;
+	if (this.controller.up) {
+		y -= 1;
+	}
+	if (this.controller.down) {
+		y += 1;
+	}
+	if (this.controller.right) {
+		x+=1;
+	}
+	if (this.controller.left) {
+		x-=1;
+	}
+	if (x && y) {
+		x = x * 0.70710678;
+		y = y * 0.70710678;
+	}
+	if (this.position.vector.x + x * this.speed < 1 ||
+	this.position.vector.x + x * this.speed + this.position.width > map.width())
+	x = 0;
+	if (this.position.center().y + y * this.speed < 1 ||
+	this.position.vector.y + y * this.speed + this.position.height > map.height())
+	y = 0;
+	if (x < 0) {
+		this.frame.vertical = 1;
+	} else if (x > 0) {
+		this.frame.vertical = 3;
+	}
+	else if(y<0) {
+		this.frame.vertical = 0;
+	} else if (y > 0) {
+		this.frame.vertical = 2;
+	}
+	if(x||y) {
+		this.frame.animate(20 * (Math.abs(x) + Math.abs(y)));
+		this.position.vector.x += x * this.speed;
+		this.position.vector.y += y * this.speed;
+	} else {
+		this.frame.horizontal = 0;
+	}
+}
+
 nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr,controller) {
 	var out = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newEntity();
 	controller.setControlled(out);
@@ -148,49 +204,27 @@ nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr,controller) {
 	out.frame = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newFrame(imge,54,54,50);
 	out.frame.xBuffer = 10;
 	out.frame.yBuffer = 10;
-	out.update = function(dt) {
-		var map = nullandvoidgaming.com.Engine.Game.state.scene;
-		var x = 0;
-		var y = 0;
-		if (this.controller.up) {
-			y -= 1;
-		}
-		if (this.controller.down) {
-			y += 1;
-		}
-		if (this.controller.right) {
-			x+=1;
-		}
-		if (this.controller.left) {
-			x-=1;
-		}
-		if (x && y) {
-			x = x * 0.70710678;
-			y = y * 0.70710678;
-		}
-		if (this.position.vector.x + x * this.speed < 1 ||
-		this.position.vector.x + x * this.speed + this.position.width > map.width())
-		x = 0;
-		if (this.position.center().y + y * this.speed < 1 ||
-		this.position.vector.y + y * this.speed + this.position.height > map.height())
-		y = 0;
-		if (x < 0) {
-			this.frame.vertical = 1;
-		} else if (x > 0) {
-			this.frame.vertical = 3;
-		}
-		else if(y<0) {
-			this.frame.vertical = 0;
-		} else if (y > 0) {
-			this.frame.vertical = 2;
-		}
-		if(x||y) {
-			this.frame.animate(20 * (Math.abs(x) + Math.abs(y)));
-			this.position.vector.x += x * this.speed;
-			this.position.vector.y += y * this.speed;
-		} else {
-			this.frame.horizontal = 0;
-		}
-	}
+	out.update = nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate;
 	return out;
 }
+
+
+nullandvoidgaming.com.Engine.Entity.DefaultTileDraw = function(dt,c) {
+	c.draw(this);
+}
+
+nullandvoidgaming.com.Engine.Entity.Tile = function(x,y,img,tS=64,xID=1,yID=1) {
+	var Game = nullandvoidgaming.com.Engine.Game;
+	this.position= new Game.Position.NewPosition(x*64, y*64)
+	this.frame = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newFrame(img,tS,tS);
+	this.frame.vertical = yID;
+	this.frame.horizontal = xID;
+	this.frame.xBuffer = 0;
+	this.frame.yBuffer = 0;
+	this.position.width = 64;
+	this.position.height = 64;
+	this.draw = nullandvoidgaming.com.Engine.Entity.DefaultTileDraw;
+	this.depth = 0;
+	return this;
+}
+

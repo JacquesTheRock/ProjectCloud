@@ -2,22 +2,31 @@
 if(typeof nullandvoidgaming === "undefined")
 	throw new Error("FATAL: nullandvoidgaming namespace missing");
 nullandvoidgaming.makeSubNameSpace("com.Engine.Game", nullandvoidgaming);
-nullandvoidgaming.com.Engine.Game.Position = {
-	NewPosition : function(x,y) {
-		this.vector = new nullandvoidgaming.com.Engine.Game.Vector.NewVector(x,y);
-		this.width = 0;
-		this.height = 0;
-		this.center = function() {
-				var out = new nullandvoidgaming.com.Engine.Game.Vector.NewVector(this.vector.x + this.width / 2, this.vector.y + this.height / 2);
-				return out;
-			};
-		this.setcenter = function(vector) {
-				this.vector.x = vector.x - this.width / 2;
-				this.vector.y = vector.y - this.height / 2;
-			};
-		return this;
-	}
+nullandvoidgaming.makeSubNameSpace("com.Engine.Game.Position", nullandvoidgaming);
+
+//Default Functions to help on Memory Allocation
+nullandvoidgaming.com.Engine.Game.Position.DefaultCenter = function() {
+	var out = new nullandvoidgaming.com.Engine.Game.Vector.NewVector(
+		this.vector.x + this.width / 2, 
+		this.vector.y + this.height /2
+		);
+	return out;
 }
+nullandvoidgaming.com.Engine.Game.Position.DefaultSetCenter = function(vector) {
+	this.vector.x = vector.x - this.width / 2;
+	this.vector.y = vector.y - this.height / 2;
+}
+//We don't use object Defineproperty because of performance implications (May be outdated)
+
+nullandvoidgaming.com.Engine.Game.Position.NewPosition = function(x,y) {
+	this.vector = new nullandvoidgaming.com.Engine.Game.Vector.NewVector(x,y);
+	this.width = 0;
+	this.height = 0;
+	this.center = nullandvoidgaming.com.Engine.Game.Position.DefaultCenter;
+	this.setcenter = nullandvoidgaming.com.Engine.Game.Position.DefaultSetCenter;
+	return this;
+}
+
 
 
 nullandvoidgaming.com.Engine.Game.Vector = {
@@ -153,15 +162,12 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 This is an 'Interface' definition
 */
 nullandvoidgaming.com.Engine.Game.Scene = function() {
-	this.update = function(gT) { };
-	this.width = function() {
-			return 10000000;
-		};
-	this.height = function() {
-		return 10000000;
-		 };
-	this.draw = function(gT,camera) { };
-	this.debugDraw = function(camera) { };
+	this.update = nullandvoidgaming.Noop;//function(gT)
+	this.width = nullandvoidgaming.NoopInt;//function()
+	this.height = nullandvoidgaming.NoopInt;//function()
+	this.draw = nullandvoidgaming.Noop;//function(gT,c)
+	this.debugDraw = nullandvoidgaming.Noop;//function(gT,c)
+	//function(gT)
 }
 
 nullandvoidgaming.com.Engine.Game.state = {
