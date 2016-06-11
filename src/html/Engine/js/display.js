@@ -94,10 +94,10 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 					data.frame.Y(),
 					data.frame.width,
 					data.frame.height,
-					Math.round(data.pos.vector.x - this.position.vector.x),
-					Math.round(data.pos.vector.y - this.position.vector.y),
-					data.pos.width,
-					data.pos.height
+					Math.round(data.position.vector.x - this.position.vector.x),
+					Math.round(data.position.vector.y - this.position.vector.y),
+					data.position.width,
+					data.position.height
 
 				);
 			}
@@ -111,10 +111,10 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 					data.frame.Y(),
 					data.frame.width,
 					data.frame.height,
-					Math.round(data.pos.vector.x - this.position.vector.x),
-					Math.round(data.pos.vector.y - this.position.vector.y),
-					data.pos.width,
-					data.pos.height
+					Math.round(data.position.vector.x - this.position.vector.x),
+					Math.round(data.position.vector.y - this.position.vector.y),
+					data.position.width,
+					data.position.height
 
 				);
 			}

@@ -76,14 +76,11 @@ function loadGame() {
 			if( y == 19) { frame.vertical = 2;}
 
 			Game.state.scene.tiles[Game.state.scene.tiles.length] = {
-				pos: pos,
+				position: pos,
 				frame: frame,
+				depth: 0,
 				draw: function(dt,c) {
-					c.draw( {
-						frame: this.frame,
-						pos: this.pos,
-						depth: 0
-					});
+					c.draw(this);
 				}
 			}
 		}

@@ -107,11 +107,16 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 		this.draw = function(dt,c) {
 				var y = this.position.center().y;
 				var depth = this.layer + (y / nullandvoidgaming.com.Engine.Game.state.scene.height()) * 0.2;
+				/*
 				c.draw( {
 					frame: this.frame,
 					pos: this.position,
 					depth: depth
-				});
+				})
+				*/
+				this.depth = depth;
+				c.draw(this);// why not just draw myself, can decrease data use
+				;
 			}//default draws frame based on position
 		this.collision = function(c) {
 				if(!c.trigger) {
