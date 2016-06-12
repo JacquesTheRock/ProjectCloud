@@ -22,7 +22,11 @@ nullandvoidgaming.com.projectCloud.Init = function() {
 				this.canvas.width = 640;
 				this.canvas.height = 480;
 				this.context = this.canvas.getContext("2d");
-				document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+				var placement = document.getElementById("projectCloud");
+				if(!placement)
+					throw new Error("No ID: projectCloud");
+				placement.appendChild(this.canvas);
+				//document.body.insertBefore(this.canvas, document.body.childNodes[0]);
 				this.interval = setInterval(updateGame, 20);
 				this.canvas.addEventListener('blur', this.loseFocus);
 			},
