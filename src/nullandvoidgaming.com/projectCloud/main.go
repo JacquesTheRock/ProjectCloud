@@ -36,7 +36,8 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 			if strings.HasSuffix(part,".html") ||
 				strings.HasSuffix(part,".css") ||
 				strings.HasSuffix(part,".js") ||
-				strings.HasSuffix(part,".png") {
+				strings.HasSuffix(part,".png") ||
+				strings.HasSuffix(part, ".ico"){
 				continue
 			}
 			parsedPath =  filepath.Join(parsedPath,config.DefaultPage)
