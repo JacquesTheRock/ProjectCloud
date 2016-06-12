@@ -143,7 +143,8 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 			for (var y = yS; y < yE ; y++) {
 				for (var x = xS;  x < xE; x++) {
 					var id = y*Game.state.scene.horTile + x;
-					Game.state.scene.tiles[ id ].draw(gT,camera);
+					if(Game.state.scene.tiles[id])
+						Game.state.scene.tiles[ id ].draw(gT,camera);
 				}
 			}
 		};

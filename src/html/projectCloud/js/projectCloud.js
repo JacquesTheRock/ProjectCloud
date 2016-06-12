@@ -39,6 +39,55 @@ nullandvoidgaming.com.projectCloud.Init = function() {
 		};
 }
 
+
+
+function RequestJSON(url, callback) {
+	var Game = nullandvoidgaming.com.Engine.Game;
+	if(!url || !callback)
+		return false;
+	var xhr = new XMLHttpRequest();
+	if(!xhr)
+		return null;
+	xhr.open("GET", url, true);
+	xhr.onreadystatechange=function() {
+		if(xhr.readyState == 4) {
+			var data = JSON.parse(xhr.responseText);
+			callback(data);
+			Game.state.scene.loading = false;
+		}
+	}
+	Game.state.scene.loading = true;
+	xhr.send(null);
+	return xhr;
+}
+
+function ParseMapJSON(data) {
+	var Game = nullandvoidgaming.com.Engine.Game;
+	var Display = nullandvoidgaming.com.Engine.IO.Display;
+	var Entity = nullandvoidgaming.com.Engine.Entity;
+	Game.state.scene.name = data.name;
+	Game.state.scene.tileSize = 64;
+	Game.state.scene.horTile = data.width;
+	Game.state.scene.verTile = data.height;
+	var TileSheet = Display.getImage(data.sheet);
+	var TSWidth = TileSheet.width / Game.state.scene.tileSize;
+	for(var i = 0; i < data.tiles.length; i++) {
+		var x = data.tiles[i].pos % data.width;
+		var y = Math.floor(data.tiles[i].pos / data.width);
+		var tX = data.tiles[i].tile % TSWidth;
+		var tY = Math.floor(data.tiles[i].tile / TSWidth);
+		var tile = new Entity.Tile(
+			x,
+			y,
+			TileSheet
+			);
+		tile.frame.horizontal = tX;
+		tile.frame.vertical = tY;
+		Game.state.scene.tiles[data.tiles[i].pos] = tile;
+	}
+}
+
+
 function loadGame() {
 	var Display = nullandvoidgaming.com.Engine.IO.Display;
 	var Game = nullandvoidgaming.com.Engine.Game;
@@ -62,23 +111,7 @@ function loadGame() {
 	ent.collider = new Entity.EntBuilder.newCollider(ent,24,24,8,24);
 	Game.state.scene.entities[Game.state.scene.entities.length] = ent;
 	Game.state.scene.tileSize = 64;
-	Game.state.scene.horTile = 20;
-	Game.state.scene.verTile = 20;
-	for (var y = 0; y < Game.state.scene.verTile; y++) {
-		for (var x = 0; x < Game.state.scene.horTile; x++) {
-			var tile = new Entity.Tile(
-				x,
-				y,
-				Display.getImage("outside")
-				);
-			if (x == 0) { tile.frame.horizontal = 0; }
-			if (y == 0) { tile.frame.vertical = 0; }
-			if( x == 19) { tile.frame.horizontal = 2; }
-			if( y == 19) { tile.frame.vertical = 2;}
-
-			Game.state.scene.tiles[Game.state.scene.tiles.length] = tile;
-		}
-	}
+	RequestJSON("maps/test.json", ParseMapJSON);
 }
 
 function startGame() {
@@ -95,12 +128,15 @@ function updateGame() {
 	using.time = new Date();
 	var gT = using.time - oldTime;
 
-	if (Game.state.running) {
-		Game.state.scene.update();
-		using.cam.update();
+	if(Game.state.scene.loading) {
+		//Do nothing for now
+	} else {
+		if (Game.state.running) {
+			Game.state.scene.update();
+			using.cam.update();
+		}
+		Game.state.scene.draw(gT,using.cam);
 	}
-	Game.state.scene.draw(gT,using.cam);
-
 	using.gameArea.clear();
 	using.cam.flush();
 	Game.state.scene.debugDraw(using.cam);
