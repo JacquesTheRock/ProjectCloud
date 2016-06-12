@@ -148,45 +148,58 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 }
 
 nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate = function(dt) {
-	var map = nullandvoidgaming.com.Engine.Game.state.scene;
-	var x = 0;
-	var y = 0;
+	var Game = nullandvoidgaming.com.Engine.Game;
+	var map = Game.state.scene;
+	var delta = new Game.Vector.NewVector(0,0);
 	if (this.controller.up) {
-		y -= 1;
+		delta.y -= 1;
 	}
 	if (this.controller.down) {
-		y += 1;
+		delta.y += 1;
 	}
 	if (this.controller.right) {
-		x+=1;
+		delta.x += 1;
 	}
 	if (this.controller.left) {
-		x-=1;
+		delta.x -= 1;
 	}
-	if (x && y) {
-		x = x * 0.70710678;
-		y = y * 0.70710678;
+	if (delta.x && delta.y) {
+		delta.x = delta.x * 0.70710678;
+		delta.y = delta.y * 0.70710678;
 	}
-	if (this.position.vector.x + x * this.speed < 1 ||
-	this.position.vector.x + x * this.speed + this.position.width > map.width())
-	x = 0;
-	if (this.position.center().y + y * this.speed < 1 ||
-	this.position.vector.y + y * this.speed + this.position.height > map.height())
-	y = 0;
-	if (x < 0) {
+	delta = Game.Vector.Multiply(delta, this.speed);
+	var yEdge = this.collider.Top;
+	var xEdge = this.collider.Left;
+	if(delta.y > 0)
+		yEdge = this.collider.Bottom;
+	if(delta.x > 0)
+		xEdge = this.collider.Right;
+	var edge = Game.Vector.NewVector(xEdge,yEdge);
+	var nPos = new Game.Vector.Add(delta,edge);
+	var nextT = map.getTileAt(nPos);
+	var curT = map.getTileAt(this.position.center());
+	if(!nextT) {
+		delta.x = 0;
+		delta.y = 0;
+	} else if(!nextT.walkable) {
+		if(curT.xID != nextT.xID)
+			delta.x = 0;
+		if(curT.yID != nextT.yID)
+			delta.y = 0;
+	}
+	if (delta.x < 0) {
 		this.frame.vertical = 1;
-	} else if (x > 0) {
+	} else if (delta.x > 0) {
 		this.frame.vertical = 3;
 	}
-	else if(y<0) {
+	else if(delta.y<0) {
 		this.frame.vertical = 0;
-	} else if (y > 0) {
+	} else if (delta.y > 0) {
 		this.frame.vertical = 2;
 	}
-	if(x||y) {
-		this.frame.animate(20 * (Math.abs(x) + Math.abs(y)));
-		this.position.vector.x += x * this.speed;
-		this.position.vector.y += y * this.speed;
+	if(delta.x||delta.y) {
+		this.frame.animate(20 * (Math.abs(delta.x) + Math.abs(delta.y)));
+		this.position.vector = new Game.Vector.Add(delta,this.position.vector);
 	} else {
 		this.frame.horizontal = 0;
 	}
@@ -213,6 +226,9 @@ nullandvoidgaming.com.Engine.Entity.DefaultTileDraw = function(dt,c) {
 
 nullandvoidgaming.com.Engine.Entity.Tile = function(x,y,img,tS=64,xID=1,yID=1) {
 	var Game = nullandvoidgaming.com.Engine.Game;
+	this.xID = x;
+	this.yID = y;
+	this.walkable = true;
 	this.position= new Game.Position.NewPosition(x*64, y*64)
 	this.frame = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newFrame(img,tS,tS);
 	this.frame.vertical = yID;

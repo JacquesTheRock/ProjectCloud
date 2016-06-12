@@ -156,7 +156,17 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 					}
 				}
 		};
-
+	this.getTileAt = function(vector) {
+		var Game =  nullandvoidgaming.com.Engine.Game;
+		if(!this.tileSize)
+			return null;
+		var x = Math.floor(vector.x / this.tileSize);
+		var y = Math.floor(vector.y / this.tileSize);
+		var id = y*Game.state.scene.horTile + x;
+		var out = Game.state.scene.tiles[id] 
+		if(!out || out.xID != x || out.yID != y) return {xID:x,yID:y,walkable:false};
+		return out;
+	}
 	return this;
 }
 
