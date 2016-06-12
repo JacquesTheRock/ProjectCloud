@@ -1,14 +1,14 @@
 {
-	"name" : "New Map",
-		"width" : 3,
-			"height" : 2,
-				"sheet" : "outside",
-					"tiles" : [
-							{"pos" : 0, "tile" : 0 }
-									,{"pos" : 3, "tile" : 20 }
-											,{"pos" : 1, "tile" : 1 }
-													,{"pos" : 4, "tile" : 21 }
-															,{"pos" : 2, "tile" : 2 }
-																	,{"pos" : 5, "tile" : 22 }
-																		]
-																		}
+"name" : "Test Centering Map",
+"width" : 3,
+"height" : 2,
+"sheet" : "outside",
+"tiles" : [
+{"pos" : 0, "tile" : 0 }
+,{"pos" : 3, "tile" : 20 }
+,{"pos" : 1, "tile" : 1 }
+,{"pos" : 4, "tile" : 21 }
+,{"pos" : 2, "tile" : 2 }
+,{"pos" : 5, "tile" : 22 }
+]
+}

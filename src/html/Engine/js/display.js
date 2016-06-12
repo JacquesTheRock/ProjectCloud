@@ -137,8 +137,9 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 		return vector;
 	};
 	this.update = function(gT) {
+		var Game = nullandvoidgaming.com.Engine.Game;
 		if(this.follows) {
-			var Vector = nullandvoidgaming.com.Engine.Game.Vector;
+			var Vector = Game.Vector;
 			var c = this.follows.center();
 			if(this.followDamper < 0) {
 				this.position.setcenter(c);
@@ -147,6 +148,37 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 				var F = Vector.Multiply(Vector.Subtract(myC,c),this.followDamper);
 				this.position.setcenter(Vector.Subtract(myC,F));
 			}
+			var xEdges = 0;
+			var xOff = 0;
+			var yEdges = 0;
+			var yOff = 0;
+			if(this.position.vector.x + this.position.width 
+				> Game.state.scene.width()) {
+				this.position.vector.x =
+					Game.state.scene.width() - this.position.width;
+				xEdges++;
+			}
+			if(this.position.vector.y + this.position.height
+				> Game.state.scene.height()) {
+				this.position.vector.y =
+					Game.state.scene.height() - this.position.height;
+				yEdges++;
+			}
+			if(this.position.vector.x < 0) {
+				xOff = this.position.vector.x;
+				this.position.vector.x = 0;
+				xEdges++;
+			}
+			if(this.position.vector.y < 0) {
+				yOff = this.position.vector.y;
+				this.position.vector.y = 0;
+				yEdges++;
+			}
+			if(yEdges == 2) //Both Y edges are bad
+				this.position.vector.y = yOff /2;
+			if(xEdges == 2) //Both X edges are bad
+				this.position.vector.x = xOff /2;
+
 		}
 	};
 }
