@@ -37,6 +37,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 				strings.HasSuffix(part,".css") ||
 				strings.HasSuffix(part,".js") ||
 				strings.HasSuffix(part,".png") ||
+				strings.HasSuffix(part,".json") ||
 				strings.HasSuffix(part, ".ico"){
 				continue
 			}
