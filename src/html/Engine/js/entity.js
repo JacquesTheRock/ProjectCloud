@@ -198,7 +198,7 @@ nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate = function(dt) {
 		this.frame.vertical = 2;
 	}
 	if(delta.x||delta.y) {
-		this.frame.animate(20 * (Math.abs(delta.x) + Math.abs(delta.y)));
+		this.frame.animate(dt * (Game.Vector.Length(delta) / this.speed));
 		this.position.vector = new Game.Vector.Add(delta,this.position.vector);
 	} else {
 		this.frame.horizontal = 0;

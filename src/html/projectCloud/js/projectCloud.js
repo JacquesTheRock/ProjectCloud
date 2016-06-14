@@ -132,8 +132,8 @@ function updateGame() {
 		//Do nothing for now
 	} else {
 		if (Game.state.running) {
-			Game.state.scene.update();
-			using.cam.update();
+			Game.state.scene.update(gT);
+			using.cam.update(gT);
 		}
 		Game.state.scene.draw(gT,using.cam);
 	}
