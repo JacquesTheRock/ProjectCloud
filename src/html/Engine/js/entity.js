@@ -2,6 +2,7 @@
 if(typeof nullandvoidgaming.com === "undefined")
 	throw new Error("FATAL: nullandvoidgaming.com namespace missing");
 nullandvoidgaming.com.makeSubNameSpace("Engine.Entity", nullandvoidgaming.com);
+nullandvoidgaming.com.makeSubNameSpace("Engine.Entity.Collider", nullandvoidgaming.com);
 nullandvoidgaming.com.makeSubNameSpace("Engine.Entity.DefaultFuncs", nullandvoidgaming.com);
 
 /*
@@ -26,6 +27,58 @@ nullandvoidgaming.com.Engine.Entity.DefaultFuncs.FrameY = function() {
 	return this.vertical * (this.height +this.yBuffer) + this.yBuffer; 
 }
 
+nullandvoidgaming.com.Engine.Entity.Collider.RectIntersects = function(other) {
+	return this.Left <= other.Right &&
+			this.Right >= other.Left &&
+			this.Top <= other.Bottom &&
+			this.Bottom >= other.Top;
+}
+
+nullandvoidgaming.com.Engine.Entity.Collider.RectContains = function(other) {
+	return this.Left <= other.Left &&
+		this.Right >= other.Right &&
+		this.Top <= other.Top &&
+		this.Bottom >= other.Bottom;
+}
+
+nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,trigger=false) {
+	this.owner = entity;
+	this.width = w;
+	this.height = h;
+	this.xoffset = 0;
+	this.yoffset = 0;
+	this.Left = 0;
+	this.Top = 0;
+	this.Right = 0;
+	this.Bottom = 0;
+	this.deltaX = 0;
+	this.deltaY = 0;
+	this.trigger = trigger;
+	this.fix = function() {
+			var nextX = this.owner.position.vector.x + this.xoffset;
+			var nextY = this.owner.position.vector.y + this.yoffset;
+			this.deltaX = nextX - this.Left;
+			this.deltaY = nextY - this.Top;
+			this.Left = nextX;
+			this.Right = this.Left + this.width;
+			this.Top = nextY;
+			this.Bottom = this.Top + this.height;
+		}
+	this.intersects = nullandvoidgaming.com.Engine.Entity.Collider.RectIntersects;
+	this.contains = nullandvoidgaming.com.Engine.Entity.Collider.RectContains;
+	this.debugDraw = function(dt,c) {
+				var color = 'rgba(255,0,0,0.5)';
+				if(trigger)
+					color = 'rgba(255,255,0,0.5)';
+				c.drawRect(this.Left,
+					this.Top,
+					this.width,
+					this.height,
+					color);
+			}
+}
+
+
 nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 	newFrame : function(image,width,height, frequency) {
 		var DFuncs = nullandvoidgaming.com.Engine.Entity.DefaultFuncs;
@@ -44,41 +97,9 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 		this.Y = DFuncs.FrameY;
 	},
 	newCollider : function(entity, width,height, xoffset,yoffset) {
-		this.owner = entity;
-		this.width = width;
-		this.height = height;
-		this.xoffset = xoffset;
-		this.yoffset = yoffset;
-		this.Left = 0;
-		this.Top = 0;
-		this.Right = 0;
-		this.Bottom = 0;
-		this.deltaX = 0;
-		this.deltaY = 0;
-		this.trigger = false;
-		this.fix = function() {
-				var nextX = this.owner.position.vector.x + xoffset;
-				var nextY = this.owner.position.vector.y + yoffset;
-				this.deltaX = nextX - this.Left;
-				this.deltaY = nextY - this.Top;
-				this.Left = nextX;
-				this.Right = this.Left + this.width;
-				this.Top = nextY;
-				this.Bottom = this.Top + height;
-			}
-		this.intersects = function(other) {
-				return (this.Left <= other.Right &&
-						this.Right >= other.Left &&
-						this.Top <= other.Bottom &&
-						this.Bottom >= other.Top);
-			}
-		this.contains = function(other) {
-				return this.Left <= other.Left &&
-					this.Right >= other.Right &&
-					this.Top <= other.Top &&
-					this.Bottom >= other.Bottom;
-			}
-		this.collides = function(other) {
+		var out = new nullandvoidgaming.com.Engine.Entity.Collider.RectCollider(entity,width,height);
+		out.xoffset = xoffset; out.yoffset = yoffset;
+		out.collides = function(other) {
 				if(this.intersects(other)) {
 					var collision = {
 							trigger: other.trigger,
@@ -108,13 +129,7 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 					return null;
 				}
 			}
-		this.debugDraw = function(dt,c) {
-				c.drawRect(this.Left,
-					this.Top,
-					this.width,
-					this.height,
-					'rgba(255,0,0,0.5)');
-			}
+		return out;
 	},
 	newEntity : function() {
 		this.position = new nullandvoidgaming.com.Engine.Game.Position.NewPosition(0,0);
