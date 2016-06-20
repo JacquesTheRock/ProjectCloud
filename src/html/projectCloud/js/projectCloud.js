@@ -85,9 +85,9 @@ function ParseMapJSON(data) {
 			);
 		if(cloneData.walkable)
 			tile.walkable = cloneData.walkable;
-		if(cloneData.frane) {
+		if(cloneData.frame != null) {
 			tile.frame.horizontal = cloneData.frame % TSWidth;
-			tile.frame.vertical = Math.floor(cloneData.vertical / TSWidth);
+			tile.frame.vertical = Math.floor(cloneData.frame / TSWidth);
 		}
 		Game.state.scene.tiles[data.tiles[i].position] = tile;
 	}

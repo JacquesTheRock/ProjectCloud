@@ -15,8 +15,8 @@
 		{"lookup":3,"position":6}
 	],
  "entity" : [3,4],
- "default": 0, 
  "lookupTable": {
+ 		"default": 0, 
 		"0": {
 			"typeID" : 0,
 			"frame" : 4,
@@ -29,17 +29,17 @@
 		},
 		"2": {
 			"typeID" : 0,
-			"frame" : 0,
+			"frame" : 1,
 			"walkable" : true
 		},
 		"3": {
 			"typeID" : 0,
-			"frame" : 0,
+			"frame" : 10,
 			"walkable" : true
 		},
 		"4": {
 			"typeID" : 0,
-			"frame" : 0,
+			"frame" : 3,
 			"walkable" : true
 		},
 		"5": {
