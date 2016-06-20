@@ -66,24 +66,30 @@ function ParseMapJSON(data) {
 	var Display = nullandvoidgaming.com.Engine.IO.Display;
 	var Entity = nullandvoidgaming.com.Engine.Entity;
 	Game.state.scene.name = data.name;
-	Game.state.scene.tileSize = 64;
+	Game.state.scene.tileSize = data.tilesheet.tileSize;
 	Game.state.scene.horTile = data.width;
 	Game.state.scene.verTile = data.height;
-	var TileSheet = Display.getImage(data.sheet);
+	var TileSheet = Display.getImage(data.tilesheet.image);
 	var TSWidth = TileSheet.width / Game.state.scene.tileSize;
 	for(var i = 0; i < data.tiles.length; i++) {
-		var x = data.tiles[i].pos % data.width;
-		var y = Math.floor(data.tiles[i].pos / data.width);
-		var tX = data.tiles[i].tile % TSWidth;
-		var tY = Math.floor(data.tiles[i].tile / TSWidth);
+		var id = data.tiles[i].lookup;
+		var cloneData = data.lookupTable[id];
+		var x = data.tiles[i].position % data.width;
+		var y = Math.floor(data.tiles[i].position / data.width);
+		if(cloneData.typeID != 0) //Make Sure it is a tile
+			continue;
 		var tile = new Entity.Tile(
 			x,
 			y,
 			TileSheet
 			);
-		tile.frame.horizontal = tX;
-		tile.frame.vertical = tY;
-		Game.state.scene.tiles[data.tiles[i].pos] = tile;
+		if(cloneData.walkable)
+			tile.walkable = cloneData.walkable;
+		if(cloneData.frane) {
+			tile.frame.horizontal = cloneData.frame % TSWidth;
+			tile.frame.vertical = Math.floor(cloneData.vertical / TSWidth);
+		}
+		Game.state.scene.tiles[data.tiles[i].position] = tile;
 	}
 }
 
@@ -96,7 +102,7 @@ function loadGame() {
 	var projectCloud = nullandvoidgaming.com.projectCloud;
 	projectCloud.cam = new Display.NewCamera(projectCloud.gameArea.context, 0,0);
 	Display.setImage("player",document.getElementById("player"));
-	Display.setImage("outside",document.getElementById("TS_outside"));
+	Display.setImage("outside.png",document.getElementById("TS_outside"));
 	//var controller = new Input.KeyBoardController();
 	var controller = new Input.MouseController(projectCloud.gameArea.canvas);
 	var p1 =  Entity.NewPlayer("player",controller);
@@ -111,7 +117,7 @@ function loadGame() {
 	ent.collider = new Entity.EntBuilder.newCollider(ent,24,24,8,24);
 	Game.state.scene.entities[Game.state.scene.entities.length] = ent;
 	Game.state.scene.tileSize = 64;
-	RequestJSON("maps/test.json", ParseMapJSON);
+	RequestJSON("maps/example.json", ParseMapJSON);
 }
 
 function startGame() {

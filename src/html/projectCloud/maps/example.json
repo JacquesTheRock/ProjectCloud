@@ -1,0 +1,59 @@
+{
+ "name"	: "Test Map Format v2",
+ "tilesheet" : {
+		"image" : "outside.png",
+		"tileSize" : 64
+	},
+ "id"	: 0,
+ "width" : 3,
+ "height" : 3,
+ "tiles" : [
+		{"lookup":1,"position":0},
+		{"lookup":2,"position":1},
+		{"lookup":2,"position":2},
+		{"lookup":3,"position":3},
+		{"lookup":3,"position":6}
+	],
+ "entity" : [3,4],
+ "default": 0, 
+ "lookupTable": {
+		"0": {
+			"typeID" : 0,
+			"frame" : 4,
+			"walkable": false
+		},
+		"1": {
+			"typeID" : 0,
+			"frame" : 0,
+			"walkable" : true
+		},
+		"2": {
+			"typeID" : 0,
+			"frame" : 0,
+			"walkable" : true
+		},
+		"3": {
+			"typeID" : 0,
+			"frame" : 0,
+			"walkable" : true
+		},
+		"4": {
+			"typeID" : 0,
+			"frame" : 0,
+			"walkable" : true
+		},
+		"5": {
+			"typeID": 3,
+			"position" : {"x":48, "y":16},
+			"name" : "Enemy",
+			"enemyID" : 0
+		},
+		"6": {
+			"typeID" : 1,
+			"position" : {"x":0, "y":120},
+			"name" : "Billy",
+			"text" : "This would be some text _name_ could say. Talking NPC. Should Handle wrapping inside class.",
+			"flag" : 0
+		}
+	}
+}
