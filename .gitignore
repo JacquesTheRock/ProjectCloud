@@ -2,6 +2,7 @@
 ################
 config.json
 datasource.json
+*.swp
 
 # Compiled source #
 ###################
