@@ -91,6 +91,37 @@ function ParseMapJSON(data) {
 		}
 		Game.state.scene.tiles[data.tiles[i].position] = tile;
 	}
+	for (var i = 0; i < data.entities.length; i++) {
+		var id = data.entities[i];
+		var cloneData = data.lookupTable[id];
+		var entity = new Entity.EntBuilder.newEntity();
+		if(cloneData.position) {
+			entity.position.vector.x = cloneData.position.x;
+			entity.position.vector.y = cloneData.position.y;
+		}
+		if(cloneData.collider) {
+			entity.collider = Entity.EntBuilder.newCollider(
+				entity,
+				cloneData.collider.width,
+				cloneData.collider.height,
+				cloneData.collider.xOffset,
+				cloneData.collider.yOffset
+			);
+		}
+		if(cloneData.frame) {
+			entity.frame = new Entity.EntBuilder.newFrame(
+				Display.getImage(cloneData.frame.image),
+				cloneData.frame.width,
+				cloneData.frame.height,
+				cloneData.frame.frequency || 0
+			);
+			entity.frame.xBuffer = cloneData.frame.xBuffer || 0;
+			entity.frame.yBuffer = cloneData.frame.yBuffer || 0;
+			entity.position.width = cloneData.frame.width || entity.position.width;
+			entity.position.height = cloneData.frame.height || entity.position.height;
+		}
+		Game.state.scene.entities[Game.state.scene.entities.length] = entity;
+	}
 }
 
 
@@ -109,14 +140,6 @@ function loadGame() {
 	controller.setControlled(p1,projectCloud.cam);
 	Game.state.scene.entities[Game.state.scene.entities.length] =  p1;
 	projectCloud.cam.followEntity(p1,0.07);
-	var ent = new Entity.EntBuilder.newEntity();
-	ent.frame = new Entity.EntBuilder.newFrame(Display.getImage("player"),54,54,60);
-	ent.position.width = 48; ent.position.height = 48;
-	ent.position.vector.x = 100; ent.position.vector.y = 100;
-	ent.frame.xBuffer = 10;
-	ent.collider = new Entity.EntBuilder.newCollider(ent,24,24,8,24);
-	Game.state.scene.entities[Game.state.scene.entities.length] = ent;
-	Game.state.scene.tileSize = 64;
 	RequestJSON("maps/example.json", ParseMapJSON);
 }
 

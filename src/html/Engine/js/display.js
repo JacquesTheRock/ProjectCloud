@@ -42,9 +42,10 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 	this.draw = function(SpriteDatum) {
 		if(this.useDepth) {
 			nullandvoidgaming.com.Engine.util.MinHeapInsert(
-				this.spriteData,SpriteDatum,
+					this.spriteData,
+					SpriteDatum,
 					nullandvoidgaming.com.Engine.IO.Display.isLower,
-				this.spriteDataLength++
+					this.spriteDataLength++
 				);
 		} else {
 			this.spriteData[this.spriteDataLength++] = SpriteDatum;

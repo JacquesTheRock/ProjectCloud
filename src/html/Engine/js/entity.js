@@ -12,7 +12,7 @@ but may cause issues later. lets hope not.
 */
 nullandvoidgaming.com.Engine.Entity.DefaultFuncs.FrameAnimate = function(dt) {
 	this.time = this.time - dt;
-	if (this.time < 0 ) {
+	if (this.frequency > 0 && this.time < 0 ) {
 		this.horizontal++;
 		if(this.horizontal > this.fCount) { this.horizontal = 0; }
 			this.time = this.time + this.frequency;
@@ -138,11 +138,11 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 		this.layer = 0.5; //used for draw depth
 		this.update = nullandvoidgaming.com.Noop;//does nothing
 		this.draw = function(dt,c) {
+				if(!this.frame) return;//Noop if it doesn't have a frame to draw
 				var y = this.position.center().y;
 				var depth = this.layer + (y / nullandvoidgaming.com.Engine.Game.state.scene.height()) * 0.2;
 				this.depth = depth;
 				c.draw(this);// why not just draw myself, can decrease data use
-				;
 			}//default draws frame based on position
 		this.collision = function(c) {
 				if(!c.trigger) {
