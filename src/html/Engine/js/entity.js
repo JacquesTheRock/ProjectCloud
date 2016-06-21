@@ -28,41 +28,37 @@ nullandvoidgaming.com.Engine.Entity.DefaultFuncs.FrameY = function() {
 }
 
 nullandvoidgaming.com.Engine.Entity.Collider.RectIntersects = function(other) {
-	return this.Left <= other.Right &&
-			this.Right >= other.Left &&
-			this.Top <= other.Bottom &&
-			this.Bottom >= other.Top;
+	return this.Left() <= other.Right() &&
+			this.Right() >= other.Left() &&
+			this.Top() <= other.Bottom() &&
+			this.Bottom() >= other.Top();
 }
 
 nullandvoidgaming.com.Engine.Entity.Collider.RectContains = function(other) {
-	return this.Left <= other.Left &&
-		this.Right >= other.Right &&
-		this.Top <= other.Top &&
-		this.Bottom >= other.Bottom;
+	return this.Left() <= other.Left() &&
+		this.Right() >= other.Right() &&
+		this.Top() <= other.Top() &&
+		this.Bottom() >= other.Bottom();
 }
 
 nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,trigger=false) {
+	var Game = nullandvoidgaming.com.Engine.Game;
 	this.owner = entity;
-	this.width = w;
-	this.height = h;
-	this.xoffset = 0;
-	this.yoffset = 0;
-	this.Left = 0;
-	this.Top = 0;
-	this.Right = 0;
-	this.Bottom = 0;
-	this.deltaX = 0;
-	this.deltaY = 0;
+	this.Width = function() 	{ return this.dimensions.x; };
+	this.Height = function()	{ return this.dimensions.y; };
+	this.Left = function()		{ return this.TopLeft.x; };
+	this.Top = function()		{ return this.TopLeft.y; };
+	this.Right = function()		{ return this.TopLeft.x + this.dimensions.x; };
+	this.Bottom = function()	{ return this.TopLeft.y + this.dimensions.y; };
+	this.dimensions = new Game.Vector.NewVector(w,h);
+	this.TopLeft = new Game.Vector.NewVector(0,0);
+	this.offset = new Game.Vector.NewVector(0,0);
+	this.delta = new Game.Vector.NewVector(0,0);
 	this.trigger = trigger;
 	this.fix = function() {
-			var nextX = this.owner.position.vector.x + this.xoffset;
-			var nextY = this.owner.position.vector.y + this.yoffset;
-			this.deltaX = nextX - this.Left;
-			this.deltaY = nextY - this.Top;
-			this.Left = nextX;
-			this.Right = this.Left + this.width;
-			this.Top = nextY;
-			this.Bottom = this.Top + this.height;
+			var next = Game.Vector.Add(this.owner.position.vector, this.offset);
+			this.delta = Game.Vector.Subtract(next,this.TopLeft);
+			this.TopLeft = next;
 		}
 	this.intersects = nullandvoidgaming.com.Engine.Entity.Collider.RectIntersects;
 	this.contains = nullandvoidgaming.com.Engine.Entity.Collider.RectContains;
@@ -70,10 +66,10 @@ nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,
 				var color = 'rgba(255,0,0,0.5)';
 				if(trigger)
 					color = 'rgba(255,255,0,0.5)';
-				c.drawRect(this.Left,
-					this.Top,
-					this.width,
-					this.height,
+				c.drawRect(this.Left(),
+					this.Top(),
+					this.Width(),
+					this.Height(),
 					color);
 			}
 }
@@ -110,8 +106,8 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 							xCol : 0,
 							yCol : 0
 						};
-					var delL = other.Right - this.Left;
-					var delR = this.Right - other.Left;
+					var delL = other.Right() - this.Left();
+					var delR = this.Right() - other.Left();
 					if(delL < delR)
 						collision.xCol = delL;
 					else if(delR < delL)
@@ -122,8 +118,7 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 						collision.yCol = delT;
 					else if (delB < delT)
 						collision.yCol = delB;
-					collision.xVel = this.deltaX;
-					collision.yVel = this.deltaY;
+					collision.vel = this.delta;
 					return collision;
 				} else {
 					return null;
@@ -156,7 +151,7 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 						this.position.vector.y += c.yCol;
 					if(vert && c.yVel > 0)
 						this.position.vector.y -= c.yCol;
-					this.collider.fix();
+					//this.collider.fix();
 				}
 			}//default collision detection
 	}
@@ -183,12 +178,12 @@ nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate = function(dt) {
 		delta.y = delta.y * 0.70710678;
 	}
 	delta = Game.Vector.Multiply(delta, this.speed);
-	var yEdge = this.collider.Top;
-	var xEdge = this.collider.Left;
+	var yEdge = this.collider.Top();
+	var xEdge = this.collider.Left();
 	if(delta.y > 0)
-		yEdge = this.collider.Bottom;
+		yEdge = this.collider.Bottom();
 	if(delta.x > 0)
-		xEdge = this.collider.Right;
+		xEdge = this.collider.Right();
 	var edge = Game.Vector.NewVector(xEdge,yEdge);
 	var nPos = new Game.Vector.Add(delta,edge);
 	var nextT = map.getTileAt(nPos);
