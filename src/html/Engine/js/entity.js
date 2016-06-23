@@ -27,42 +27,20 @@ nullandvoidgaming.com.Engine.Entity.DefaultFuncs.FrameY = function() {
 	return this.vertical * (this.height +this.yBuffer) + this.yBuffer; 
 }
 
-nullandvoidgaming.com.Engine.Entity.Collider.RectIntersects = function(other) {
-	return this.Left() <= other.Right() &&
-			this.Right() >= other.Left() &&
-			this.Top() <= other.Bottom() &&
-			this.Bottom() >= other.Top();
-}
-
-nullandvoidgaming.com.Engine.Entity.Collider.RectContains = function(other) {
-	return this.Left() <= other.Left() &&
-		this.Right() >= other.Right() &&
-		this.Top() <= other.Top() &&
-		this.Bottom() >= other.Bottom();
-}
-
 nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,trigger=false) {
 	var Game = nullandvoidgaming.com.Engine.Game;
-	this.owner = entity;
-	this.Width = function() 	{ return this.dimensions.x; };
-	this.Height = function()	{ return this.dimensions.y; };
-	this.Left = function()		{ return this.TopLeft.x; };
-	this.Top = function()		{ return this.TopLeft.y; };
-	this.Right = function()		{ return this.TopLeft.x + this.dimensions.x; };
-	this.Bottom = function()	{ return this.TopLeft.y + this.dimensions.y; };
-	this.dimensions = new Game.Vector.NewVector(w,h);
-	this.TopLeft = new Game.Vector.NewVector(0,0);
-	this.offset = new Game.Vector.NewVector(0,0);
-	this.delta = new Game.Vector.NewVector(0,0);
-	this.trigger = trigger;
-	this.fix = function() {
+	var out = new Game.Rect.NewRect(0,0,w,h);
+	out.owner = entity;
+	out.offset = new Game.Vector.NewVector(0,0);
+	out.delta = new Game.Vector.NewVector(0,0);
+	out.trigger = trigger;
+	out.fix = function() {
 			var next = Game.Vector.Add(this.owner.position.vector, this.offset);
 			this.delta = Game.Vector.Subtract(next,this.TopLeft);
 			this.TopLeft = next;
 		}
-	this.intersects = nullandvoidgaming.com.Engine.Entity.Collider.RectIntersects;
-	this.contains = nullandvoidgaming.com.Engine.Entity.Collider.RectContains;
-	this.debugDraw = function(dt,c) {
+	out.contains = out.containsRect;
+	out.debugDraw = function(dt,c) {
 				var color = 'rgba(255,0,0,0.5)';
 				if(trigger)
 					color = 'rgba(255,255,0,0.5)';
@@ -72,6 +50,7 @@ nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,
 					this.Height(),
 					color);
 			}
+	return out;
 }
 
 

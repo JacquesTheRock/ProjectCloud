@@ -27,6 +27,49 @@ nullandvoidgaming.com.Engine.Game.Position.NewPosition = function(x,y) {
 	return this;
 }
 
+nullandvoidgaming.com.Engine.Game.Rect = {
+	NewRect : function(x=0,y=0,w=1,h=1) {
+		var Game = nullandvoidgaming.com.Engine.Game;
+		this.dimensions = new Game.Vector.NewVector(w,h);
+		this.TopLeft = new Game.Vector.NewVector(x,y);
+		this.Width = function() 	{ return this.dimensions.x; };
+		this.Height = function()	{ return this.dimensions.y; };
+		this.Left = function()		{ return this.TopLeft.x; };
+		this.Top = function()		{ return this.TopLeft.y; };
+		this.Right = function()		{ return this.TopLeft.x + this.dimensions.x; };
+		this.Bottom = function()	{ return this.TopLeft.y + this.dimensions.y; };
+		this.containsPoint = Game.Rect.DefaultContainsPoint;
+		this.containsRect = Game.Rect.DefaultContainsRect;
+		this.intersects = Game.Rect.DefaultIntersectsRect;
+	},
+	ContainsPoint : function(rect,point) {
+		return rect.Left() <= point.x &&
+			rect.Right() >= point.x &&
+			rect.Top() <= point.y &&
+			rect.Bottom() >= point.y;
+	},
+	ContainsRect : function(outer,inner) {
+		return outer.Left() <= inner.Left() &&
+			outer.Right() >= inner.RIght() &&
+			outer.Top <= inner.Top() &&
+			outer.Bottom() >= inner.Bottom();
+	},
+	Intersects : function(r1,r2) {
+		return r1.Left() <= r2.Right() &&
+			r1.Right() >= r2.Left() &&
+			r1.Top() <= r2.Bottom() &&
+			r1.Bottom() >= r2.Top();
+	},
+	DefaultContainsPoint : function(point) {
+		return nullandvoidgaming.com.Engine.Game.Rect.ContainsPoint(this,point);
+	},
+	DefaultContainsRect : function(other) {
+		return nullandvoidgaming.com.Engine.Game.Rect.ContainsRect(this,other);
+	},
+	DefaultIntersectsRect : function(other) {
+		return nullandvoidgaming.com.Engine.Game.Rect.Intersects(this,other);
+	}
+}
 
 
 nullandvoidgaming.com.Engine.Game.Vector = {
