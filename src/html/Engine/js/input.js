@@ -367,6 +367,7 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 					var pos = new Vector.NewVector(e.clientX, e.clientY);
 					pos = me.cam.screenToGame(pos);
 					me.targetPos = pos;
+					me.action = 1;//Activate an action
 				}
 			});
 	};
@@ -395,8 +396,7 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 				this.down = 0;
 			}
 			if(!this.up && !this.down && !this.left && !this.right) {
-				this.targetPos = null;//Trigger An action
-				this.action = 1;
+				this.targetPos = null;//Arrival
 			}
 		} else {
 			this.action = 0;

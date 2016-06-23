@@ -228,5 +228,6 @@ nullandvoidgaming.com.Engine.Game.Scene = function() {
 
 nullandvoidgaming.com.Engine.Game.state = {
 	running: false,
-	scene: new nullandvoidgaming.com.Engine.Game.Scene()
+	scene: new nullandvoidgaming.com.Engine.Game.Scene(),
+	menu : null
 }
