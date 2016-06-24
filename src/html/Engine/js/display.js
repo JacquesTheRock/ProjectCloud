@@ -52,16 +52,14 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 		}
 	};
 	this.drawRect = function(x,y,w,h,color) {
-		if (!color)
-			this.ctx.fillStyle = "#000000";
-		else
-			this.ctx.fillStyle = color;
-		this.ctx.fillRect(
-			Math.round(x - this.position.vector.x),
-			Math.round(y - this.position.vector.y),
-			w,
-			h
-			);
+		var data = { color : color };
+		data.drawRect = {
+			Left : function() { return x; },
+			Top : function() { return y; },
+			Width : function() { return w; },
+			Height : function() { return h; }
+		}
+		this.draw(data);
 	};
 	this.show = function() {
 		if(this.spriteDataLength < 100) return;
@@ -101,16 +99,16 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 						data.position.width,
 						data.position.height
 					);
-				else if(data.drawRect)
+				else if(data.drawRect) {
 					if (!data.color)
 						this.ctx.fillStyle = "#000000";
-					else {
+					else 
 						this.ctx.fillStyle = data.color;
 						this.ctx.fillRect(
-							Math.round(data.hitbox.Left() - this.position.vector.x),
-							Math.round(data.hitbox.Top() - this.position.vector.y),
-							data.hitbox.Width(),
-							data.hitbox.Height());
+							Math.round(data.drawRect.Left() - this.position.vector.x),
+							Math.round(data.drawRect.Top() - this.position.vector.y),
+							data.drawRect.Width(),
+							data.drawRect.Height());
 					}
 				}
 				this.spriteDataLength = 0;

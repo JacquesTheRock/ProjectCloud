@@ -84,8 +84,7 @@ nullandvoidgaming.com.Engine.Game.Menu.Button = function(f, text, color = "rgba(
 		this.f();
 	}
 	out.draw = function(gT,c) {
-		this.drawRect = this.hitbox;
-		c.draw(this);
+		c.drawRect(this.hitbox.Left(), this.hitbox.Top(),this.hitbox.Width(), this.hitbox.Height(), this.color);
 	}
 	out.update = function(gT) {
 		if(this.focused && ! this.selected) {
