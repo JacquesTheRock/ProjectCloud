@@ -89,20 +89,30 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 					this.spriteData,
 					nullandvoidgaming.com.Engine.IO.Display.isLower,
 					this.spriteDataLength--);
-				this.ctx.drawImage(
-					data.frame.image,
-					data.frame.X(),
-					data.frame.Y(),
-					data.frame.width,
-					data.frame.height,
-					Math.round(data.position.vector.x - this.position.vector.x),
-					Math.round(data.position.vector.y - this.position.vector.y),
-					data.position.width,
-					data.position.height
-
-				);
-			}
-			this.spriteDataLength = 0;
+				if(data.frame)
+					this.ctx.drawImage(
+						data.frame.image,
+						data.frame.X(),
+						data.frame.Y(),
+						data.frame.width,
+						data.frame.height,
+						Math.round(data.position.vector.x - this.position.vector.x),
+						Math.round(data.position.vector.y - this.position.vector.y),
+						data.position.width,
+						data.position.height
+					);
+				else if(data.drawRect)
+					if (!data.color)
+						this.ctx.fillStyle = "#000000";
+					else
+						this.ctx.fillStyle = data.color;
+						this.ctx.fillRect(
+							Math.round(data.hitbox.Left() - this.position.vector.x),
+							Math.round(data.hitbox.Top() - this.position.vector.y),
+							data.hitbox.Width(),
+							data.hitbox.Height());
+				}
+				this.spriteDataLength = 0;
 		} else {
 			while(this.spriteDataLength > 1) {
 				var data =  this.spriteData[--this.spriteDataLength];
