@@ -104,13 +104,14 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 				else if(data.drawRect)
 					if (!data.color)
 						this.ctx.fillStyle = "#000000";
-					else
+					else {
 						this.ctx.fillStyle = data.color;
 						this.ctx.fillRect(
 							Math.round(data.hitbox.Left() - this.position.vector.x),
 							Math.round(data.hitbox.Top() - this.position.vector.y),
 							data.hitbox.Width(),
 							data.hitbox.Height());
+					}
 				}
 				this.spriteDataLength = 0;
 		} else {
