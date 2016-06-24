@@ -9,12 +9,12 @@ nullandvoidgaming.com.makeSubNameSpace("com.projectCloud", nullandvoidgaming);
 
 nullandvoidgaming.com.projectCloud.Init = function() {
 	var projectCloud = nullandvoidgaming.com.projectCloud;
+	var Engine = nullandvoidgaming.com.Engine;
 	projectCloud.time = new Date();
 	projectCloud.cam = null;
-	nullandvoidgaming.com.Engine.Game.state = {
-		running: true,
-		scene: new nullandvoidgaming.com.Engine.Game.Map()
-	}
+	Engine.Game.state.running = true;
+	Engine.Game.state.scene =  new Engine.Game.Map();
+	Engine.Game.state.mode = 0;//0 for start menu
 	projectCloud.gameArea = {
 		canvas: document.createElement("canvas"),
 		start : function() {
@@ -131,6 +131,7 @@ function loadGame() {
 	var Entity = nullandvoidgaming.com.Engine.Entity;
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	var projectCloud = nullandvoidgaming.com.projectCloud;
+	var Engine = nullandvoidgaming.com.Engine;
 	projectCloud.cam = new Display.NewCamera(projectCloud.gameArea.context, 0,0);
 	Display.setImage("player",document.getElementById("player"));
 	Display.setImage("outside.png",document.getElementById("TS_outside"));
@@ -141,6 +142,27 @@ function loadGame() {
 	Game.state.scene.entities[Game.state.scene.entities.length] =  p1;
 	projectCloud.cam.followEntity(p1,0.07);
 	RequestJSON("maps/example.json", ParseMapJSON);
+	var controller = new Input.MouseController(projectCloud.gameArea.canvas);
+	Engine.Game.state.menu = new Engine.Game.Menu.NewMenu();
+	controller.setControlled(Engine.Game.state.menu, projectCloud.cam);
+	Engine.Game.state.menu.add(
+		new Engine.Game.Menu.Button(
+			function() { this.color = "rgba(255,0,0,0.5)";},
+			"Button 1",
+			"rgba(0,0,255,0.5)",
+			100,
+			0
+		)
+	);
+	Engine.Game.state.menu.add(
+		new Engine.Game.Menu.Button(
+			function() { Engine.Game.state.mode = 1;},
+			"Cancel",
+			"rgba(0,255,0,0.5)",
+			100,
+			300
+		)
+	);
 }
 
 function startGame() {
@@ -157,14 +179,20 @@ function updateGame() {
 	using.time = new Date();
 	var gT = using.time - oldTime;
 
-	if(Game.state.scene.loading) {
-		//Do nothing for now
+	if(Game.state.mode == 0 ) {
+		using.cam.position.vector.x = 0;//Ugh
+		using.cam.position.vector.y = 0;//Ugh
+		Game.state.menu.update(gT);
+		Game.state.menu.draw(gT,using.cam);
+		
 	} else {
-		if (Game.state.running) {
-			Game.state.scene.update(gT);
-			using.cam.update(gT);
+		if(!Game.state.scene.loading) {
+			if (Game.state.running) {
+				Game.state.scene.update(gT);
+				using.cam.update(gT);
+			}
+			Game.state.scene.draw(gT,using.cam);
 		}
-		Game.state.scene.draw(gT,using.cam);
 	}
 	using.gameArea.clear();
 	using.cam.flush();
