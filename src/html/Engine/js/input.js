@@ -315,7 +315,7 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 
 nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
-	var out = Input.Controller();
+	var out = new Input.Controller();
 	out.setControlled = function(controlled) {
 		var me = this;
 		this.p = controlled;
@@ -340,7 +340,7 @@ nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	var Vector = nullandvoidgaming.com.Engine.Game.Vector;
-	var out = Input.Controller();
+	var out = new Input.Controller();
 	out.isMouse = true;
 	if(!clickTarget) {
 		throw new Error("Must Specify Dom Object to Click");
