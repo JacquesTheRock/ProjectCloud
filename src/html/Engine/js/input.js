@@ -341,6 +341,7 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	var Vector = nullandvoidgaming.com.Engine.Game.Vector;
 	var out = Input.Controller();
+	out.isMouse = true;
 	if(!clickTarget) {
 		throw new Error("Must Specify Dom Object to Click");
 		return null;
@@ -361,6 +362,7 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 				if(!me.p || !me.cam || !me.cam.screenToGame) {
 					me.clickTarget.removeEventListener('mousedown',this);
 					me.targetPos = null;
+					me.curPos = null;
 					me.clickTarget = null;
 				}
 				else {
@@ -370,6 +372,30 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 					me.action = 1;//Activate an action
 				}
 			});
+		me.clickTarget.addEventListener('mouseup',
+			function(e) {
+				if(!me.p || !me.cam || !me.cam.screenToGame) {
+					me.clickTarget.removeEventListener('mouseup',this);
+					me.targetPos = null;
+					me.curPos = null;
+					me.clickTarget = null;
+				}
+				else {
+					me.action = 0;//deactivate an action
+				}
+			});
+		me.clickTarget.addEventListener('mousemove',
+			function(e) {
+				if(!me.p || !me.cam || !me.cam.screenToGame) {
+					me.clickTarget.removeEventListener('mousemove',this);
+					me.curPos = null;
+				}
+				else {
+					var pos = new Vector.NewVector(e.clientX, e.clientY);
+					me.curPos = pos;
+				}
+			}
+			);
 	};
 	out.update = function(gT) {
 		if(this.targetPos && this.p) {
@@ -399,8 +425,6 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 				this.targetPos = null;//Arrival
 			}
 		} else {
-			this.action = 0;
-			this.cancel = 0;
 		}
 	};
 	return out;
