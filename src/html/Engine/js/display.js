@@ -52,14 +52,26 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 		}
 	};
 	this.drawRect = function(x,y,w,h,color) {
-		var data = { color : color };
+		var data = { };
 		data.drawRect = {
+			color : color,
 			Left : function() { return x; },
 			Top : function() { return y; },
 			Width : function() { return w; },
 			Height : function() { return h; }
 		}
 		this.draw(data);
+	};
+	this.drawText = function(txt, x=0, y=0, color = 'rgb(0,0,0)', width = undefined) {
+		var data = { };
+		data.drawText = { text: txt ,
+			color : color,
+			Left: function() { return x; },
+			Top : function() { return y; },
+			width: width
+		};
+		this.draw(data);
+
 	};
 	this.show = function() {
 		if(this.spriteDataLength < 100) return;
@@ -99,18 +111,29 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 						data.position.width,
 						data.position.height
 					);
-				else if(data.drawRect) {
-					if (!data.color)
+				if(data.drawRect) {
+					if (!data.drawRect.color)
 						this.ctx.fillStyle = "#000000";
 					else 
-						this.ctx.fillStyle = data.color;
-						this.ctx.fillRect(
-							Math.round(data.drawRect.Left() - this.position.vector.x),
-							Math.round(data.drawRect.Top() - this.position.vector.y),
-							data.drawRect.Width(),
-							data.drawRect.Height());
+						this.ctx.fillStyle = data.drawRect.color;
+					this.ctx.fillRect(
+						Math.round(data.drawRect.Left() - this.position.vector.x),
+						Math.round(data.drawRect.Top() - this.position.vector.y),
+						data.drawRect.Width(),
+						data.drawRect.Height());
 					}
+				if(data.drawText) {
+					if (!data.drawText.color)
+						this.ctx.fillStyle = "#000000";
+					else 
+						this.ctx.fillStyle = data.drawText.color;
+
+					this.ctx.fillText(data.drawText.text,
+						data.drawText.Left(),
+						data.drawText.Top()
+						);
 				}
+			}
 				this.spriteDataLength = 0;
 		} else {
 			while(this.spriteDataLength > 1) {
