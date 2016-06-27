@@ -320,6 +320,18 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	var out = new Input.Controller();
+	window.addEventListener('keydown',
+		function(e) {
+			if(!out.p) window.removeEventListener('keydown',this);
+			else out.pressKey(e);
+			}
+		);
+	window.addEventListener('keyup',
+		function(e) {
+			if(!out.p) window.removeEventListener('keyup', this);
+			else out.relKey(e);
+			}
+		);
 	out.setControlled = function(controlled) {
 		var me = this;
 		me.p = controlled;
@@ -327,18 +339,6 @@ nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 		me.checkAction = controlled.controllerAction;
 		this.clear();
 		if(controlled == null) return;
-		window.addEventListener('keydown', 
-			function(e) { 
-				if(me.p == null) window.removeEventListener('keydown',this);
-				else me.pressKey(e); 
-				} 
-			);
-		window.addEventListener('keyup', 
-			function(e) { 
-				if(me.p == null) window.removeEventListener('keyup', this);
-				else me.relKey(e); 
-				}
-			);
 	}
 	return out;
 }
@@ -411,8 +411,6 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 		if(!controlled || !camera) {
 			throw new Error("Null Controlled Object or Camera");
 		}
-		
-
 	};
 	out.update = function(gT) {
 		if(this.targetPos && this.p) {
