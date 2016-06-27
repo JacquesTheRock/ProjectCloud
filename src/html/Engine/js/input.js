@@ -367,6 +367,10 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 				}
 				else {
 					var pos = new Vector.NewVector(e.clientX, e.clientY);
+					var offset = me.cam.ctx.canvas.getBoundingClientRect();
+					pos.x -= offset.left;
+					pos.y -= offset.top;
+					me.curPos = pos;
 					pos = me.cam.screenToGame(pos);
 					me.targetPos = pos;
 					me.action = 1;//Activate an action
@@ -392,6 +396,9 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 				}
 				else {
 					var pos = new Vector.NewVector(e.clientX, e.clientY);
+					var offset = me.cam.ctx.canvas.getBoundingClientRect();
+					pos.x -= offset.left;
+					pos.y -= offset.top;
 					me.curPos = pos;
 				}
 			}
