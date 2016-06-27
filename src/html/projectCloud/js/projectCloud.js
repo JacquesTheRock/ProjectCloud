@@ -135,14 +135,16 @@ function loadGame() {
 	projectCloud.cam = new Display.NewCamera(projectCloud.gameArea.context, 0,0);
 	Display.setImage("player",document.getElementById("player"));
 	Display.setImage("outside.png",document.getElementById("TS_outside"));
-	//var controller = new Input.KeyBoardController();
-	var controller = new Input.MouseController(projectCloud.gameArea.canvas);
+	var controller = new Input.KeyBoardController();
+	//var controller = new Input.MouseController(projectCloud.gameArea.canvas);
+	
 	var p1 =  Entity.NewPlayer("player",controller);
 	controller.setControlled(p1,projectCloud.cam);
 	Game.state.scene.entities[Game.state.scene.entities.length] =  p1;
 	projectCloud.cam.followEntity(p1,0.07);
 	RequestJSON("maps/example.json", ParseMapJSON);
-	var controller = new Input.MouseController(projectCloud.gameArea.canvas);
+//	var controller = new Input.MouseController(projectCloud.gameArea.canvas);
+	var controller = new Input.KeyBoardController();
 	Engine.Game.state.menu = new Engine.Game.Menu.NewMenu();
 	controller.setControlled(Engine.Game.state.menu, projectCloud.cam);
 	Engine.Game.state.menu.add(

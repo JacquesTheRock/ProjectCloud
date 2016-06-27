@@ -85,13 +85,19 @@ nullandvoidgaming.com.Engine.Game.Menu.NewMenu = function() {
 		if(this.controller.isMouse) {
 			this.hoverID = this.findHovered();
 		}
-		else  if(this.controller.up || this.controller.left) {
+		else if(this.controller.up || this.controller.left) {
+			this.controller.left = 0;
+			this.controller.up = 0;
 			this.hoverID--;
 			if(this.hoverID < 0)
 				this.hoverID = this.menuObjects.length - 1;
 		}
 		else if(this.controller.down || this.controller.right) {
-			this.hoverNext();
+			this.controller.right = 0;
+			this.controller.down = 0;
+			this.hoverID++;
+			if(this.hoverID >= this.menuObjects.length)
+				this.hoverID = -1;
 		}
 		var next = this.menuObjects[this.hoverID];
 		if(this.hovered != next) {
