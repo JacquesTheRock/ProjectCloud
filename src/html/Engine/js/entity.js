@@ -74,7 +74,7 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 	},
 	newCollider : function(entity, width,height, xoffset,yoffset) {
 		var out = new nullandvoidgaming.com.Engine.Entity.Collider.RectCollider(entity,width,height);
-		out.xoffset = xoffset; out.yoffset = yoffset;
+		out.offset.x = xoffset; out.offset.y = yoffset;
 		out.collides = function(other) {
 				if(this.intersects(other)) {
 					var collision = {
