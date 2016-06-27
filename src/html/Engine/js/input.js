@@ -281,7 +281,10 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 			if (e.keyCode == this.keymap.down) { this.down = val; }
 			if (e.keyCode == this.keymap.left) { this.left = val; }
 			if (e.keyCode == this.keymap.right) { this.right = val; }
-			if (e.keyCode == this.keymap.action) { this.action = val; }
+			if (e.keyCode == this.keymap.action) {
+				this.action = val;
+				if(val == 1 && me.checkAction) me.checkAction();
+			}
 			if (e.keyCode == this.keymap.cancel) { this.cancel = val; }
 		};
 	this.relKey = function(e) { this.keyChange(e,0); };
@@ -319,7 +322,8 @@ nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 	var out = new Input.Controller();
 	out.setControlled = function(controlled) {
 		var me = this;
-		this.p = controlled;
+		me.p = controlled;
+		me.p.controller = me;
 		this.clear();
 		if(controlled == null) return;
 		window.addEventListener('keydown', 
