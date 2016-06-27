@@ -4,19 +4,17 @@ if(typeof nullandvoidgaming.com === "undefined")
 	throw new Error("Fatal: nullandvoidgaming.com namespace missing");
 nullandvoidgaming.com.makeSubNameSpace("Engine.Game.Menu", nullandvoidgaming.com);
 
-nullandvoidgaming.com.Engine.Game.Menu.StyleClone = function(s) {
-	var out = {};
-	out.color = s.color.slice(0);
-	out.size = s.size;
-	out.fontSize = s.fontSize;
-	out.family = s.family.slice(0);
-	out.variant = s.variant ? s.variant.slice(0) : undefined;
-	out.font = s.font;
-	return out;
+nullandvoidgaming.com.Engine.Game.Menu.TextStyleClone = function(s) {
+	return new nullandvoidgaming.com.Engine.Game.Menu.TextStyle(
+		s.color.slice(0),
+		s.size,
+		s.family.slice(0),
+		s.variant ? s.variant.slice(0) : undefined
+		);
 }
 
 //Menu Style!
-nullandvoidgaming.com.Engine.Game.Menu.Style = function(c = 'rgb(0,0,0)', s = 12,
+nullandvoidgaming.com.Engine.Game.Menu.TextStyle = function(c = 'rgb(0,0,0)', s = 12,
 	f = "arial", v = null) {
 	this.color = c;
 	this.size = s;
@@ -37,9 +35,9 @@ nullandvoidgaming.com.Engine.Game.Menu.NewMenu = function() {
 	var Menu = nullandvoidgaming.com.Engine.Game.Menu;
 	var out = new nullandvoidgaming.com.Engine.Game.Scene();
 	out.backdrop = null;
-	out.style = new Menu.Style();
+	out.textStyle = new Menu.TextStyle();
 	out.menuObjects = [];//Things in the menu
-	out.hovered = {};
+	out.hovered = new Menu.MenuObject();
 	out.hoverID = 0;
 	out.controller = {}; //Requires a Controller be defined
 	out.hoverNext = function() {
@@ -57,18 +55,37 @@ nullandvoidgaming.com.Engine.Game.Menu.NewMenu = function() {
 		if(this.backdrop)
 			backdrop.draw(gT,c);
 		for (var i = 0; i < this.menuObjects.length; i++) {
-			this.menuObjects[i].draw(gT,c, Menu.StyleClone(this.style));
+			this.menuObjects[i].draw(gT,c, Menu.TextStyleClone(this.textStyle));
 		}
 	};
-	out.update = function(gT) {
-		//Move Focused
-		if(this.controller.isMouse)
+	out.findHovered = function() {
+		var id = -1;
+		if(this.controller.isMouse) {
 			for(var i = 0; i < this.menuObjects.length; i++) {
 				if(this.controller.curPos && this.menuObjects[i].hitbox.containsPoint(this.controller.curPos)) {
-					this.hoverID = i;
+					id = i;
 				}
 			}
-		else if(this.controller.up || this.controller.left) {
+		}
+		return id;
+	}
+	out.controllerAction = function() {
+		if(this.isMouse)
+			out.hoverID = out.findHovered();
+		var next = out.menuObjects[out.hoverID];
+		if(next) {
+			if(out.hovered) out.hovered.loseFocus();
+			next.gainFocus();
+			out.hovered = next;
+			next.onSelect();
+		}
+	}
+	out.update = function(gT) {
+		//Move Focused
+		if(this.controller.isMouse) {
+			this.hoverID = this.findHovered();
+		}
+		else  if(this.controller.up || this.controller.left) {
 			this.hoverID--;
 			if(this.hoverID < 0)
 				this.hoverID = this.menuObjects.length - 1;
@@ -76,14 +93,16 @@ nullandvoidgaming.com.Engine.Game.Menu.NewMenu = function() {
 		else if(this.controller.down || this.controller.right) {
 			this.hoverNext();
 		}
-		this.hovered.focused = false;
-		this.hovered = this.menuObjects[this.hoverID];
-		this.hovered.focused = true;
-
-		//Trigger Selection
-		if(this.controller.action && this.hovered) {
-			this.hovered.onSelect();
+		var next = this.menuObjects[this.hoverID];
+		if(this.hovered != next) {
+			if(this.hovered) {
+				this.hovered.loseFocus();
+			}
+			if(next) {
+				next.gainFocus();
+			}
 		}
+		this.hovered = next;
 		//Run Update Script
 		for(var i = 0; i < this.menuObjects.length; i++) {
 			this.menuObjects[i].update(gT);
@@ -96,8 +115,11 @@ nullandvoidgaming.com.Engine.Game.Menu.MenuObject = function(x = 0, y = 0, width
 	this.update = nullandvoidgaming.com.Noop;//function(gT)
 	this.draw = nullandvoidgaming.com.Noop;//function(gT)
 	this.onSelect = nullandvoidgaming.com.Noop;//function(gT)
+	this.gainFocus = nullandvoidgaming.com.Noop;//function()
+	this.loseFocus = nullandvoidgaming.com.Noop;//function()
 	return this;
 }
+
 nullandvoidgaming.com.Engine.Game.Menu.Button = function(f, text, color = "rgba(0.5,0.5,0.5,1)", x = 0, y = 0, w = 60, h = 15) {
 	var Menu = nullandvoidgaming.com.Engine.Game.Menu;
 	var out = new Menu.MenuObject();
@@ -113,6 +135,22 @@ nullandvoidgaming.com.Engine.Game.Menu.Button = function(f, text, color = "rgba(
 		this.selected = true;
 		this.f();
 	}
+
+	out.gainFocus = function() {
+		if(!this.selected) {
+			this.oldColor = this.color;
+			this.color = 'rgba(200,200,200,1)';
+		}
+			
+	}
+
+	out.loseFocus = function() {
+		if(!this.selected && this.oldColor) {
+			this.color = this.oldColor;
+		}
+			
+	}
+
 	out.draw = function(gT,c, style) {
 		var me = this;
 		this.drawRect = {
@@ -131,16 +169,11 @@ nullandvoidgaming.com.Engine.Game.Menu.Button = function(f, text, color = "rgba(
 		}
 		c.draw(this);
 	}
-	out.update = function(gT) {
-		if(this.focused && ! this.selected) {
-			this.color = 'rgba(155,155,155,1)'
-		} else if(!this.selected) {
-			this.color = this.baseColor;
-		}
-	}
 	out.baseColor = color.slice(0);
 	return out;
 }
+
+
 
 nullandvoidgaming.com.Engine.Game.Menu.Label = function(text, x = 0, y = 0) {
 	var out = new Menu.MenuObject();

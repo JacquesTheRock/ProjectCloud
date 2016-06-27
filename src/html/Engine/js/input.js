@@ -306,6 +306,7 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 			out += pre + "Cancel: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.cancel];
 			return out
 		};
+	this.checkAction = nullandvoidgaming.com.Noop;
 	this.setControlled = nullandvoidgaming.com.Noop;
 	this.update = nullandvoidgaming.com.Noop;
 	return this;
@@ -350,6 +351,7 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 	out.error = 5;//If you get within this, you have reached the destination
 	out.setControlled = function(controlled, camera) {
 		var me = this;
+		me.checkAction = controlled.controllerAction;
 		me.p = controlled;
 		me.p.controller = me;
 		me.cam = camera;
@@ -374,6 +376,7 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 					pos = me.cam.screenToGame(pos);
 					me.targetPos = pos;
 					me.action = 1;//Activate an action
+					if(me.checkAction) me.checkAction();
 				}
 			});
 		me.clickTarget.addEventListener('mouseup',
