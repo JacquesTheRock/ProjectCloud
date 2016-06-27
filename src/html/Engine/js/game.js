@@ -38,6 +38,12 @@ nullandvoidgaming.com.Engine.Game.Rect = {
 		this.Top = function()		{ return this.TopLeft.y; };
 		this.Right = function()		{ return this.TopLeft.x + this.dimensions.x; };
 		this.Bottom = function()	{ return this.TopLeft.y + this.dimensions.y; };
+		this.Center = function() { 
+			return new Game.Vector.NewVector(
+				this.Left() + (this.dimensions.x / 2),
+				this.Bottom() - (this.dimensions.y / 2)
+				); 
+		};
 		this.containsPoint = Game.Rect.DefaultContainsPoint;
 		this.containsRect = Game.Rect.DefaultContainsRect;
 		this.intersects = Game.Rect.DefaultIntersectsRect;

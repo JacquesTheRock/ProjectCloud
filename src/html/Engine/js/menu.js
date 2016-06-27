@@ -97,7 +97,7 @@ nullandvoidgaming.com.Engine.Game.Menu.NewMenu = function() {
 			this.controller.down = 0;
 			this.hoverID++;
 			if(this.hoverID >= this.menuObjects.length)
-				this.hoverID = -1;
+				this.hoverID = 0;
 		}
 		var next = this.menuObjects[this.hoverID];
 		if(this.hovered != next) {
@@ -169,7 +169,9 @@ nullandvoidgaming.com.Engine.Game.Menu.Button = function(f, text, color = "rgba(
 		this.drawText = {
 			text: me.text,
 			Left : function() { return me.hitbox.Left(); },
-			Top : function() { return me.hitbox.Bottom() - this.style.size / 3; },
+			Top : function() { 
+				return me.hitbox.Center().y + (this.style.size / 3); 
+			},
 			style : style,
 			color : style.color
 		}
