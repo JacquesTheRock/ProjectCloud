@@ -210,12 +210,19 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 		var Game =  nullandvoidgaming.com.Engine.Game;
 		if(!this.tileSize)
 			return null;
+		var v = this.getTileCoord(vector);
+		var id = v.y*Game.state.scene.horTile + v.x;
+		var out = Game.state.scene.tiles[id] 
+		if(!out || out.xID != v.x || out.yID != v.y) return {xID:v.x,yID:v.y,walkable:false};
+		return out;
+	}
+	this.getTileCoord = function(vector) {
+		var Game = nullandvoidgaming.com.Engine.Game;
+		if(!this.tileSize)
+			return null;
 		var x = Math.floor(vector.x / this.tileSize);
 		var y = Math.floor(vector.y / this.tileSize);
-		var id = y*Game.state.scene.horTile + x;
-		var out = Game.state.scene.tiles[id] 
-		if(!out || out.xID != x || out.yID != y) return {xID:x,yID:y,walkable:false};
-		return out;
+		return {x,y};
 	}
 	return this;
 }

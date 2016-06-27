@@ -158,25 +158,21 @@ nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate = function(dt) {
 		delta.y = delta.y * 0.70710678;
 	}
 	delta = Game.Vector.Multiply(delta, this.speed);
-	var yEdge = this.collider.Top();
-	var xEdge = this.collider.Left();
-	if(delta.y > 0)
-		yEdge = this.collider.Bottom();
-	if(delta.x > 0)
-		xEdge = this.collider.Right();
-	var edge = Game.Vector.NewVector(xEdge,yEdge);
-	var nPos = new Game.Vector.Add(delta,edge);
-	var nextT = map.getTileAt(nPos);
-	var curT = map.getTileAt(this.position.center());
-	if(!nextT) {
-		delta.x = 0;
+	//map.getTileAt(new Game.Vector.NewVector(xEdge + delta.x, hitCenter.y));
+	var TL = map.getTileAt(new Game.Vector.NewVector(this.collider.Left() + delta.x, this.collider.Top() + delta.y));
+	var TR = map.getTileAt(new Game.Vector.NewVector(this.collider.Right() + delta.x, this.collider.Top() + delta.y));
+	var BL = map.getTileAt(new Game.Vector.NewVector(this.collider.Left() + delta.x, this.collider.Bottom() + delta.y));
+	var BR = map.getTileAt(new Game.Vector.NewVector(this.collider.Right() + delta.x, this.collider.Bottom() + delta.y));
+	if(delta.y < 0 && !(TL.walkable && TR.walkable))
 		delta.y = 0;
-	} else if(!nextT.walkable) {
-		if(curT.xID != nextT.xID)
-			delta.x = 0;
-		if(curT.yID != nextT.yID)
-			delta.y = 0;
-	}
+	else if(delta.y > 0 && !(BL.walkable && BR.walkable))
+		delta.y = 0;
+	if(delta.x < 0 && !(TL.walkable && BL.walkable))
+		delta.x = 0;
+	else if(delta.x > 0 && !(TR.walkable && BR.walkable))
+		delta.x = 0;
+
+	
 	if (delta.x < 0) {
 		this.frame.vertical = 1;
 	} else if (delta.x > 0) {
