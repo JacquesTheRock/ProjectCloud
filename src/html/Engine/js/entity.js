@@ -158,7 +158,17 @@ nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate = function(dt) {
 		delta.y = delta.y * 0.70710678;
 	}
 	delta = Game.Vector.Multiply(delta, this.speed);
+	var c = this.collider.Center();
 	//map.getTileAt(new Game.Vector.NewVector(xEdge + delta.x, hitCenter.y));
+	var L = map.getTileAt(new Game.Vector.NewVector(this.collider.Left() + delta.x, c.y));
+	var T = map.getTileAt(new Game.Vector.NewVector(c.x, this.collider.Top() + delta.y));
+	var B = map.getTileAt(new Game.Vector.NewVector(c.x, this.collider.Bottom() + delta.y));
+	var R = map.getTileAt(new Game.Vector.NewVector(this.collider.Right() + delta.x, c.y));
+	if(delta.x && (!L.walkable || !R.walkable))
+		delta.x = 0;
+	if(delta.y && (!T.walkable || !B.walkable))
+		delta.y = 0;
+	if(delta.x || delta.y)
 	var TL = map.getTileAt(new Game.Vector.NewVector(this.collider.Left() + delta.x, this.collider.Top() + delta.y));
 	var TR = map.getTileAt(new Game.Vector.NewVector(this.collider.Right() + delta.x, this.collider.Top() + delta.y));
 	var BL = map.getTileAt(new Game.Vector.NewVector(this.collider.Left() + delta.x, this.collider.Bottom() + delta.y));
