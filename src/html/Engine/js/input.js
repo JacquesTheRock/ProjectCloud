@@ -353,6 +353,53 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 		return null;
 	}
 	out.clickTarget = clickTarget;
+	clickTarget.addEventListener('mousedown',
+		function(e) {
+			if(!out.p || !out.cam || !out.cam.screenToGame) {
+				out.clickTarget.removeEventListener('mousedown',this);
+				out.targetPos = null;
+				out.curPos = null;
+				out.clickTarget = null;
+			}
+			else {
+				var pos = new Vector.NewVector(e.clientX, e.clientY);
+				var offset = out.cam.ctx.canvas.getBoundingClientRect();
+				pos.x -= offset.left;
+				pos.y -= offset.top;
+				out.curPos = pos;
+				pos = out.cam.screenToGame(pos);
+				out.targetPos = pos;
+				out.action = 1;//Activate an action
+				if(out.checkAction) out.checkAction();
+			}
+		});
+	clickTarget.addEventListener('mouseup',
+		function(e) {
+			if(!out.p || !out.cam || !out.cam.screenToGame) {
+				out.clickTarget.removeEventListener('mouseup',this);
+				out.targetPos = null;
+				out.curPos = null;
+				out.clickTarget = null;
+			}
+			else {
+				out.action = 0;//deactivate an action
+			}
+		});
+	clickTarget.addEventListener('mousemove',
+		function(e) {
+			if(!out.p || !out.cam || !out.cam.screenToGame) {
+				out.clickTarget.removeEventListener('mousemove',this);
+				out.curPos = null;
+			}
+			else {
+				var pos = new Vector.NewVector(e.clientX, e.clientY);
+				var offset = out.cam.ctx.canvas.getBoundingClientRect();
+				pos.x -= offset.left;
+				pos.y -= offset.top;
+				out.curPos = pos;
+			}
+		}
+		);
 	out.error = 5;//If you get within this, you have reached the destination
 	out.setControlled = function(controlled, camera) {
 		var me = this;
@@ -362,55 +409,10 @@ nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 		me.cam = camera;
 		this.clear();
 		if(!controlled || !camera) {
-			throw new Eror("Null Controlled Object or Camera");
+			throw new Error("Null Controlled Object or Camera");
 		}
-		me.clickTarget.addEventListener('mousedown',
-			function(e) {
-				if(!me.p || !me.cam || !me.cam.screenToGame) {
-					me.clickTarget.removeEventListener('mousedown',this);
-					me.targetPos = null;
-					me.curPos = null;
-					me.clickTarget = null;
-				}
-				else {
-					var pos = new Vector.NewVector(e.clientX, e.clientY);
-					var offset = me.cam.ctx.canvas.getBoundingClientRect();
-					pos.x -= offset.left;
-					pos.y -= offset.top;
-					me.curPos = pos;
-					pos = me.cam.screenToGame(pos);
-					me.targetPos = pos;
-					me.action = 1;//Activate an action
-					if(me.checkAction) me.checkAction();
-				}
-			});
-		me.clickTarget.addEventListener('mouseup',
-			function(e) {
-				if(!me.p || !me.cam || !me.cam.screenToGame) {
-					me.clickTarget.removeEventListener('mouseup',this);
-					me.targetPos = null;
-					me.curPos = null;
-					me.clickTarget = null;
-				}
-				else {
-					me.action = 0;//deactivate an action
-				}
-			});
-		me.clickTarget.addEventListener('mousemove',
-			function(e) {
-				if(!me.p || !me.cam || !me.cam.screenToGame) {
-					me.clickTarget.removeEventListener('mousemove',this);
-					me.curPos = null;
-				}
-				else {
-					var pos = new Vector.NewVector(e.clientX, e.clientY);
-					var offset = me.cam.ctx.canvas.getBoundingClientRect();
-					pos.x -= offset.left;
-					pos.y -= offset.top;
-					me.curPos = pos;
-				}
-			}
-			);
+		
+
 	};
 	out.update = function(gT) {
 		if(this.targetPos && this.p) {
