@@ -124,54 +124,89 @@ function ParseMapJSON(data) {
 	}
 }
 
+function titleMenu(controller) {
+	var Engine = nullandvoidgaming.com.Engine;
+	var Game = Engine.Game;
+	var Input = Engine.IO.Input;
+	var menu = new Game.Menu.NewMenu();
+	menu.add(
+		new Game.Menu.Button(
+			function() {
+				Game.state.mode = 1;
+				loadGame(menu.controller);
+				},
+			"Play",
+			"rgba(0,255,0,0.5)",
+			200,
+			150
+		)
+	);
+	menu.add(
+		new Game.Menu.Button(
+			function() { Game.state.menu = loadMenu(menu.controller,titleMenu); },
+			"Load",
+			"rgba(0,0,255,0.5)",
+			200,
+			200
+		)
+	);
+	menu.add(
+		new Game.Menu.Button(
+			function() { this.color = "rgba(255,0,0,0.5)";},
+			"Controls",
+			"rgba(0,0,255,0.5)",
+			200,
+			250
+		)
+	);
+	controller.setControlled(menu, projectCloud.cam);
+	return menu;
+}
 
-function loadGame() {
+function loadMenu(controller,prevMenu) {
+	var Engine = nullandvoidgaming.com.Engine;
+	var Input = Engine.IO.Input;
+	var Game = Engine.Game;
+	var menu = new Game.Menu.NewMenu();
+	menu.add(
+		new Game.Menu.Button(
+			function() {
+				Game.state.menu = prevMenu(menu.controller);
+			},
+			"Back",
+			"rgba(0,255,0,0.5)",
+			200,
+			150
+		)
+	);
+	controller.setControlled(menu, projectCloud.cam);
+	return menu;
+}
+
+function loadGame(controller) {
 	var Display = nullandvoidgaming.com.Engine.IO.Display;
 	var Game = nullandvoidgaming.com.Engine.Game;
 	var Entity = nullandvoidgaming.com.Engine.Entity;
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	var projectCloud = nullandvoidgaming.com.projectCloud;
 	var Engine = nullandvoidgaming.com.Engine;
-	projectCloud.cam = new Display.NewCamera(projectCloud.gameArea.context, 0,0);
 	Display.setImage("player",document.getElementById("player"));
 	Display.setImage("outside.png",document.getElementById("TS_outside"));
-	var controller = new Input.KeyBoardController();
-	//var controller = new Input.MouseController(projectCloud.gameArea.canvas);
-	
 	var p1 =  Entity.NewPlayer("player",controller);
 	controller.setControlled(p1,projectCloud.cam);
 	Game.state.scene.entities[Game.state.scene.entities.length] =  p1;
 	projectCloud.cam.followEntity(p1,0.07);
 	RequestJSON("maps/example.json", ParseMapJSON);
-//	var controller = new Input.MouseController(projectCloud.gameArea.canvas);
-	var controller = new Input.KeyBoardController();
-	Engine.Game.state.menu = new Engine.Game.Menu.NewMenu();
-	controller.setControlled(Engine.Game.state.menu, projectCloud.cam);
-	Engine.Game.state.menu.add(
-		new Engine.Game.Menu.Button(
-			function() { this.color = "rgba(255,0,0,0.5)";},
-			"Button 1",
-			"rgba(0,0,255,0.5)",
-			100,
-			0
-		)
-	);
-	Engine.Game.state.menu.add(
-		new Engine.Game.Menu.Button(
-			function() { Engine.Game.state.mode = 1;},
-			"Cancel",
-			"rgba(0,255,0,0.5)",
-			100,
-			300
-		)
-	);
 }
 
 function startGame() {
+	var Engine = nullandvoidgaming.com.Engine;
 	var projectCloud = nullandvoidgaming.com.projectCloud;
 	projectCloud.Init();
 	projectCloud.gameArea.start();
-	loadGame();
+	projectCloud.cam = new Engine.IO.Display.NewCamera(projectCloud.gameArea.context, 0,0);
+	var controller = new Engine.IO.Input.KeyBoardController();
+	Engine.Game.state.menu = titleMenu(controller);
 }
 
 function updateGame() {
@@ -186,7 +221,7 @@ function updateGame() {
 		using.cam.position.vector.y = 0;//Ugh
 		Game.state.menu.update(gT);
 		Game.state.menu.draw(gT,using.cam);
-		
+
 	} else {
 		if(!Game.state.scene.loading) {
 			if (Game.state.running) {
