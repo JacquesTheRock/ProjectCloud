@@ -51,8 +51,8 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 			this.spriteData[this.spriteDataLength++] = SpriteDatum;
 		}
 	};
-	this.drawRect = function(x,y,w,h,color) {
-		var data = { };
+	this.drawRect = function(x,y,w,h,color,depth = 0) {
+		var data = { depth : depth };
 		data.drawRect = {
 			color : color,
 			Left : function() { return x; },
@@ -62,8 +62,8 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 		}
 		this.draw(data);
 	};
-	this.drawText = function(txt, x=0, y=0, color = 'rgb(0,0,0)', width = undefined) {
-		var data = { };
+	this.drawText = function(txt, x=0, y=0, color = 'rgb(0,0,0)', depth = 0, width = undefined) {
+		var data = { depth : depth };
 		data.drawText = { text: txt ,
 			color : color,
 			Left: function() { return x; },

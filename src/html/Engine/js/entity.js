@@ -48,7 +48,8 @@ nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,
 					this.Top(),
 					this.Width(),
 					this.Height(),
-					color);
+					color,
+					1);
 			}
 	return out;
 }
