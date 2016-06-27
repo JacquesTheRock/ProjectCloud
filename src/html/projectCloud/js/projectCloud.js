@@ -125,6 +125,7 @@ function ParseMapJSON(data) {
 }
 
 function titleMenu(controller) {
+	var projectCloud = nullandvoidgaming.com.projectCloud;
 	var Engine = nullandvoidgaming.com.Engine;
 	var Game = Engine.Game;
 	var Input = Engine.IO.Input;
@@ -164,6 +165,7 @@ function titleMenu(controller) {
 }
 
 function loadMenu(controller,prevMenu) {
+	var projectCloud = nullandvoidgaming.com.projectCloud;
 	var Engine = nullandvoidgaming.com.Engine;
 	var Input = Engine.IO.Input;
 	var Game = Engine.Game;
@@ -206,6 +208,7 @@ function startGame() {
 	projectCloud.gameArea.start();
 	projectCloud.cam = new Engine.IO.Display.NewCamera(projectCloud.gameArea.context, 0,0);
 	var controller = new Engine.IO.Input.KeyBoardController();
+	//var controller = new Engine.IO.Input.MouseController(projectCloud.gameArea.canvas);
 	Engine.Game.state.menu = titleMenu(controller);
 }
 
