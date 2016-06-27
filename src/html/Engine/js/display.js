@@ -127,7 +127,7 @@ nullandvoidgaming.com.Engine.IO.Display.NewCamera = function(context, x, y, widt
 						this.ctx.fillStyle = "#000000";
 					else 
 						this.ctx.fillStyle = data.drawText.color;
-
+					this.ctx.font = data.drawText.style.font();
 					this.ctx.fillText(data.drawText.text,
 						data.drawText.Left(),
 						data.drawText.Top()
