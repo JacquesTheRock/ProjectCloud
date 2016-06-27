@@ -324,6 +324,7 @@ nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 		var me = this;
 		me.p = controlled;
 		me.p.controller = me;
+		me.checkAction = controlled.controllerAction;
 		this.clear();
 		if(controlled == null) return;
 		window.addEventListener('keydown', 
