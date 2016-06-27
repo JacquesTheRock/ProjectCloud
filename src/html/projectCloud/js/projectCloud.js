@@ -160,6 +160,15 @@ function titleMenu(controller) {
 			250
 		)
 	);
+	var style = new Game.Menu.TextStyle('rgb(0,0,0)', 20, "arial", "bold");
+	menu.add(
+		new Game.Menu.Label(
+			"You just Lost",
+			200,
+			100,
+			style
+		)
+	);
 	controller.setControlled(menu, projectCloud.cam);
 	return menu;
 }

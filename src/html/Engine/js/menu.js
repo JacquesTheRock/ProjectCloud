@@ -40,13 +40,23 @@ nullandvoidgaming.com.Engine.Game.Menu.NewMenu = function() {
 	out.hovered = new Menu.MenuObject();
 	out.hoverID = 0;
 	out.controller = {}; //Requires a Controller be defined
-	out.hoverNext = function() {
-		this.hoverID++;
-		if(this.menuObjects.length >= this.hoverID)
+	out.hoverNext = function(incr = 1) {
+		var start = this.hoverID;
+		var id = start + incr;
+		while(id != start) {
+			if(this.menuObjects[id] && this.menuObjects[id].isButton)
+				break;
+			id += incr;
+			if(id < 0)
+				id = this.menuObjects.length - 1; //go to end
+			if(id >= this.menuObjects.length)
+				id = 0;// go to beginning
+		}
+		this.hoverID = id;
+		if(this.menuObjects.length <= this.hoverID)
 			this.hoverID = 0;
-		if(this.hoverID < -1)
+		if(this.hoverID <= -1)
 			this.hoverID = this.menuObjects.length - 1;
-		this.hovered = this.menuObjects[this.hoverID];
 	}
 	out.add = function(menuObj) {
 		this.menuObjects[this.menuObjects.length] = menuObj;
@@ -88,16 +98,12 @@ nullandvoidgaming.com.Engine.Game.Menu.NewMenu = function() {
 		else if(this.controller.up || this.controller.left) {
 			this.controller.left = 0;
 			this.controller.up = 0;
-			this.hoverID--;
-			if(this.hoverID < 0)
-				this.hoverID = this.menuObjects.length - 1;
+			this.hoverNext(-1);
 		}
 		else if(this.controller.down || this.controller.right) {
 			this.controller.right = 0;
 			this.controller.down = 0;
-			this.hoverID++;
-			if(this.hoverID >= this.menuObjects.length)
-				this.hoverID = 0;
+			this.hoverNext(1);
 		}
 		var next = this.menuObjects[this.hoverID];
 		if(this.hovered != next) {
@@ -183,11 +189,25 @@ nullandvoidgaming.com.Engine.Game.Menu.Button = function(f, text, color = "rgba(
 
 
 
-nullandvoidgaming.com.Engine.Game.Menu.Label = function(text, x = 0, y = 0) {
+nullandvoidgaming.com.Engine.Game.Menu.Label = function(text, x = 0, y = 0, style) {
+	var Menu = nullandvoidgaming.com.Engine.Game.Menu;
 	var out = new Menu.MenuObject();
+	out.text = text;
 	out.hitbox = nullandvoidgaming.com.Engine.Entity.Collider.RectCollider(this,-1,-1);
 	out.hitbox.TopLeft.x = x;
 	out.hitbox.TopLeft.y = y;
 	out.hitbox.fix = nullandvoidgaming.com.Noop;//Don't allow the usage of fix
+	out.style = style;
+	out.draw = function(gT,c, style) {
+		var me = this;
+		this.drawText = {
+			text : me.text,
+			Left : function() { return me.hitbox.Left(); },
+			Top : function() { return me.hitbox.Top(); },
+			style: me.style ? me.style : style,
+			color: style.color
+		}
+		c.draw(this);
+	}
 	return out;
 }
