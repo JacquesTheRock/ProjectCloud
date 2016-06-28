@@ -193,10 +193,13 @@ nullandvoidgaming.com.Engine.Game.Menu.TextField = function(x,y, max = 15, width
 	var Menu = nullandvoidgaming.com.Engine.Game.Menu;
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	var out = new Menu.Label("", x, y);
+	out.rawtext = "";
 	out.focusColor = 'white';
 	out.defaultColor = 'grey';
 	out.maxLength = max;
 	out.isInput = true;
+	out.styleOverride = {family: "monospace" } ;
+	out.marketAt = -1;
 	out.drawRect = {
 		color: out.defaultColor,
 		Left : function() { return out.hitbox.Left(); },
@@ -207,29 +210,29 @@ nullandvoidgaming.com.Engine.Game.Menu.TextField = function(x,y, max = 15, width
 	out.gainFocus = function() {
 		this.focused = true;
 		this.drawRect.color = out.focusColor;
-		out.text += "|";
+		this.text = this.rawtext + "|";
 	}
 	out.loseFocus = function() {
 		this.focused = false;
 		this.drawRect.color = this.defaultColor;
-		this.text  = this.text.slice(0, this.text.length - 1);
+		this.text = this.rawtext;
 	}
 	out.inputListener = function(e) {
 			if(!out.focused) //If I don't have focus, I should not be able to execute
 				return;
-			var c = Input.keycodeMap[e.keyCode];
+			var code = e.keyCode || e.which;
+			var c = Input.keycodeMap[code];
 			if(c == "BACK_SPACE") {
-				out.text = out.text.slice(0, out.text.length - 2);
-				out.text += "|";
+				out.rawtext = out.text.slice(0,out.rawtext.length - 1)
 				e.preventDefault();
-			} else if(out.text.length < out.maxLength) {
-				out.text = out.text.slice(0, out.text.length - 1);
+			} else if(out.rawtext.length < out.maxLength) {
 				if(c == "SPACE")
-					out.text += " ";
+					out.rawtext += " ";
 				else if(c.length == 1)
-					out.text += (e.shiftKey ? c.toUpperCase() : c.toLowerCase());
-				out.text += "|";
+					out.rawtext += (e.shiftKey ? c.toUpperCase() : c.toLowerCase());
 			}
+			out.text = out.rawtext;
+			out.text += "|";
 		}	
 	window.addEventListener('keydown', out.inputListener);
 	return out;
@@ -246,6 +249,11 @@ nullandvoidgaming.com.Engine.Game.Menu.Label = function(text, x = 0, y = 0, styl
 	out.style = style;
 	out.draw = function(gT,c, style) {
 		var me = this;
+		if(this.styleOverride) {
+			style.family = this.styleOverride.family || style.family;
+			style.size = this.styleOverride.size || style.size;
+			style.variant = this.styleOverride.variant || style.variant;
+		}
 		this.drawText = {
 			text : me.text,
 			Left : function() { return me.hitbox.Left(); },
