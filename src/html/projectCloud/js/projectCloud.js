@@ -187,6 +187,12 @@ function loadMenu(controller,prevMenu) {
 			"Back",
 			"rgba(0,255,0,0.5)",
 			200,
+			200
+		)
+	);
+	menu.add(
+		new Game.Menu.TextField(
+			200,
 			150
 		)
 	);

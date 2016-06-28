@@ -44,7 +44,7 @@ nullandvoidgaming.com.Engine.Game.Menu.NewMenu = function() {
 		var start = this.hoverID;
 		var id = start + incr;
 		while(id != start) {
-			if(this.menuObjects[id] && this.menuObjects[id].isButton)
+			if(this.menuObjects[id] && this.menuObjects[id].isInput)
 				break;
 			id += incr;
 			if(id < 0)
@@ -127,8 +127,8 @@ nullandvoidgaming.com.Engine.Game.Menu.MenuObject = function(x = 0, y = 0, width
 	this.update = nullandvoidgaming.com.Noop;//function(gT)
 	this.draw = nullandvoidgaming.com.Noop;//function(gT)
 	this.onSelect = nullandvoidgaming.com.Noop;//function(gT)
-	this.gainFocus = nullandvoidgaming.com.Noop;//function()
-	this.loseFocus = nullandvoidgaming.com.Noop;//function()
+	this.gainFocus = function() { this.focused = true; }
+	this.loseFocus = function() { this.focused = false; }
 	return this;
 }
 
@@ -142,6 +142,7 @@ nullandvoidgaming.com.Engine.Game.Menu.Button = function(f, text, color = "rgba(
 	out.color = color;
 	out.text = text;
 	out.f = f;
+	out.isInput = true;
 	out.isButton = true;
 	out.onSelect = function() {
 		this.selected = true;
@@ -188,6 +189,51 @@ nullandvoidgaming.com.Engine.Game.Menu.Button = function(f, text, color = "rgba(
 }
 
 
+nullandvoidgaming.com.Engine.Game.Menu.TextField = function(x,y, max = 15, width = max, style) {
+	var Menu = nullandvoidgaming.com.Engine.Game.Menu;
+	var Input = nullandvoidgaming.com.Engine.IO.Input;
+	var out = new Menu.Label("", x, y);
+	out.focusColor = 'white';
+	out.defaultColor = 'grey';
+	out.maxLength = max;
+	out.isInput = true;
+	out.drawRect = {
+		color: out.defaultColor,
+		Left : function() { return out.hitbox.Left(); },
+		Top : function() { return out.hitbox.Top() - (style ? style.size : 12) * 0.8; },
+		Width : function() { return width * (style ? style.size : 12) * 0.66666666; },
+		Height : function() { return style ? style.size : 12; }
+	}
+	out.gainFocus = function() {
+		this.focused = true;
+		this.drawRect.color = out.focusColor;
+		out.text += "|";
+	}
+	out.loseFocus = function() {
+		this.focused = false;
+		this.drawRect.color = this.defaultColor;
+		this.text  = this.text.slice(0, this.text.length - 1);
+	}
+	out.inputListener = function(e) {
+			if(!out.focused) //If I don't have focus, I should not be able to execute
+				return;
+			var c = Input.keycodeMap[e.keyCode];
+			if(c == "BACK_SPACE") {
+				out.text = out.text.slice(0, out.text.length - 2);
+				out.text += "|";
+				e.preventDefault();
+			} else if(out.text.length < out.maxLength) {
+				out.text = out.text.slice(0, out.text.length - 1);
+				if(c == "SPACE")
+					out.text += " ";
+				else if(c.length == 1)
+					out.text += (e.shiftKey ? c.toUpperCase() : c.toLowerCase());
+				out.text += "|";
+			}
+		}	
+	window.addEventListener('keydown', out.inputListener);
+	return out;
+}
 
 nullandvoidgaming.com.Engine.Game.Menu.Label = function(text, x = 0, y = 0, style) {
 	var Menu = nullandvoidgaming.com.Engine.Game.Menu;
