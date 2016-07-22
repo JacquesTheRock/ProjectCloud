@@ -59,13 +59,14 @@ nullandvoidgaming.com.Engine.Game.Menu.NewMenu = function() {
 			this.hoverID = this.menuObjects.length - 1;
 	}
 	out.add = function(menuObj) {
+		menuObj.p = this
 		this.menuObjects[this.menuObjects.length] = menuObj;
 	}
 	out.draw = function(gT,c)  {
 		if(this.backdrop)
-			backdrop.draw(gT,c);
+			this.backdrop.draw(gT,c, this);
 		for (var i = 0; i < this.menuObjects.length; i++) {
-			this.menuObjects[i].draw(gT,c, Menu.TextStyleClone(this.textStyle));
+			this.menuObjects[i].draw(gT,c, Menu.TextStyleClone(this.textStyle), this);
 		}
 	};
 	out.findHovered = function() {
@@ -168,16 +169,16 @@ nullandvoidgaming.com.Engine.Game.Menu.Button = function(f, text, color = "rgba(
 		var me = this;
 		this.drawRect = {
 			color: this.color.slice(0),
-			Left : function() { return me.hitbox.Left(); },
-			Top : function() { return me.hitbox.Top(); },
-			Width : function() { return me.hitbox.Width(); },
-			Height : function() { return me.hitbox.Height(); }
+			Left : function() { return me.hitbox.Left() * (me.p.usePercent ? me.p.width : 1); },
+			Top : function() { return me.hitbox.Top() * (me.p.usePercent ? me.p.height : 1); },
+			Width : function() { return me.hitbox.Width() * (me.p.usePercent ? me.p.width : 1); },
+			Height : function() { return me.hitbox.Height() * (me.p.usePercent ? me.p.height : 1); }
 		}
 		this.drawText = {
 			text: me.text,
-			Left : function() { return me.hitbox.Left(); },
+			Left : function() { return me.hitbox.Left() * (me.p.usePercent ? me.p.width : 1); },
 			Top : function() { 
-				return me.hitbox.Center().y + (this.style.size / 3); 
+				return (me.hitbox.Center().y * (me.p.usePercent ? me.p.height : 1)) + (this.style.size / 3); 
 			},
 			style : style,
 			color : style.color
@@ -202,8 +203,8 @@ nullandvoidgaming.com.Engine.Game.Menu.TextField = function(x,y, max = 15, width
 	out.marketAt = -1;
 	out.drawRect = {
 		color: out.defaultColor,
-		Left : function() { return out.hitbox.Left(); },
-		Top : function() { return out.hitbox.Top() - (style ? style.size : 12) * 0.8; },
+		Left : function() { return out.hitbox.Left() * (out.p.usePercent ? out.p.width : 1); },
+		Top : function() { return out.hitbox.Top() * (out.p.usePercent ? out.p.height : 1 ) - (style ? style.size : 12) * 0.8; },
 		Width : function() { return width * (style ? style.size : 12) * 0.66666666; },
 		Height : function() { return style ? style.size : 12; }
 	}
@@ -256,8 +257,8 @@ nullandvoidgaming.com.Engine.Game.Menu.Label = function(text, x = 0, y = 0, styl
 		}
 		this.drawText = {
 			text : me.text,
-			Left : function() { return me.hitbox.Left(); },
-			Top : function() { return me.hitbox.Top(); },
+			Left : function() { return me.hitbox.Left() * (me.p.usePercent ? me.p.width : 1); },
+			Top : function() { return me.hitbox.Top() * (me.p.usePercent ? me.p.height : 1); },
 			style: me.style ? me.style : style,
 			color: style.color
 		}

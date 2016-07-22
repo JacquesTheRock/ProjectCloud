@@ -179,6 +179,9 @@ function loadMenu(controller,prevMenu) {
 	var Input = Engine.IO.Input;
 	var Game = Engine.Game;
 	var menu = new Game.Menu.NewMenu();
+	menu.usePercent = true;
+	menu.width = 640;
+	menu.height = 480;
 	menu.add(
 		new Game.Menu.Button(
 			function() {
@@ -186,14 +189,17 @@ function loadMenu(controller,prevMenu) {
 			},
 			"Back",
 			"rgba(0,255,0,0.5)",
-			200,
-			200
+			0.45,
+			0.5,
+			0.1,
+			0.05
 		)
 	);
 	menu.add(
 		new Game.Menu.TextField(
-			200,
-			150
+			0.435,
+			0.4,
+			10
 		)
 	);
 	controller.setControlled(menu, projectCloud.cam);
