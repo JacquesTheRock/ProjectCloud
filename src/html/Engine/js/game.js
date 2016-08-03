@@ -116,6 +116,7 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 	this.bucketTileCount = 16;
 	this.bucketSize = 0;
 	this.bucketCounts = [];
+	this.colarray = [0];//first element is size
 	this.tileSize = 0;
 	this.horTile = 0;
 	this.verTile = 0;
@@ -156,6 +157,7 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 				}
 			}
 			bucket = null;
+			this.colarray[0] = 0;//set size back to 0
 			for(var b = 0; b < this.colbuckets.length; b++) {
 				bucket = this.colbuckets[b];
 				var count = this.bucketCounts[b];
@@ -165,12 +167,22 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 							var col1 = bucket[e1].collider.collides(bucket[e2].collider);
 							if(col1) {
 								var col2 = bucket[e2].collider.collides(bucket[e1].collider);
-								bucket[e1].collision(col1);
-								bucket[e2].collision(col2);
+							//	bucket[e1].collision(col1);
+							//	bucket[e2].collision(col2);
+								col1.me = bucket[e1];
+								col1.them = bucket[e2];
+								col2.me = bucket[e2];
+								col2.them = bucket[e1];
+								//Add collissions to array to be processed later
+								this.colarray[++this.colarray[0]] = col1;
+								this.colarray[++this.colarray[0]] = col2;
 							}
 						}
 					}
 				}
+			}
+			for(var i = 1; i < this.colarray[0]; i++) { //Skip el 0, as that is my fauxsize
+				this.colarray[i].me.collision(this.colarray[i]);
 			}
 		};
 	this.draw = function(gT,camera) {
