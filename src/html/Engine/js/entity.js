@@ -7,8 +7,8 @@ nullandvoidgaming.com.makeSubNameSpace("Engine.Entity.DefaultFuncs", nullandvoid
 
 /*
 I Seperate the Default Frame functions so that Tiles may utilize Frames without
-causing a massive hit due to unique Animations. This takes advantage of the this keyword
-but may cause issues later. lets hope not.
+causing a massive hit due to unique instances of the Animation function. This 
+takes advantage of the 'this' keyword but may cause issues later. lets hope not.
 */
 nullandvoidgaming.com.Engine.Entity.DefaultFuncs.FrameAnimate = function(dt) {
 	this.time = this.time - dt;
@@ -81,8 +81,6 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 							trigger: other.trigger,
 							collidewith: other.owner,
 							me: this.owner,
-							xVel : 0,
-							yVel : 0,
 							xCol : 0,
 							yCol : 0
 						};
@@ -92,8 +90,8 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 						collision.xCol = delL;
 					else if(delR < delL)
 						collision.xCol = delR;
-					var delT = other.Bottom - this.Top;
-					var delB = this.Bottom - other.Top;
+					var delT = other.Bottom() - this.Top();
+					var delB = this.Bottom() - other.Top();
 					if(delT < delB)
 						collision.yCol = delT;
 					else if (delB < delT)
@@ -121,17 +119,17 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 			}//default draws frame based on position
 		this.collision = function(c) {
 				if(!c.trigger) {
-					var hori = c.xCol - Math.abs(c.xVel) <= 0;
-					var vert = c.yCol - Math.abs(c.yVel) <= 0;
-					if(hori && c.xVel < 0)
+					var hori = c.xCol - Math.abs(c.vel.x) <= 0;
+					var vert = c.yCol - Math.abs(c.vel.y) <= 0;
+					if(hori && c.vel.x < 0)
 						this.position.vector.x += c.xCol;
-					if(hori && c.xVel > 0)
+					if(hori && c.vel.x > 0)
 						this.position.vector.x -= c.xCol;
-					if(vert && c.yVel < 0)
+					if(vert && c.vel.y < 0)
 						this.position.vector.y += c.yCol;
-					if(vert && c.yVel > 0)
+					if(vert && c.vel.y > 0)
 						this.position.vector.y -= c.yCol;
-					//this.collider.fix();
+					this.collider.fix();
 				}
 			}//default collision detection
 	}

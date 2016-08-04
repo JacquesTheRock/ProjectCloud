@@ -201,6 +201,7 @@ nullandvoidgaming.com.Engine.Game.Menu.TextField = function(x,y, max = 15, width
 	out.isInput = true;
 	out.styleOverride = {family: "monospace" } ;
 	out.marketAt = -1;
+	// Consider using context.measureText to get the width
 	out.drawRect = {
 		color: out.defaultColor,
 		Left : function() { return out.hitbox.Left() * (out.p.usePercent ? out.p.width : 1); },
