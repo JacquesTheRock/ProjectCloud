@@ -184,6 +184,11 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 				var ent = col.me;
 				ent.collision(col);
 			}
+			for (var i = 0; i < this.entities.length; i++) {
+				var e = this.entities[i];
+				if(e.collider)
+					e.collider.applyForce(gT);
+			}
 		};
 	this.draw = function(gT,camera) {
 			var Game =  nullandvoidgaming.com.Engine.Game;

@@ -33,11 +33,15 @@ nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,
 	out.owner = entity;
 	out.offset = new Game.Vector.NewVector(0,0);
 	out.delta = new Game.Vector.NewVector(0,0);
+	out.force = new Game.Vector.NewVector(0,0);
 	out.trigger = trigger;
 	out.fix = function() {
+			/* Ensure The Collider maps to position */ 
 			var next = Game.Vector.Add(this.owner.position.vector, this.offset);
 			this.delta = Game.Vector.Subtract(next,this.TopLeft);
 			this.TopLeft = next;
+			//var next = Game.Vector.Add(this.owner.position.vector, this.offset);
+			//this.TopLeft = next;
 		}
 	out.contains = out.containsRect;
 	out.debugDraw = function(dt,c) {
@@ -51,6 +55,11 @@ nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,
 					color,
 					1);
 			}
+	out.applyForce = function(gT) {
+		this.owner.position.vector.x += this.force.x; this.owner.position.vector.y += this.force.y;
+		this.force.x = 0; this.force.y = 0;
+		this.fix();
+	}
 	return out;
 }
 
@@ -89,13 +98,13 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 					if(delL < delR)
 						collision.xCol = delL;
 					else if(delR < delL)
-						collision.xCol = delR;
+						collision.xCol = -delR;
 					var delT = other.Bottom() - this.Top();
 					var delB = this.Bottom() - other.Top();
 					if(delT < delB)
 						collision.yCol = delT;
 					else if (delB < delT)
-						collision.yCol = delB;
+						collision.yCol = -delB;
 					collision.vel = this.delta;
 					return collision;
 				} else {
@@ -108,6 +117,7 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 		this.position = new nullandvoidgaming.com.Engine.Game.Position.NewPosition(0,0);
 		this.frame = null;
 		this.collider = null;
+		this.springConstant = 0.7; //Default is Kind of frigid
 		this.layer = 0.5; //used for draw depth
 		this.update = nullandvoidgaming.com.Noop;//does nothing
 		this.draw = function(dt,c) {
@@ -119,17 +129,13 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 			}//default draws frame based on position
 		this.collision = function(c) {
 				if(!c.trigger) {
-					var hori = c.xCol - Math.abs(c.vel.x) <= 0;
-					var vert = c.yCol - Math.abs(c.vel.y) <= 0;
-					if(hori && c.vel.x < 0)
-						this.position.vector.x += c.xCol;
-					if(hori && c.vel.x > 0)
-						this.position.vector.x -= c.xCol;
-					if(vert && c.vel.y < 0)
-						this.position.vector.y += c.yCol;
-					if(vert && c.vel.y > 0)
-						this.position.vector.y -= c.yCol;
-					this.collider.fix();
+					var k = this.springConstant;
+					var hori = c.xCol != 0;// - Math.abs(c.vel.x) <= 0;
+					var vert = c.yCol != 0;// - Math.abs(c.vel.y) <= 0;
+					if(hori && this.position.delta.x && Math.abs(c.xCol) <= Math.abs(c.yCol))
+						this.collider.force.x += c.xCol * k;
+					if(vert && this.position.delta.y && Math.abs(c.yCol) <= Math.abs(c.xCol))
+						this.collider.force.y += c.yCol * k;
 				}
 			}//default collision detection
 	}
@@ -193,7 +199,8 @@ nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate = function(dt) {
 	}
 	if(delta.x||delta.y) {
 		this.frame.animate(dt * (Game.Vector.Length(delta) / this.speed));
-		this.position.vector = new Game.Vector.Add(delta,this.position.vector);
+		this.position.delta = delta;
+		this.position.vector.x += delta.x; this.position.vector.y += delta.y;
 	} else {
 		this.frame.horizontal = 0;
 	}
@@ -203,9 +210,9 @@ nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr) {
 	var out = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newEntity();
 	out.speed = 3;
 	var imge = nullandvoidgaming.com.Engine.IO.Display.getImage(imageStr);
-	out.position.width = 48;
-	out.position.height = 48;
-	out.collider = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newCollider(out, 24, 24, 8, 24);
+	out.position.width = 54;
+	out.position.height = 54;
+	out.collider = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newCollider(out, 28, 28, 8, 24);
 	out.frame = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newFrame(imge,54,54,50);
 	out.frame.xBuffer = 10;
 	out.frame.yBuffer = 10;
