@@ -117,7 +117,7 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 	this.bucketSize = 0;
 	this.bucketCounts = [];
 	this.colarray = [0];//first element is size
-	this.tileSize = 0;
+	this.tileSize = 1;
 	this.horTile = 0;
 	this.verTile = 0;
 	this.width = function() { return this.tileSize * this.horTile; };
@@ -151,7 +151,9 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 				e.update(gT);
 				if(e.collider) {
 					e.collider.fix();
-					var bucketID = 0;
+					var xTile = e.collider.TopLeft.x / this.tileSize;
+					var yTile = e.collider.TopLeft.y / this.tileSize;
+					var bucketID = Math.floor((xTile * this.horTile + yTile)/this.bucketTileCount);
 					bucket = this.colbuckets[bucketID];
 					bucket[this.bucketCounts[bucketID]++] = e;
 				}
