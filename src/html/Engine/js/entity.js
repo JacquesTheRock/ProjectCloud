@@ -117,9 +117,11 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 		this.position = new nullandvoidgaming.com.Engine.Game.Position.NewPosition(0,0);
 		this.frame = null;
 		this.collider = null;
+		this.speed = 1;
 		this.springConstant = 0.7; //Default is Kind of frigid
 		this.layer = 0.5; //used for draw depth
-		this.update = nullandvoidgaming.com.Noop;//does nothing
+		this.move = nullandvoidgaming.com.Engine.Entity.DefaultMove;
+		this.update = nullandvoidgaming.com.Engine.Entity.EntityDefaultUpdate;//does nothing
 		this.draw = function(dt,c) {
 				if(!this.frame) return;//Noop if it doesn't have a frame to draw
 				var y = this.position.center().y;
@@ -136,73 +138,101 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 						this.collider.force.x += c.xCol * k;
 					if(vert && this.position.delta.y && Math.abs(c.yCol) <= Math.abs(c.xCol))
 						this.collider.force.y += c.yCol * k;
+				} else {
+					if(this.onTrigger) this.onTrigger(c);
 				}
 			}//default collision detection
 	}
 }
 
+nullandvoidgaming.com.Engine.Entity.EntityDefaultUpdate = function(gT) {
+	var Game = nullandvoidgaming.com.Engine.Game;
+	var map = Game.state.scene;
+	if(this.actions) {
+		var action = this.actions[this.actID];
+		if(action && action.condition(this))
+			action.update(gT,this);
+		else {
+			this.controller.clear();
+			this.actID++;
+			if(this.actID > this.actions.length)
+				this.actID = 0;
+		}
+	}
+	if(this.controller) {
+		this.move(gT,this);
+	}
+}
+
 nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate = function(dt) {
+	this.move(dt,this);	
+}
+
+nullandvoidgaming.com.Engine.Entity.DefaultMove = function(dt,ent) {
 	var Game = nullandvoidgaming.com.Engine.Game;
 	var map = Game.state.scene;
 	var delta = new Game.Vector.NewVector(0,0);
-	if (this.controller.up) {
+	if (ent.controller.up) {
 		delta.y -= 1;
 	}
-	if (this.controller.down) {
+	if (ent.controller.down) {
 		delta.y += 1;
 	}
-	if (this.controller.right) {
+	if (ent.controller.right) {
 		delta.x += 1;
 	}
-	if (this.controller.left) {
+	if (ent.controller.left) {
 		delta.x -= 1;
 	}
 	if (delta.x && delta.y) {
 		delta.x = delta.x * 0.70710678;
 		delta.y = delta.y * 0.70710678;
 	}
-	delta = Game.Vector.Multiply(delta, this.speed);
-	var c = this.collider.Center();
-	//map.getTileAt(new Game.Vector.NewVector(xEdge + delta.x, hitCenter.y));
-	var L = map.getTileAt(new Game.Vector.NewVector(this.collider.Left() + delta.x, c.y));
-	var T = map.getTileAt(new Game.Vector.NewVector(c.x, this.collider.Top() + delta.y));
-	var B = map.getTileAt(new Game.Vector.NewVector(c.x, this.collider.Bottom() + delta.y));
-	var R = map.getTileAt(new Game.Vector.NewVector(this.collider.Right() + delta.x, c.y));
-	if(delta.x && (!L.walkable || !R.walkable))
-		delta.x = 0;
-	if(delta.y && (!T.walkable || !B.walkable))
-		delta.y = 0;
-	if(delta.x || delta.y)
-	var TL = map.getTileAt(new Game.Vector.NewVector(this.collider.Left() + delta.x, this.collider.Top() + delta.y));
-	var TR = map.getTileAt(new Game.Vector.NewVector(this.collider.Right() + delta.x, this.collider.Top() + delta.y));
-	var BL = map.getTileAt(new Game.Vector.NewVector(this.collider.Left() + delta.x, this.collider.Bottom() + delta.y));
-	var BR = map.getTileAt(new Game.Vector.NewVector(this.collider.Right() + delta.x, this.collider.Bottom() + delta.y));
-	if(delta.y < 0 && !(TL.walkable && TR.walkable))
-		delta.y = 0;
-	else if(delta.y > 0 && !(BL.walkable && BR.walkable))
-		delta.y = 0;
-	if(delta.x < 0 && !(TL.walkable && BL.walkable))
-		delta.x = 0;
-	else if(delta.x > 0 && !(TR.walkable && BR.walkable))
-		delta.x = 0;
+	delta = Game.Vector.Multiply(delta, ent.speed);
+	if(ent.collider) {
+		var c = ent.collider.Center();
+		//map.getTileAt(new Game.Vector.NewVector(xEdge + delta.x, hitCenter.y));
+		var L = map.getTileAt(new Game.Vector.NewVector(ent.collider.Left() + delta.x, c.y));
+		var T = map.getTileAt(new Game.Vector.NewVector(c.x, ent.collider.Top() + delta.y));
+		var B = map.getTileAt(new Game.Vector.NewVector(c.x, ent.collider.Bottom() + delta.y));
+		var R = map.getTileAt(new Game.Vector.NewVector(ent.collider.Right() + delta.x, c.y));
+		if(delta.x && (!L.walkable || !R.walkable))
+			delta.x = 0;
+		if(delta.y && (!T.walkable || !B.walkable))
+			delta.y = 0;
+		if(delta.x || delta.y)
+		var TL = map.getTileAt(new Game.Vector.NewVector(ent.collider.Left() + delta.x, ent.collider.Top() + delta.y));
+		var TR = map.getTileAt(new Game.Vector.NewVector(ent.collider.Right() + delta.x, ent.collider.Top() + delta.y));
+		var BL = map.getTileAt(new Game.Vector.NewVector(ent.collider.Left() + delta.x, ent.collider.Bottom() + delta.y));
+		var BR = map.getTileAt(new Game.Vector.NewVector(ent.collider.Right() + delta.x, ent.collider.Bottom() + delta.y));
+		if(delta.y < 0 && !(TL.walkable && TR.walkable))
+			delta.y = 0;
+		else if(delta.y > 0 && !(BL.walkable && BR.walkable))
+			delta.y = 0;
+		if(delta.x < 0 && !(TL.walkable && BL.walkable))
+			delta.x = 0;
+		else if(delta.x > 0 && !(TR.walkable && BR.walkable))
+			delta.x = 0;
+	}
 
-	
-	if (delta.x < 0) {
-		this.frame.vertical = 1;
-	} else if (delta.x > 0) {
-		this.frame.vertical = 3;
-	}
-	else if(delta.y<0) {
-		this.frame.vertical = 0;
-	} else if (delta.y > 0) {
-		this.frame.vertical = 2;
-	}
-	if(delta.x||delta.y) {
-		this.frame.animate(dt * (Game.Vector.Length(delta) / this.speed));
-		this.position.delta = delta;
-		this.position.vector.x += delta.x; this.position.vector.y += delta.y;
-	} else {
-		this.frame.horizontal = 0;
+	if(ent.frame) {	
+		if (delta.x < 0) {
+			ent.frame.vertical = 1;
+		} else if (delta.x > 0) {
+			ent.frame.vertical = 3;
+		}
+		else if(delta.y<0) {
+			ent.frame.vertical = 0;
+		} else if (delta.y > 0) {
+			ent.frame.vertical = 2;
+		}
+		if(delta.x||delta.y) {
+			ent.frame.animate(dt * (Game.Vector.Length(delta) / ent.speed));
+			ent.position.delta = delta;
+			ent.position.vector.x += delta.x; ent.position.vector.y += delta.y;
+		} else {
+			ent.frame.horizontal = 0;
+		}
 	}
 }
 

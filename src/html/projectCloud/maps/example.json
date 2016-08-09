@@ -89,7 +89,7 @@
 		},
 		"10": {
 			"typeID": 3,
-			"position" : {"x":48, "y":16},
+			"position" : {"x":140, "y":6},
 			"collider" : {
 				 "xOffset" : 8
 				,"yOffset" : 24
@@ -103,6 +103,7 @@
 				,"height" : 54
 				,"xBuffer" : 10
 				,"yBuffer" : 10
+				,"frequency" : 46
 			},
 			"name" : "Enemy",
 			"enemyID" : 0

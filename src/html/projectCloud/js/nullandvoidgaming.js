@@ -19,3 +19,4 @@ nullandvoidgaming.com.makeSubNameSpace = function(ns, p) {
 }
 nullandvoidgaming.com.Noop = function() {};
 nullandvoidgaming.com.NoopInt = function() { return 0; };
+nullandvoidgaming.com.NoopBool = function() { return false; };

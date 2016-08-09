@@ -62,9 +62,10 @@ function RequestJSON(url, callback) {
 }
 
 function ParseMapJSON(data) {
-	var Game = nullandvoidgaming.com.Engine.Game;
-	var Display = nullandvoidgaming.com.Engine.IO.Display;
-	var Entity = nullandvoidgaming.com.Engine.Entity;
+	var Engine = nullandvoidgaming.com.Engine;
+	var Game = Engine.Game;
+	var Display = Engine.IO.Display;
+	var Entity = Engine.Entity;
 	Game.state.scene.name = data.name;
 	Game.state.scene.tileSize = data.tilesheet.tileSize;
 	Game.state.scene.horTile = data.width;
@@ -120,6 +121,16 @@ function ParseMapJSON(data) {
 			entity.position.width = cloneData.frame.width || entity.position.width;
 			entity.position.height = cloneData.frame.height || entity.position.height;
 		}
+		//if(cloneData.Actions) {
+			var c2 = new Engine.IO.Input.Controller();//Should make an action controller?
+			c2.setControlled(entity);
+			var a1 = Engine.Action.Move.Vertical(8);
+			var a2 = Engine.Action.Move.Horizontal(140);
+			var a3 = Engine.Action.Move.Vertical(136);
+			var a4 = Engine.Action.Move.Horizontal(268);
+			entity.actions = [ a1,a2,a3,a4 ]
+			entity.actID = 0;
+		//}
 		Game.state.scene.entities[Game.state.scene.entities.length] = entity;
 	}
 }
@@ -215,7 +226,7 @@ function loadGame(controller) {
 	var Engine = nullandvoidgaming.com.Engine;
 	Display.setImage("player",document.getElementById("player"));
 	Display.setImage("outside.png",document.getElementById("TS_outside"));
-	var p1 =  Entity.NewPlayer("player",controller);
+	var p1 =  Entity.NewPlayer("player");
 	controller.setControlled(p1,projectCloud.cam);
 	Game.state.scene.entities[Game.state.scene.entities.length] =  p1;
 	projectCloud.cam.followEntity(p1,0.07);

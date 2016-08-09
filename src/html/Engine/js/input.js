@@ -310,11 +310,20 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 			return out
 		};
 	this.checkAction = nullandvoidgaming.com.Noop;
-	this.setControlled = nullandvoidgaming.com.Noop;
+	this.setControlled = nullandvoidgaming.com.Engine.IO.Input.DefaultSetControlled;
 	this.update = nullandvoidgaming.com.Noop;
 	return this;
 };
 
+nullandvoidgaming.com.Engine.IO.Input.DefaultSetControlled = function(controlled) {
+		var me = this;
+		me.p = controlled;
+		me.p.controller = me;
+		this.clear();
+		if(!controlled) {
+			throw new Error("Null Controlled Object or Camera");
+		}
+}
 
 
 nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
