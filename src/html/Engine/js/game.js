@@ -151,9 +151,10 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 				e.update(gT);
 				if(e.collider) {
 					e.collider.fix();
-					var xTile = e.collider.TopLeft.x / this.tileSize;
-					var yTile = e.collider.TopLeft.y / this.tileSize;
-					var bucketID = Math.floor((yTile * this.horTile + xTile)/this.bucketTileCount);
+					//var xTile = e.collider.TopLeft.x / this.tileSize;
+					//var yTile = e.collider.TopLeft.y / this.tileSize;
+					//var bucketID = Math.floor((yTile * this.horTile + xTile)/this.bucketTileCount);
+					var bucketID = 0;
 					bucket = this.colbuckets[bucketID];
 					bucket[this.bucketCounts[bucketID]++] = e;
 				}
