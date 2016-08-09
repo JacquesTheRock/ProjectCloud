@@ -153,7 +153,7 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 					e.collider.fix();
 					var xTile = e.collider.TopLeft.x / this.tileSize;
 					var yTile = e.collider.TopLeft.y / this.tileSize;
-					var bucketID = Math.floor((xTile * this.horTile + yTile)/this.bucketTileCount);
+					var bucketID = Math.floor((yTile * this.horTile + xTile)/this.bucketTileCount);
 					bucket = this.colbuckets[bucketID];
 					bucket[this.bucketCounts[bucketID]++] = e;
 				}
