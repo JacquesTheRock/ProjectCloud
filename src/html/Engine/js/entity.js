@@ -134,9 +134,9 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 					var k = this.springConstant;
 					var hori = c.xCol != 0;// - Math.abs(c.vel.x) <= 0;
 					var vert = c.yCol != 0;// - Math.abs(c.vel.y) <= 0;
-					if(hori && this.position.delta.x && Math.abs(c.xCol) <= Math.abs(c.yCol))
+					if(hori && Math.abs(c.xCol) <= Math.abs(c.yCol))
 						this.collider.force.x += c.xCol * k;
-					if(vert && this.position.delta.y && Math.abs(c.yCol) <= Math.abs(c.xCol))
+					if(vert && Math.abs(c.yCol) <= Math.abs(c.xCol))
 						this.collider.force.y += c.yCol * k;
 				} else {
 					if(this.onTrigger) this.onTrigger(c);
