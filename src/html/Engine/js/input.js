@@ -262,6 +262,9 @@ nullandvoidgaming.com.Engine.IO.Input.keycodeMap = [
 
 nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
+	this.lock = false;
+	var me = this;
+/*
 	this.keymap = {
 			up : 38,
 			down : 40,
@@ -270,6 +273,14 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 			action: 65,
 			cancel: 88
 		};
+*/
+	this.keymap = [];
+	this.keymap["up"] = 38;
+	this.keymap["down"] = 40;
+	this.keymap["left"] = 37;
+	this.keymap["right"] = 39;
+	this.keymap["action"] = 65;
+	this.keymap["cancel"] = 88;
 	this.up = 0;
 	this.down = 0;
 	this.left = 0;
@@ -277,6 +288,7 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 	this.action = 0;
 	this.cancel = 0;
 	this.keyChange = function(e,val) {
+			if(this.lock) return;
 			if (e.keyCode == this.keymap.up) { this.up = val; }
 			if (e.keyCode == this.keymap.down) { this.down = val; }
 			if (e.keyCode == this.keymap.left) { this.left = val; }
@@ -297,6 +309,16 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 			this.action = 0;
 			this.cancel = 0;
 		};
+	this.setKey = function(keyID, resp) {
+		window.addEventListener('keydown',
+			function setKeyListener(e) {
+				me.keymap[keyID] = e.keyCode;
+				window.removeEventListener('keydown', setKeyListener);
+				if(resp)
+					resp();
+				}
+		);
+	}
 	this.toString = function(sep, pre) {
 			if (pre == null) pre = "";
 			if (sep == null) sep = "";

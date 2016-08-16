@@ -171,7 +171,7 @@ function titleMenu(controller) {
 	);
 	menu.add(
 		new Game.Menu.Button(
-			function() { this.color = "rgba(255,0,0,0.5)";},
+			function() { Game.state.menu = controlMenu(menu.controller,titleMenu); },
 			"Controls",
 			"rgba(0,0,255,0.5)",
 			200,
@@ -191,6 +191,123 @@ function titleMenu(controller) {
 	return menu;
 }
 
+function controlMenu(controller, prevMenu) {
+	var projectCloud = nullandvoidgaming.com.projectCloud;
+	var Engine = nullandvoidgaming.com.Engine;
+	var Input = Engine.IO.Input;
+	var Game = Engine.Game;
+	var menu = new Game.Menu.NewMenu();
+	menu.width = 640;
+	menu.height = 480;
+	menu.add(
+		new Game.Menu.Button(
+			function() {
+				Game.state.menu = prevMenu(menu.controller);
+			},
+			"Back",
+			"rgba(0,255,0,0.5)",
+			300,
+			10,
+			40,
+			20
+		)
+			
+	);
+	menu.add(
+		new Game.Menu.Label(
+			"Up:",
+			280,
+			65
+		)
+	);
+	menu.add(
+		new Game.Menu.Button(
+			function() {
+				var b = this;
+				controller.setKey("up", function() { b.text = controller.keymap.up; } );
+				this.text = "UNSET";
+			},
+			controller.keymap.up,
+			"rgba(0,255,0,0.5)",
+			320,
+			50,
+			40,
+			20
+		)
+			
+	);
+	menu.add(
+		new Game.Menu.Label(
+			"Down:",
+			280,
+			105
+		)
+	);
+	menu.add(
+		new Game.Menu.Button(
+			function() {
+				var b = this;
+				controller.setKey("down", function() { b.text = controller.keymap.down; } );
+				this.text = "UNSET";
+			},
+			controller.keymap.down,
+			"rgba(0,255,0,0.5)",
+			320,
+			90,
+			40,
+			20
+		)
+			
+	);
+	menu.add(
+		new Game.Menu.Label(
+			"Left:",
+			280,
+			145
+		)
+	);
+	menu.add(
+		new Game.Menu.Button(
+			function() {
+				var b = this;
+				controller.setKey("left", function() { b.text = controller.keymap.left; } );
+				this.text = "UNSET";
+			},
+			controller.keymap.left,
+			"rgba(0,255,0,0.5)",
+			320,
+			130,
+			40,
+			20
+		)
+			
+	);
+	menu.add(
+		new Game.Menu.Label(
+			"Right:",
+			280,
+			185
+		)
+	);
+	menu.add(
+		new Game.Menu.Button(
+			function() {
+				var b = this;
+				controller.setKey("right", function() { b.text = controller.keymap.right; } );
+				this.text = "UNSET";
+			},
+			controller.keymap.right,
+			"rgba(0,255,0,0.5)",
+			320,
+			170,
+			40,
+			20
+		)
+			
+	);
+	controller.setControlled(menu, projectCloud.cam);
+	return menu;
+}
 function loadMenu(controller,prevMenu) {
 	var projectCloud = nullandvoidgaming.com.projectCloud;
 	var Engine = nullandvoidgaming.com.Engine;

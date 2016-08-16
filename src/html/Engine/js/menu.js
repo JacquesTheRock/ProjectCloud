@@ -167,6 +167,8 @@ nullandvoidgaming.com.Engine.Game.Menu.Button = function(f, text, color = "rgba(
 
 	out.draw = function(gT,c, style) {
 		var me = this;
+		if(style == null)
+			style = me.p.textStyle;
 		this.drawRect = {
 			color: this.color.slice(0),
 			Left : function() { return me.hitbox.Left() * (me.p.usePercent ? me.p.width : 1); },
