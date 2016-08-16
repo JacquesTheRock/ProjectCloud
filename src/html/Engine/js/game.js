@@ -182,7 +182,7 @@ nullandvoidgaming.com.Engine.Game.Map = function() {
 					}
 				}
 			}
-			for(var i = 1; i < this.colarray[0]; i++) { //Skip el 0, as that is my fauxsize
+			for(var i = 1; i <= this.colarray[0]; i++) { //Skip el 0, as that is my fauxsize
 				var col = this.colarray[i];
 				var ent = col.me;
 				ent.collision(col);

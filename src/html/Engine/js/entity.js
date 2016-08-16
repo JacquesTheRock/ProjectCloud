@@ -168,7 +168,7 @@ nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate = function(dt) {
 	this.move(dt,this);	
 }
 
-nullandvoidgaming.com.Engine.Entity.DefaultMove = function(dt,ent) {
+nullandvoidgaming.com.Engine.Entity.DefaultMove = function(dt,ent = this) {
 	var Game = nullandvoidgaming.com.Engine.Game;
 	var map = Game.state.scene;
 	var delta = new Game.Vector.NewVector(0,0);
@@ -242,7 +242,7 @@ nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr) {
 	var imge = nullandvoidgaming.com.Engine.IO.Display.getImage(imageStr);
 	out.position.width = 54;
 	out.position.height = 54;
-	out.collider = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newCollider(out, 28, 28, 8, 24);
+	out.collider = nullandvoidgaming.com.Engine.Entity.EntBuilder.newCollider(out, 28, 28, 8, 24);
 	out.frame = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newFrame(imge,54,54,50);
 	out.frame.xBuffer = 10;
 	out.frame.yBuffer = 10;

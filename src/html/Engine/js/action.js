@@ -46,15 +46,18 @@ nullandvoidgaming.com.Engine.Action.Move.Direct = function(end) {
 			}
 		}
 }
-nullandvoidgaming.com.Engine.Action.Move.Horizontal = function(end) {
+nullandvoidgaming.com.Engine.Action.Move.Horizontal = function(end, err = 1) {
 	var out = new nullandvoidgaming.com.Engine.Action.NewAction();
-	out.condition = function(ent) { return ent.position.vector.x != end; }
+	out.condition = function(ent) { 
+		return ent.position.vector.x > end + err
+			|| ent.position.vector.x < end - err;
+		}
 	out.update = function(gT,ent) {
-			if(ent.position.vector.x > end) {
+			if(ent.position.vector.x > end + err) {
 				ent.controller.left = 1;
 				ent.controller.right = 0;
 				}
-			else if(ent.position.vector.x < end) {
+			else if(ent.position.vector.x < end - err) {
 				ent.controller.left = 0;
 				ent.controller.right = 1;
 				}
@@ -65,15 +68,18 @@ nullandvoidgaming.com.Engine.Action.Move.Horizontal = function(end) {
 		}
 	return out;
 }
-nullandvoidgaming.com.Engine.Action.Move.Vertical = function(end) {
+nullandvoidgaming.com.Engine.Action.Move.Vertical = function(end, err = 1) {
 	var out = new nullandvoidgaming.com.Engine.Action.NewAction();
-	out.condition = function(ent) { return ent.position.vector.y != end; }
+	out.condition = function(ent) { 
+		return ent.position.vector.y > end + err
+			|| ent.position.vector.y < end - err;
+			}
 	out.update = function(gT,ent) {
-			if(ent.position.vector.y > end) {
+			if(ent.position.vector.y > end + err) {
 				ent.controller.up = 1;
 				ent.controller.down = 0;
 				}
-			else if(ent.position.vector.y < end) {
+			else if(ent.position.vector.y < end - err) {
 				ent.controller.up = 0;
 				ent.controller.down = 1;
 				}
