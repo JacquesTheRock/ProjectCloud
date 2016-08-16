@@ -121,22 +121,23 @@ function ParseMapJSON(data) {
 			entity.position.width = cloneData.frame.width || entity.position.width;
 			entity.position.height = cloneData.frame.height || entity.position.height;
 		}
-		//if(cloneData.Actions) {
-			var c2 = new Engine.IO.Input.Controller();//Should make an action controller?
-			c2.setControlled(entity);
-/*
-			var a1 = Engine.Action.Move.Vertical(8);
-			var a2 = Engine.Action.Move.Horizontal(140);
-			var a3 = Engine.Action.Move.Vertical(136);
-			var a4 = Engine.Action.Move.Horizontal(268);
-*/
-			var a1 = Engine.Action.Move.Direct({x:140,y:8});
-			var a2 = Engine.Action.Move.Direct({x:140,y:136});
-			var a3 = Engine.Action.Move.Direct({x:268,y:136});
-			var a4 = Engine.Action.Move.Direct({x:268,y:8});
-			entity.actions = [ a1,a2,a3,a4 ]
+		if(cloneData.actions) {
+			entity.actions = [];
 			entity.actID = 0;
-		//}
+			var entC = new Engine.IO.Input.Controller();//Should make an action controller?
+			entC.setControlled(entity);
+			for ( var a = 0; a < cloneData.actions.length; a++) {
+				var aData = cloneData.actions[a];
+				var action = null;
+				switch(aData.type) {
+					case "Direct":
+						action = Engine.Action.Move.Direct({x:aData.x,y:aData.y});
+						break;
+				}
+				if(action)
+					entity.actions[entity.actions.length] = action;
+			}
+		}
 		Game.state.scene.entities[Game.state.scene.entities.length] = entity;
 	}
 }

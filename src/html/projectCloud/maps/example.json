@@ -105,6 +105,12 @@
 				,"yBuffer" : 10
 				,"frequency" : 46
 			},
+			"actions" : [
+					{ "type": "Direct","x" : 140 ,"y" : 6 }
+					,{ "type": "Direct","x" : 140 ,"y" : 138 }
+					,{ "type": "Direct","x" : 262,"y" : 138 }
+					,{ "type": "Direct","x" : 262 ,"y" : 6 }
+				],
 			"name" : "Enemy",
 			"enemyID" : 0
 		},
