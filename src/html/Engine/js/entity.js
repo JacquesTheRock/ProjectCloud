@@ -56,7 +56,7 @@ nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,
 					1);
 			}
 	out.applyForce = function(gT) {
-		this.owner.position.vector.x += this.force.x; this.owner.position.vector.y += this.force.y;
+		this.owner.position.vector.x += this.force.x * this.rMass; this.owner.position.vector.y += this.force.y * this.rMass;
 		this.force.x = 0; this.force.y = 0;
 		this.fix();
 	}
@@ -83,6 +83,7 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 	},
 	newCollider : function(entity, width,height, xoffset,yoffset) {
 		var out = new nullandvoidgaming.com.Engine.Entity.Collider.RectCollider(entity,width,height);
+		out.rMass = 0;//1/1 mass
 		out.offset.x = xoffset; out.offset.y = yoffset;
 		out.collides = function(other) {
 				if(this.intersects(other)) {
@@ -243,6 +244,7 @@ nullandvoidgaming.com.Engine.Entity.NewPlayer = function(imageStr) {
 	out.position.width = 54;
 	out.position.height = 54;
 	out.collider = nullandvoidgaming.com.Engine.Entity.EntBuilder.newCollider(out, 28, 28, 8, 24);
+	out.collider.rMass = 1;
 	out.frame = new nullandvoidgaming.com.Engine.Entity.EntBuilder.newFrame(imge,54,54,50);
 	out.frame.xBuffer = 10;
 	out.frame.yBuffer = 10;
