@@ -133,6 +133,12 @@ function ParseMapJSON(data) {
 					case "Direct":
 						action = Engine.Action.Move.Direct({x:aData.x,y:aData.y});
 						break;
+					case "Horizontal":
+						action = Engine.Action.Move.Horizontal(aData.x);
+						break;
+					case "Vertical":
+						action = Engine.Action.Move.Vertical(aData.y);
+						break;
 				}
 				if(action)
 					entity.actions[entity.actions.length] = action;

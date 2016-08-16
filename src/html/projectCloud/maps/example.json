@@ -110,6 +110,10 @@
 					,{ "type": "Direct","x" : 140 ,"y" : 138 }
 					,{ "type": "Direct","x" : 262,"y" : 138 }
 					,{ "type": "Direct","x" : 262 ,"y" : 6 }
+					,{ "type": "Vertical","x" : 262 ,"y" : 138 }
+					,{ "type": "Vertical","x" : 262 ,"y" : 6 }
+					,{ "type": "Horizontal","x" : 140 ,"y" : 6 }
+					,{ "type": "Horizontal","x" : 262 ,"y" : 6 }
 				],
 			"name" : "Enemy",
 			"enemyID" : 0
