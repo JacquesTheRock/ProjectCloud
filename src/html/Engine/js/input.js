@@ -310,13 +310,15 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 			this.cancel = 0;
 		};
 	this.setKey = function(keyID, resp) {
+		this.lock = true;
 		window.addEventListener('keydown',
 			function setKeyListener(e) {
 				me.keymap[keyID] = e.keyCode;
 				window.removeEventListener('keydown', setKeyListener);
 				if(resp)
 					resp();
-				}
+				me.lock = false;
+			}
 		);
 	}
 	this.toString = function(sep, pre) {

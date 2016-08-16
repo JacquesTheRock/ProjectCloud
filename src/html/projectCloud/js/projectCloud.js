@@ -224,7 +224,7 @@ function controlMenu(controller, prevMenu) {
 		new Game.Menu.Button(
 			function() {
 				var b = this;
-				controller.setKey("up", function() { b.text = controller.keymap.up; } );
+				controller.setKey("up", function() { b.text = controller.keymap.up; b.selected = false; } );
 				this.text = "UNSET";
 			},
 			controller.keymap.up,
@@ -247,7 +247,7 @@ function controlMenu(controller, prevMenu) {
 		new Game.Menu.Button(
 			function() {
 				var b = this;
-				controller.setKey("down", function() { b.text = controller.keymap.down; } );
+				controller.setKey("down", function() { b.text = controller.keymap.down; b.selected = false;} );
 				this.text = "UNSET";
 			},
 			controller.keymap.down,
@@ -270,7 +270,7 @@ function controlMenu(controller, prevMenu) {
 		new Game.Menu.Button(
 			function() {
 				var b = this;
-				controller.setKey("left", function() { b.text = controller.keymap.left; } );
+				controller.setKey("left", function() { b.text = controller.keymap.left; b.selected = false;} );
 				this.text = "UNSET";
 			},
 			controller.keymap.left,
@@ -293,13 +293,59 @@ function controlMenu(controller, prevMenu) {
 		new Game.Menu.Button(
 			function() {
 				var b = this;
-				controller.setKey("right", function() { b.text = controller.keymap.right; } );
+				controller.setKey("right", function() { b.text = controller.keymap.right; b.selected = false} );
 				this.text = "UNSET";
 			},
 			controller.keymap.right,
 			"rgba(0,255,0,0.5)",
 			320,
 			170,
+			40,
+			20
+		)
+			
+	);
+	menu.add(
+		new Game.Menu.Label(
+			"Action:",
+			280,
+			225
+		)
+	);
+	menu.add(
+		new Game.Menu.Button(
+			function() {
+				var b = this;
+				controller.setKey("action", function() { b.text = controller.keymap.action; b.selected = false} );
+				this.text = "UNSET";
+			},
+			controller.keymap.right,
+			"rgba(0,255,0,0.5)",
+			320,
+			210,
+			40,
+			20
+		)
+			
+	);
+	menu.add(
+		new Game.Menu.Label(
+			"Cancel:",
+			280,
+			265
+		)
+	);
+	menu.add(
+		new Game.Menu.Button(
+			function() {
+				var b = this;
+				controller.setKey("cancel", function() { b.text = controller.keymap.cancel; b.selected = false} );
+				this.text = "UNSET";
+			},
+			controller.keymap.cancel,
+			"rgba(0,255,0,0.5)",
+			320,
+			250,
 			40,
 			20
 		)
