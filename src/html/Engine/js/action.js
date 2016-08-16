@@ -13,18 +13,20 @@ nullandvoidgaming.com.Engine.Action.NewAction = function() {
 }
 
 
-nullandvoidgaming.com.Engine.Action.Move.Direct = function(end) {
+nullandvoidgaming.com.Engine.Action.Move.Direct = function(end, err = 1) {
 	var out = new nullandvoidgaming.com.Engine.Action.NewAction();
 	out.condition = function(ent) { 
-			return ent.position.vector.x != end.x 
-				&& ent.position.vector.y != end.y; 
+			return ent.position.vector.x < end.x - err
+				|| ent.position.vector.x > end.x + err
+				|| ent.position.vector.y < end.y - err
+				|| ent.position.vector.y > end.y + err;
 		}
 	out.update = function(gt, ent) {
-			if(ent.position.vector.x < end.x) {
+			if(ent.position.vector.x < end.x - err) {
 				ent.controller.left = 0;
 				ent.controller.right = 1;
 			}
-			else if(ent.position.vector.x > end.x) {
+			else if(ent.position.vector.x > end.x + err) {
 				ent.controller.left = 1;
 				ent.controller.right = 0;
 			}
@@ -32,11 +34,11 @@ nullandvoidgaming.com.Engine.Action.Move.Direct = function(end) {
 				ent.controller.left = 0;
 				ent.controller.right = 0;
 			}
-			if(ent.position.vector.y < end.y) {
+			if(ent.position.vector.y < end.y - err) {
 				ent.controller.up = 0;
 				ent.controller.down = 1;
 			}
-			else if(ent.position.vector.y > end.y) {
+			else if(ent.position.vector.y > end.y + err) {
 				ent.controller.up = 1;
 				ent.controller.down = 0;
 			}
@@ -45,6 +47,7 @@ nullandvoidgaming.com.Engine.Action.Move.Direct = function(end) {
 				ent.controller.down = 0;
 			}
 		}
+	return out;
 }
 nullandvoidgaming.com.Engine.Action.Move.Horizontal = function(end, err = 1) {
 	var out = new nullandvoidgaming.com.Engine.Action.NewAction();

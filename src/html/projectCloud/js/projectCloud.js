@@ -124,10 +124,16 @@ function ParseMapJSON(data) {
 		//if(cloneData.Actions) {
 			var c2 = new Engine.IO.Input.Controller();//Should make an action controller?
 			c2.setControlled(entity);
+/*
 			var a1 = Engine.Action.Move.Vertical(8);
 			var a2 = Engine.Action.Move.Horizontal(140);
 			var a3 = Engine.Action.Move.Vertical(136);
 			var a4 = Engine.Action.Move.Horizontal(268);
+*/
+			var a1 = Engine.Action.Move.Direct({x:140,y:8});
+			var a2 = Engine.Action.Move.Direct({x:140,y:136});
+			var a3 = Engine.Action.Move.Direct({x:268,y:136});
+			var a4 = Engine.Action.Move.Direct({x:268,y:8});
 			entity.actions = [ a1,a2,a3,a4 ]
 			entity.actID = 0;
 		//}
