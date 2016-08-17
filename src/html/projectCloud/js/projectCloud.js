@@ -203,6 +203,10 @@ function controlMenu(controller, prevMenu) {
 	var Input = Engine.IO.Input;
 	var Game = Engine.Game;
 	var menu = new Game.Menu.NewMenu();
+	menu.keymap = {};
+	for(var i = 0; i < controller.controlNames.length; i++) {
+		menu.keymap[controller.controlNames[i]] = controller.keymap[controller.controlNames[i]];
+	}
 	menu.width = 640;
 	menu.height = 480;
 	menu.add(
@@ -219,143 +223,54 @@ function controlMenu(controller, prevMenu) {
 		)
 			
 	);
-	menu.add(
-		new Game.Menu.Label(
-			"Up:",
+
+	for(var i = 0; i < controller.controlNames.length; i++) {
+		var l = new Game.Menu.Label(
+			controller.controlNames[i],
 			280,
-			65
-		)
-	);
+			65 + i * 40
+		);
+		menu.add(l);
+		var button = new Game.Menu.Button(
+			function() {
+				var b = this;
+				controller.clear();
+				controller.lock = true;
+				controller.waiting = true;
+				controller.waitForKey = function(e) { 
+					b.p.keymap[b.control] = e.keyCode; 
+					b.text = b.p.keymap[b.control]; 
+					b.selected = false; 
+					this.lock = false;
+					this.waiting = false;
+				}
+			this.text = "UNSET";
+			},
+			controller.keymap[controller.controlNames[i]],
+			"rgba(0,255,0,0.5)",
+			320,
+			50 + i * 40,
+			40,
+			20
+		);
+		button.control = controller.controlNames[i];
+		menu.add(button);
+	}
 	menu.add(
 		new Game.Menu.Button(
 			function() {
-				var b = this;
-				controller.setKey("up", function() { b.text = controller.keymap.up; b.selected = false; } );
-				this.text = "UNSET";
+				this.selected = false;
+				for(var i = 0; i < controller.controlNames.length; i++) {
+					controller.keymap[controller.controlNames[i]] = menu.keymap[controller.controlNames[i]];
+				}
 			},
-			controller.keymap.up,
+			"Apply",
 			"rgba(0,255,0,0.5)",
-			320,
-			50,
+			300,
+			400,
 			40,
 			20
 		)
-			
-	);
-	menu.add(
-		new Game.Menu.Label(
-			"Down:",
-			280,
-			105
-		)
-	);
-	menu.add(
-		new Game.Menu.Button(
-			function() {
-				var b = this;
-				controller.setKey("down", function() { b.text = controller.keymap.down; b.selected = false;} );
-				this.text = "UNSET";
-			},
-			controller.keymap.down,
-			"rgba(0,255,0,0.5)",
-			320,
-			90,
-			40,
-			20
-		)
-			
-	);
-	menu.add(
-		new Game.Menu.Label(
-			"Left:",
-			280,
-			145
-		)
-	);
-	menu.add(
-		new Game.Menu.Button(
-			function() {
-				var b = this;
-				controller.setKey("left", function() { b.text = controller.keymap.left; b.selected = false;} );
-				this.text = "UNSET";
-			},
-			controller.keymap.left,
-			"rgba(0,255,0,0.5)",
-			320,
-			130,
-			40,
-			20
-		)
-			
-	);
-	menu.add(
-		new Game.Menu.Label(
-			"Right:",
-			280,
-			185
-		)
-	);
-	menu.add(
-		new Game.Menu.Button(
-			function() {
-				var b = this;
-				controller.setKey("right", function() { b.text = controller.keymap.right; b.selected = false} );
-				this.text = "UNSET";
-			},
-			controller.keymap.right,
-			"rgba(0,255,0,0.5)",
-			320,
-			170,
-			40,
-			20
-		)
-			
-	);
-	menu.add(
-		new Game.Menu.Label(
-			"Action:",
-			280,
-			225
-		)
-	);
-	menu.add(
-		new Game.Menu.Button(
-			function() {
-				var b = this;
-				controller.setKey("action", function() { b.text = controller.keymap.action; b.selected = false} );
-				this.text = "UNSET";
-			},
-			controller.keymap.right,
-			"rgba(0,255,0,0.5)",
-			320,
-			210,
-			40,
-			20
-		)
-			
-	);
-	menu.add(
-		new Game.Menu.Label(
-			"Cancel:",
-			280,
-			265
-		)
-	);
-	menu.add(
-		new Game.Menu.Button(
-			function() {
-				var b = this;
-				controller.setKey("cancel", function() { b.text = controller.keymap.cancel; b.selected = false} );
-				this.text = "UNSET";
-			},
-			controller.keymap.cancel,
-			"rgba(0,255,0,0.5)",
-			320,
-			250,
-			40,
-			20
-		)
-			
 	);
 	controller.setControlled(menu, projectCloud.cam);
 	return menu;
@@ -415,8 +330,8 @@ function startGame() {
 	projectCloud.Init();
 	projectCloud.gameArea.start();
 	projectCloud.cam = new Engine.IO.Display.NewCamera(projectCloud.gameArea.context, 0,0);
-	//var controller = new Engine.IO.Input.KeyBoardController();
-	var controller = new Engine.IO.Input.GamePadController();
+	var controller = new Engine.IO.Input.KeyBoardController();
+	//var controller = new Engine.IO.Input.GamePadController();
 	//var controller = new Engine.IO.Input.MouseController(projectCloud.gameArea.canvas);
 	Engine.Game.state.menu = titleMenu(controller);
 }

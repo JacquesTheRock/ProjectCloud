@@ -264,16 +264,7 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	this.lock = false;
 	var me = this;
-/*
-	this.keymap = {
-			up : 38,
-			down : 40,
-			left : 37,
-			right : 39,
-			action: 65,
-			cancel: 88
-		};
-*/
+	this.controlNames = ["up","down","left","right","action","cancel"];
 	this.keymap = [];
 	this.keymap["up"] = 38;
 	this.keymap["down"] = 40;
@@ -288,7 +279,11 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 	this.action = 0;
 	this.cancel = 0;
 	this.keyChange = function(e,val) {
-			if(this.lock) return;
+			if(this.waiting && val == 1) {
+				this.waitForKey(e);
+				return;
+			}
+			if(this.lock && val == 1) return;
 			if (e.keyCode == this.keymap.up) { this.up = val; }
 			if (e.keyCode == this.keymap.down) { this.down = val; }
 			if (e.keyCode == this.keymap.left) { this.left = val; }
@@ -309,7 +304,7 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 			this.action = 0;
 			this.cancel = 0;
 		};
-	this.setKey = nullandvoidgaming.com.Noop;
+	this.waitForKey = nullandvoidgaming.com.Noop;
 	this.toString = function(sep, pre) {
 			if (pre == null) pre = "";
 			if (sep == null) sep = "";
@@ -354,18 +349,6 @@ nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 			else out.relKey(e);
 			}
 		);
-	out.setKey = function(keyID, resp) {
-		this.lock = true;
-		window.addEventListener('keydown',
-			function setKeyListener(e) {
-				out.keymap[keyID] = e.keyCode;
-				window.removeEventListener('keydown', setKeyListener);
-				if(resp)
-					resp();
-				out.lock = false;
-			}
-		);
-	}
 	out.setControlled = function(controlled) {
 		var me = this;
 		me.p = controlled;
