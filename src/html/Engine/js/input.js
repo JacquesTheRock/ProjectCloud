@@ -309,18 +309,7 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 			this.action = 0;
 			this.cancel = 0;
 		};
-	this.setKey = function(keyID, resp) {
-		this.lock = true;
-		window.addEventListener('keydown',
-			function setKeyListener(e) {
-				me.keymap[keyID] = e.keyCode;
-				window.removeEventListener('keydown', setKeyListener);
-				if(resp)
-					resp();
-				me.lock = false;
-			}
-		);
-	}
+	this.setKey = nullandvoidgaming.com.Noop;
 	this.toString = function(sep, pre) {
 			if (pre == null) pre = "";
 			if (sep == null) sep = "";
@@ -354,24 +343,35 @@ nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	var out = new Input.Controller();
 	window.addEventListener('keydown',
-		function(e) {
-			if(!out.p) window.removeEventListener('keydown',this);
+		function keyboardDown(e) {
+			if(!out.p) window.removeEventListener('keydown', keyboardDown);
 			else out.pressKey(e);
 			}
 		);
 	window.addEventListener('keyup',
-		function(e) {
-			if(!out.p) window.removeEventListener('keyup', this);
+		function keyboardUp(e) {
+			if(!out.p) window.removeEventListener('keyup', keyboardUp);
 			else out.relKey(e);
 			}
 		);
+	out.setKey = function(keyID, resp) {
+		this.lock = true;
+		window.addEventListener('keydown',
+			function setKeyListener(e) {
+				out.keymap[keyID] = e.keyCode;
+				window.removeEventListener('keydown', setKeyListener);
+				if(resp)
+					resp();
+				out.lock = false;
+			}
+		);
+	}
 	out.setControlled = function(controlled) {
 		var me = this;
 		me.p = controlled;
 		me.p.controller = me;
 		me.checkAction = controlled.controllerAction;
 		this.clear();
-		if(controlled == null) return;
 	}
 	return out;
 }
