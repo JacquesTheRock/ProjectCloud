@@ -415,7 +415,8 @@ function startGame() {
 	projectCloud.Init();
 	projectCloud.gameArea.start();
 	projectCloud.cam = new Engine.IO.Display.NewCamera(projectCloud.gameArea.context, 0,0);
-	var controller = new Engine.IO.Input.KeyBoardController();
+	//var controller = new Engine.IO.Input.KeyBoardController();
+	var controller = new Engine.IO.Input.GamePadController();
 	//var controller = new Engine.IO.Input.MouseController(projectCloud.gameArea.canvas);
 	Engine.Game.state.menu = titleMenu(controller);
 }

@@ -376,6 +376,74 @@ nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 	return out;
 }
 
+nullandvoidgaming.com.Engine.IO.Input.GamePadController = function(index=0) {
+	var Input = nullandvoidgaming.com.Engine.IO.Input;
+	var Vector = nullandvoidgaming.com.Engine.Game.Vector;
+	if (!("getGamepads" in navigator))
+		return null;
+	var out = new Input.Controller();
+	/*
+	Default Map for an Xbox controller to use DPAD and A for action, B for cancel
+	*/
+	out.keymap.down = 13;
+	out.keymap.up = 12;
+	out.keymap.left = 14;
+	out.keymap.right = 15;
+	out.keymap.action = 0;
+	out.keymap.cancel = 1;
+	out.isGamePad = true;
+	out.prevState = {
+		up: false,
+		down: false,
+		right: false,
+		left: false,
+		action: false,
+		cancel: false
+	}
+	out.setState = function() {
+		var gp = navigator.getGamepads()[index];
+		if(!gp) return;
+		if(out.prevState.up != gp.buttons[out.keymap.up].pressed) {
+			out.keyChange(
+				{keyCode: out.keymap.up},
+				out.prevState.up ? 0 : 1);
+			out.prevState.up = !out.prevState.up;
+		}
+		if(out.prevState.down != gp.buttons[out.keymap.down].pressed) {
+			out.keyChange(
+				{keyCode: out.keymap.down},
+				out.prevState.down ? 0 : 1);
+			out.prevState.down = !out.prevState.down;
+		}
+		if(out.prevState.left != gp.buttons[out.keymap.left].pressed) {
+			out.keyChange(
+				{keyCode: out.keymap.left},
+				out.prevState.left ? 0 : 1);
+			out.prevState.left = !out.prevState.left;
+		}
+		if(out.prevState.right != gp.buttons[out.keymap.right].pressed) {
+			out.keyChange(
+				{keyCode: out.keymap.right},
+				out.prevState.right ? 0 : 1);
+			out.prevState.right = !out.prevState.right;
+		}
+		if(out.prevState.action != gp.buttons[out.keymap.action].pressed) {
+			out.keyChange(
+				{keyCode: out.keymap.action},
+				out.prevState.action ? 0 : 1);
+			out.prevState.action = !out.prevState.action;
+		}
+		if(out.prevState.cancel != gp.buttons[out.keymap.cancel].pressed) {
+			out.keyChange(
+				{keyCode: out.keymap.cancel},
+				out.prevState.cancel ? 0 : 1);
+			out.prevState.cancel = !out.prevState.cancel;
+		}
+	}
+	window.setInterval(out.setState, 20);
+	return out;
+}
+
 nullandvoidgaming.com.Engine.IO.Input.MouseController = function(clickTarget) {
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	var Vector = nullandvoidgaming.com.Engine.Game.Vector;
