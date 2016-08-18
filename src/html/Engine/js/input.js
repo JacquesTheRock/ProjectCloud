@@ -375,23 +375,31 @@ nullandvoidgaming.com.Engine.IO.Input.GamePadController = function(index=0) {
 	out.keymap.action = 0;
 	out.keymap.cancel = 1;
 	out.isGamePad = true;
-	out.prevState = {}
-	for(var i = 0; i < out.controlNames.length; i++) {
-		var name = out.controlNames[i];
-		out.prevState[name] = false;// initialize previous state to false
-	}
+	out.prevState = [false];
 	out.setState = function() {
 		var gp = navigator.getGamepads()[index];
 		if(!gp) return;
-		for(var i = 0; i < out.controlNames.length; i++) {
-			var name = out.controlNames[i];
-			if(out.prevState[name] != gp.buttons[out.keymap[name]].pressed) {
-				out.keyChange(
-					{keyCode: out.keymap[name]},
-					out.prevState[name] ? 0 : 1);
-				out.prevState[name] = !out.prevState[name];
+		if(gp.buttons.length > out.prevState.length) {
+			for(var b = 0; b < gp.buttons.length; b++) {
+				out.prevState[b] = false;
+			}
+		} else {
+			for(var b = 0; b < gp.buttons.length; b++) {
+				if(out.prevState[b] != gp.buttons[b].pressed) {
+					out.keyChange(
+						{keyCode: b},
+						out.prevState[b] ? 0 : 1);
+					out.prevState[b] = !out.prevState[b];
+				}
 			}
 		}
+	}
+	out.setControlled = function(controlled) {
+		var me = this;
+		me.p = controlled;
+		me.p.controller = me;
+		me.checkAction = controlled.controllerAction;
+		this.clear();
 	}
 	window.setInterval(out.setState, 20);
 	return out;
