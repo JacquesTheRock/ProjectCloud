@@ -284,40 +284,45 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 				return;
 			}
 			if(this.lock && val == 1) return;
-			if (e.keyCode == this.keymap.up) { this.up = val; }
-			if (e.keyCode == this.keymap.down) { this.down = val; }
-			if (e.keyCode == this.keymap.left) { this.left = val; }
-			if (e.keyCode == this.keymap.right) { this.right = val; }
-			if (e.keyCode == this.keymap.action) {
-				this.action = val;
-				if(val == 1 && this.checkAction) this.checkAction();
+			for(var i = 0; i < this.controlNames.length; i++) {
+				var name = this.controlNames[i];
+				if(e.keyCode == this.keymap[name]) {
+					this[name] = val;
+					if(name == "action" && this.checkAction && val == 1)
+						this.checkAction();
+					if(name == "cancel" && this.checkCancel && val == 1)
+						this.checkCancel();
+					break;
+				}
 			}
-			if (e.keyCode == this.keymap.cancel) { this.cancel = val; }
 		};
 	this.relKey = function(e) { this.keyChange(e,0); };
 	this.pressKey = function(e) { this.keyChange(e,1); };
 	this.clear = function() { //lose focus thisans no keys are pressed
-			this.up = 0;
-			this.down = 0;
-			this.left = 0;
-			this.right = 0;
-			this.action = 0;
-			this.cancel = 0;
+			for(var i = 0; i < this.controlNames.length; i++){
+				var name = this.controlNames[i];
+				this[name] = 0;
+			}
 		};
 	this.waitForKey = nullandvoidgaming.com.Noop;
 	this.toString = function(sep, pre) {
 			if (pre == null) pre = "";
 			if (sep == null) sep = "";
 			var out = "";
-			out += pre + "Up: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.up] + sep;
-			out += pre + "Down: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.down] + sep;
-			out += pre + "Left: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.left] + sep;
-			out += pre + "Right: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.right] + sep;
-			out += pre + "Action: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.action] + sep;
-			out += pre + "Cancel: " + nullandvoidgaming.com.Engine.IO.Input.keycodeMap[this.keymap.cancel];
+			if(controller.isMouse)
+				out += pre + "MOUSE Controller" + sep;
+			if(controller.isGamePad)
+				out += pre + "GAMEPAD Controller" + sep;
+			if(controller.isKeyboard)
+				out += pre + "KEYBOARD Controller" + sep;
+			for(var i = 0; i < this.controlNames[i]; i++) {
+				var name = this.controlNames[i];
+				out += pre +  name + ": " + this.keymap[name] + sep;
+			}
 			return out
 		};
 	this.checkAction = nullandvoidgaming.com.Noop;
+	this.checkCancel = nullandvoidgaming.com.Noop;
 	this.setControlled = nullandvoidgaming.com.Engine.IO.Input.DefaultSetControlled;
 	this.update = nullandvoidgaming.com.Noop;
 	return this;
@@ -337,6 +342,7 @@ nullandvoidgaming.com.Engine.IO.Input.DefaultSetControlled = function(controlled
 nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	var out = new Input.Controller();
+	out.isKeyBoard = true;
 	window.addEventListener('keydown',
 		function keyboardDown(e) {
 			if(!out.p) window.removeEventListener('keydown', keyboardDown);
@@ -368,14 +374,14 @@ nullandvoidgaming.com.Engine.IO.Input.GamePadController = function(index=0) {
 	/*
 	Default Map for an Xbox controller to use DPAD and A for action, B for cancel
 	*/
-	out.keymap.down = 13;
-	out.keymap.up = 12;
-	out.keymap.left = 14;
-	out.keymap.right = 15;
-	out.keymap.action = 0;
-	out.keymap.cancel = 1;
+	out.keymap.down = 1013;
+	out.keymap.up = 1012;
+	out.keymap.left = 1014;
+	out.keymap.right = 1015;
+	out.keymap.action = 1000;
+	out.keymap.cancel = 1001;
 	out.isGamePad = true;
-	out.prevState = [false];
+	out.prevState = [];
 	out.setState = function() {
 		var gp = navigator.getGamepads()[index];
 		if(!gp) return;
@@ -387,7 +393,7 @@ nullandvoidgaming.com.Engine.IO.Input.GamePadController = function(index=0) {
 			for(var b = 0; b < gp.buttons.length; b++) {
 				if(out.prevState[b] != gp.buttons[b].pressed) {
 					out.keyChange(
-						{keyCode: b},
+						{keyCode: 1000+ b},
 						out.prevState[b] ? 0 : 1);
 					out.prevState[b] = !out.prevState[b];
 				}
