@@ -266,12 +266,6 @@ nullandvoidgaming.com.Engine.IO.Input.Controller = function() {
 	var me = this;
 	this.controlNames = ["up","down","left","right","action","cancel"];
 	this.keymap = [];
-	this.keymap["up"] = 38;
-	this.keymap["down"] = 40;
-	this.keymap["left"] = 37;
-	this.keymap["right"] = 39;
-	this.keymap["action"] = 65;
-	this.keymap["cancel"] = 88;
 	this.up = 0;
 	this.down = 0;
 	this.left = 0;
@@ -342,7 +336,14 @@ nullandvoidgaming.com.Engine.IO.Input.DefaultSetControlled = function(controlled
 nullandvoidgaming.com.Engine.IO.Input.KeyBoardController = function() {
 	var Input = nullandvoidgaming.com.Engine.IO.Input;
 	var out = new Input.Controller();
-	out.isKeyBoard = true;
+	out.isKeyboard = true;
+	//set default values for keys
+	out.keymap["up"] = 38;
+	out.keymap["down"] = 40;
+	out.keymap["left"] = 37;
+	out.keymap["right"] = 39;
+	out.keymap["action"] = 65;
+	out.keymap["cancel"] = 88;
 	window.addEventListener('keydown',
 		function keyboardDown(e) {
 			if(!out.p) window.removeEventListener('keydown', keyboardDown);
