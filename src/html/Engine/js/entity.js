@@ -118,6 +118,7 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 	},
 	newEntity : function() {
 		var Game = nullandvoidgaming.com.Engine.Game;
+		this.dead = false;
 		this.position = new Game.Position.NewPosition(0,0);
 		this.moveVel = new Game.Vector.NewVector(0,0);//Movement will be applied to this
 		this.frame = null;
