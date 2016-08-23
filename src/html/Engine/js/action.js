@@ -8,7 +8,6 @@ nullandvoidgaming.com.Engine.Action.NewAction = function() {
 	this.init = nullandvoidgaming.com.Noop;
 	this.condition = nullandvoidgaming.com.NoopBool;
 	this.update = nullandvoidgaming.com.Noop;
-	this.entity = null;
 	return this;
 }
 
