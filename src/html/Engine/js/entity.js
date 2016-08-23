@@ -33,6 +33,7 @@ nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,
 	out.owner = entity;
 	out.offset = new Game.Vector.NewVector(0,0);
 	out.delta = new Game.Vector.NewVector(0,0);
+	out.vel = new Game.Vector.NewVector(0,0);
 	out.force = new Game.Vector.NewVector(0,0);
 	out.trigger = trigger;
 	out.fix = function() {
@@ -40,8 +41,6 @@ nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,
 			var next = Game.Vector.Add(this.owner.position.vector, this.offset);
 			this.delta = Game.Vector.Subtract(next,this.TopLeft);
 			this.TopLeft = next;
-			//var next = Game.Vector.Add(this.owner.position.vector, this.offset);
-			//this.TopLeft = next;
 		}
 	out.contains = out.containsRect;
 	out.debugDraw = function(dt,c) {
@@ -58,8 +57,8 @@ nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,
 	out.applyForce = function(gT) {
 		this.vel.x = this.owner.moveVel.x + this.force.x * this.rMass;
 		this.vel.y = this.owner.moveVel.y + this.force.y * this.rMass;
-		nullandvoidgaming.com.Engine.Entity.CheckWalls(this.owner, delta)
-		this.owner.position.vector.x += delta.x; this.owner.position.vector.y += delta.y;
+		nullandvoidgaming.com.Engine.Entity.CheckWalls(this.owner, this.vel)
+		this.owner.position.vector.x += this.vel.x; this.owner.position.vector.y += this.vel.y;
 		this.force.x = 0; this.force.y = 0;
 		this.fix();
 	}
