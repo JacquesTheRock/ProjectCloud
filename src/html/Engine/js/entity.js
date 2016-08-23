@@ -56,7 +56,10 @@ nullandvoidgaming.com.Engine.Entity.Collider.RectCollider = function(entity,w,h,
 					1);
 			}
 	out.applyForce = function(gT) {
-		this.owner.position.vector.x += this.force.x * this.rMass; this.owner.position.vector.y += this.force.y * this.rMass;
+		this.vel.x = this.owner.moveVel.x + this.force.x * this.rMass;
+		this.vel.y = this.owner.moveVel.y + this.force.y * this.rMass;
+		nullandvoidgaming.com.Engine.Entity.CheckWalls(this.owner, delta)
+		this.owner.position.vector.x += delta.x; this.owner.position.vector.y += delta.y;
 		this.force.x = 0; this.force.y = 0;
 		this.fix();
 	}
@@ -83,7 +86,7 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 	},
 	newCollider : function(entity, width,height, xoffset,yoffset) {
 		var out = new nullandvoidgaming.com.Engine.Entity.Collider.RectCollider(entity,width,height);
-		out.rMass = 0;//1/1 mass
+		out.rMass = 1;//1/1 mass
 		out.offset.x = xoffset; out.offset.y = yoffset;
 		out.collides = function(other) {
 				if(this.intersects(other)) {
@@ -115,7 +118,9 @@ nullandvoidgaming.com.Engine.Entity.EntBuilder = {
 		return out;
 	},
 	newEntity : function() {
-		this.position = new nullandvoidgaming.com.Engine.Game.Position.NewPosition(0,0);
+		var Game = nullandvoidgaming.com.Engine.Game;
+		this.position = new Game.Position.NewPosition(0,0);
+		this.moveVel = new Game.Vector.NewVector(0,0);//Movement will be applied to this
 		this.frame = null;
 		this.collider = null;
 		this.speed = 1;
@@ -169,10 +174,41 @@ nullandvoidgaming.com.Engine.Entity.PlayerDefaultUpdate = function(dt) {
 	this.move(dt,this);	
 }
 
+
+nullandvoidgaming.com.Engine.Entity.CheckWalls = function(ent, delta) {
+	//TODO: This check should be done with ray casting
+	var Game = nullandvoidgaming.com.Engine.Game;
+	var map = Game.state.scene;
+	var c = ent.collider.Center();
+	//map.getTileAt(new Game.Vector.NewVector(xEdge + delta.x, hitCenter.y));
+	var L = map.getTileAt(new Game.Vector.NewVector(ent.collider.Left() + delta.x, c.y));
+	var T = map.getTileAt(new Game.Vector.NewVector(c.x, ent.collider.Top() + delta.y));
+	var B = map.getTileAt(new Game.Vector.NewVector(c.x, ent.collider.Bottom() + delta.y));
+	var R = map.getTileAt(new Game.Vector.NewVector(ent.collider.Right() + delta.x, c.y));
+	if(delta.x && (!L.walkable || !R.walkable))
+		delta.x = 0;
+	if(delta.y && (!T.walkable || !B.walkable))
+		delta.y = 0;
+	if(delta.x || delta.y)
+	var TL = map.getTileAt(new Game.Vector.NewVector(ent.collider.Left() + delta.x, ent.collider.Top() + delta.y));
+	var TR = map.getTileAt(new Game.Vector.NewVector(ent.collider.Right() + delta.x, ent.collider.Top() + delta.y));
+	var BL = map.getTileAt(new Game.Vector.NewVector(ent.collider.Left() + delta.x, ent.collider.Bottom() + delta.y));
+	var BR = map.getTileAt(new Game.Vector.NewVector(ent.collider.Right() + delta.x, ent.collider.Bottom() + delta.y));
+	if(delta.y < 0 && !(TL.walkable && TR.walkable))
+		delta.y = 0;
+	else if(delta.y > 0 && !(BL.walkable && BR.walkable))
+		delta.y = 0;
+	if(delta.x < 0 && !(TL.walkable && BL.walkable))
+		delta.x = 0;
+	else if(delta.x > 0 && !(TR.walkable && BR.walkable))
+		delta.x = 0;
+}
+
 nullandvoidgaming.com.Engine.Entity.DefaultMove = function(dt,ent = this) {
 	var Game = nullandvoidgaming.com.Engine.Game;
 	var map = Game.state.scene;
-	var delta = new Game.Vector.NewVector(0,0);
+	ent.moveVel.x = 0; ent.moveVel.y = 0; 
+	var delta = ent.moveVel;
 	if (ent.controller.up) {
 		delta.y -= 1;
 	}
@@ -189,33 +225,8 @@ nullandvoidgaming.com.Engine.Entity.DefaultMove = function(dt,ent = this) {
 		delta.x = delta.x * 0.70710678;
 		delta.y = delta.y * 0.70710678;
 	}
-	delta = Game.Vector.Multiply(delta, ent.speed);
-	if(ent.collider) {
-		var c = ent.collider.Center();
-		//map.getTileAt(new Game.Vector.NewVector(xEdge + delta.x, hitCenter.y));
-		var L = map.getTileAt(new Game.Vector.NewVector(ent.collider.Left() + delta.x, c.y));
-		var T = map.getTileAt(new Game.Vector.NewVector(c.x, ent.collider.Top() + delta.y));
-		var B = map.getTileAt(new Game.Vector.NewVector(c.x, ent.collider.Bottom() + delta.y));
-		var R = map.getTileAt(new Game.Vector.NewVector(ent.collider.Right() + delta.x, c.y));
-		if(delta.x && (!L.walkable || !R.walkable))
-			delta.x = 0;
-		if(delta.y && (!T.walkable || !B.walkable))
-			delta.y = 0;
-		if(delta.x || delta.y)
-		var TL = map.getTileAt(new Game.Vector.NewVector(ent.collider.Left() + delta.x, ent.collider.Top() + delta.y));
-		var TR = map.getTileAt(new Game.Vector.NewVector(ent.collider.Right() + delta.x, ent.collider.Top() + delta.y));
-		var BL = map.getTileAt(new Game.Vector.NewVector(ent.collider.Left() + delta.x, ent.collider.Bottom() + delta.y));
-		var BR = map.getTileAt(new Game.Vector.NewVector(ent.collider.Right() + delta.x, ent.collider.Bottom() + delta.y));
-		if(delta.y < 0 && !(TL.walkable && TR.walkable))
-			delta.y = 0;
-		else if(delta.y > 0 && !(BL.walkable && BR.walkable))
-			delta.y = 0;
-		if(delta.x < 0 && !(TL.walkable && BL.walkable))
-			delta.x = 0;
-		else if(delta.x > 0 && !(TR.walkable && BR.walkable))
-			delta.x = 0;
-	}
-
+	delta.x *= ent.speed;
+	delta.y *= ent.speed;
 	if(ent.frame) {	
 		if (delta.x < 0) {
 			ent.frame.vertical = 1;
@@ -229,8 +240,7 @@ nullandvoidgaming.com.Engine.Entity.DefaultMove = function(dt,ent = this) {
 		}
 		if(delta.x||delta.y) {
 			ent.frame.animate(dt * (Game.Vector.Length(delta) / ent.speed));
-			ent.position.delta = delta;
-			ent.position.vector.x += delta.x; ent.position.vector.y += delta.y;
+			//ent.position.vector.x += delta.x; ent.position.vector.y += delta.y;
 		} else {
 			ent.frame.horizontal = 0;
 		}
